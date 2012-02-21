@@ -6,7 +6,6 @@ libhighestlevel= $(top_builddir)/highest-level/libhighest-level.la
 libaudio = $(top_builddir)/libaudio/libaudio.la
 libphysics = $(top_builddir)/libphysics/libphysics.la
 
-
 noinst_DATA = \
     AUTHORS \
     ChangeLog \

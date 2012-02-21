@@ -1,4 +1,6 @@
-noinst_lib_LTLIBRARIES = libaudio.la
+libdir = $(libdir)/fgameengine-$(FGE_VERSION)/
+
+lib_LTLIBRARIES = libaudio.la
 
 audioinclude_HEADERS = audio.h
 

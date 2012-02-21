@@ -1,4 +1,6 @@
-noinst_lib_LTLIBRARIES = libphysics.la
+libdir = $(libdir)/fgameengine-$(FGE_VERSION)/
+
+lib_LTLIBRARIES = libphysics.la
 
 physicsinclude_HEADERS = physics.h
 physicsincludedir = $(includedir)/fgameengine-@FGE_REAL_VERSION@/physics/

@@ -1,4 +1,6 @@
-noinst_lib_LTLIBRARIES = libhigh-level.la
+libdir = $(libdir)/fgameengine-$(FGE_VERSION)/
+
+lib_LTLIBRARIES = libhigh-level.la
 
 highlevelinclude_HEADERS = high-level.h
 

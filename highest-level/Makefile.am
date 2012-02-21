@@ -1,12 +1,14 @@
-noinst_lib_LTLIBRARIES = libhighest-level.la
+libdir = $(libdir)/fgameengine-$(FGE_VERSION)/
 
-highestinclude_HEADERS =  highest-level.h
+lib_LTLIBRARIES = libhighest-level.la
+
+highestlevelinclude_HEADERS =  highest-level.h
 
 highestlevelincludedir = $(includedir)/fgameengine-@FGE_REAL_VERSION@/highest-level/
 
 libhighest_level_la_SOURCES = \
 	highest-level.cpp \
-	$(highestinclude_HEADERS)
+	$(highestlevelinclude_HEADERS)
 
 INCLUDES= \
 	-I$(top_builddir) \

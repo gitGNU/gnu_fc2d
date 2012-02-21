@@ -70,7 +70,6 @@ echo "
 		prefix:                ${prefix}
 		datarootdir:           ${datarootdir}
 		datadir:               ${datadir}
-		fge_data:             ${FGE_DATA}
 		exec_prefix:           ${exec_prefix}
 		libdir:                ${libdir}
 		CFLAGS:                ${CFLAGS}
