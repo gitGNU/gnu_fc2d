@@ -1,0 +1,4 @@
+DIST_SUBDIRS = \
+	images
+
+SUBDIRS = $(DIST_SUBDIRS)
