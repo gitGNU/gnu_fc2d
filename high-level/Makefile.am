@@ -1,6 +1,12 @@
 noinst_lib_LTLIBRARIES = libhigh-level.la
 
-libhigh_level_la_SOURCES = high-level.cpp high-level.h
+highlevelinclude_HEADERS = high-level.h
+
+highlevelincludedir = $(includedir)/fgameengine-@FGE_REAL_VERSION@/high-level/
+
+libhigh_level_la_SOURCES = \
+	high-level.cpp \
+	$(highlevelinclude_HEADERS)
 
 INCLUDES= \
 	-I$(top_builddir) \

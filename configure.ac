@@ -30,22 +30,20 @@ AC_SUBST(FGE_REAL_VERSION)
 AC_SUBST(FGE_MAJOR_VERSION)
 AC_SUBST(FGE_MINOR_VERSION)
 AC_SUBST(FGE_MICRO_VERSION)
-AC_SUBST(FGE_DATA)
-
-AC_DEFINE( DATA_DIR, $FGE_DATA, [Data directory after install])
 
 #check for libraries
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( PYTHON, python >= python_required_version )
 
+AC_CONFIG_MACRO_DIR([m4])
+
+AC_CONFIG_HEADERS([auto-config.h])
 
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CC_STDC
 AC_PROG_INSTALL
-
-AC_CONFIG_HEADERS([libfge/config.h])
 
 AC_CONFIG_FILES([
 Makefile
@@ -57,6 +55,7 @@ high-level/Makefile
 highest-level/Makefile
 physics/Makefile
 fgameengine.pc
+config.h
 ])
 LT_INIT
 AC_PROG_LIBTOOL

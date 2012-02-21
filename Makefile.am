@@ -1,4 +1,6 @@
 AUTOMAKE_OPTIONS = gnu
+ACLOCAL_AMFLAGS = -I m4
+
 libhighlevel= $(top_builddir)/high-level/libhigh-level.la
 libhighestlevel= $(top_builddir)/highest-level/libhighest-level.la
 libaudio = $(top_builddir)/libaudio/libaudio.la
@@ -55,7 +57,7 @@ pkgconfig_DATA = fgameengine.pc
 lib_LTLIBRARIES = libfgameengine-1.0.0.la
 
 fgameengineinclude_HEADERS = fge.h
-fgameengineincludedir = $(includedir)/fgameengine-@FGAMEENGINE_REAL_VERSION@/
+fgameengineincludedir = $(includedir)/fgameengine-@FGE_REAL_VERSION@/
 
 libfgameengine_1_0_0_la_SOURCES = $(fgameengineinclude_HEADERS) fge.cpp
 
