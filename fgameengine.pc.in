@@ -1,0 +1,22 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+datarootdir=@datarootdir@
+
+Name: FGameEngine
+Description: tool kit for 3D game development
+Version: @FGE_REAL_VERSION@
+Libs: -L${libdir} -lfgameengine-@FGE_VERSION@  \
+	@GTK_LIBS@ \
+	@GLIB_LIBS@ \
+	@FGE_LIBS@ \
+	@PYTHON_LIBS@ \
+	@OPENAL_LIBS@
+
+Cflags: -I${includedir}/fgameengine-@FGE_VERSION@ \
+	@GTK_CFLAGS@ \
+	@GLIB_CFLAGS@ \
+	@PYTHON_CFLAGS@ \
+	@FGE_CFLAGS@ \
+	@OPENAL_CFLAGS@

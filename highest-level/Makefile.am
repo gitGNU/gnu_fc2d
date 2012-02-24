@@ -1,10 +1,9 @@
-libdir = $(libdir)/fgameengine-$(FGE_VERSION)/
-
-lib_LTLIBRARIES = libhighest-level.la
+noinst_libdir=$(libdir)
+noinst_lib_LTLIBRARIES = libhighest-level.la
 
 highestlevelinclude_HEADERS =  highest-level.h
 
-highestlevelincludedir = $(includedir)/fgameengine-@FGE_REAL_VERSION@/highest-level/
+highestlevelincludedir = $(includedir)/fgameengine-@FGE_VERSION@/highest-level/
 
 libhighest_level_la_SOURCES = \
 	highest-level.cpp \

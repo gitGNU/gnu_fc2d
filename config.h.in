@@ -1,2 +1,3 @@
 #include "auto-config.h"
 
+#define FGE_DATA "@prefix@/share/fgameengine-@FGE_VERSION@"
