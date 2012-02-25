@@ -1,4 +1,4 @@
-noinst_libdir=$(libdir)
+noinst_libdir=`pwd .`
 noinst_lib_LTLIBRARIES = libvideo.la
 
 videoinclude_HEADERS = video.h
