@@ -10,7 +10,6 @@ function F_CHECK_LIB() {
       AC_MSG_ERROR([$1 header directory not found. Read INSTALL for more info.])
     fi
   fi
-  if
 }
 
 m4_define([fge_major_version], [1])
@@ -47,7 +46,6 @@ AC_SUBST(FGE_MICRO_VERSION)
 #check for libraries
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( PYTHON, python >= python_required_version )
-PKG_CHECK_MODULES( GTK, gtk+-2.0 >= gtk_required_version )
 PKG_CHECK_MODULES( OPENAL, openal >= openal_required_version )
 
 

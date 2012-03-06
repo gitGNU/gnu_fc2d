@@ -36,6 +36,7 @@ DISTCLEANFILES = \
     autom4te.cache/*
 
 DIST_SUBDIRS = \
+	video\
 	audio \
 	data \
 	high-level\
