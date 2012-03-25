@@ -1,12 +1,15 @@
 noinst_libdir=$(libdir)
 noinst_lib_LTLIBRARIES = libaudio.la
 
-audioinclude_HEADERS = audio.h
-
 audioincludedir = $(includedir)/fgameengine-@FGE_VERSION@/audio/
+
+audioinclude_HEADERS = \
+	audio.h \
+	alsa.h
 
 libaudio_la_SOURCES = \
 	audio.cpp \
+	alsa.c \
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

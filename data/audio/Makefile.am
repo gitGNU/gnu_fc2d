@@ -1,5 +1,5 @@
 DIST_SUBDIRS = \
-	images \
-	audio
+	sound \
+	music
 
 SUBDIRS = $(DIST_SUBDIRS)

@@ -1,3 +1,8 @@
+AM_LIBS=$(GLIB_LIBS)
+AM_CFLAGS=$(GLIB_CFLAGS)
+AM_CXXFLAGS=$(AM_CFLAGS)
+
+
 noinst_libdir=$(libdir)
 
 noinst_lib_LTLIBRARIES = libhigh-level.la

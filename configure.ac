@@ -74,6 +74,9 @@ audio/Makefile
 data/Makefile
 data/images/Makefile
 data/images/logos/Makefile
+data/audio/music/Makefile
+data/audio/Makefile
+data/audio/sound/Makefile
 high-level/Makefile
 highest-level/Makefile
 physics/Makefile
