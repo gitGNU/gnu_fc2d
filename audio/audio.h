@@ -1,5 +1,5 @@
 /*
-FGameEngine - Complete tool kit for 3d games development.
+FGameEngine - Complete tool kit for 3D games development.
 Copyright (C) 2012  Fabio J. Gonzalez
 
 This program is free software: you can redistribute it and/or modify
