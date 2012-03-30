@@ -6,6 +6,7 @@ libhighestlevel= $(top_builddir)/highest-level/libhighest-level.la
 libaudio= $(top_builddir)/audio/libaudio.la
 libvideo= $(top_builddir)/video/libvideo.la
 libphysics= $(top_builddir)/physics/libphysics.la
+libutils= $(top_builddir)/utils/libutils.la
 
 noinst_DATA = \
     AUTHORS \
@@ -41,7 +42,8 @@ DIST_SUBDIRS = \
 	data \
 	high-level\
 	highest-level \
-	physics
+	physics \
+	utils
 
 SUBDIRS = $(DIST_SUBDIRS)
 
@@ -67,15 +69,17 @@ $(libhighlevel) \
 $(libhighestlevel) \
 $(libaudio) \
 $(libvideo) \
-$(libphysics)
+$(libphysics) \
+$(libutils)
 	
 
 libfgameengine_1_0_la_DEPENDENCIES = $(libfgameengine_1_0_la_LIBADD)
 
 INCLUDES= \
--I$(top_builddir) \
--I$(top_builddir)/high-level/ \
--I$(top_builddir)/highest-level/ \
--I$(top_builddir)/physics/ \
--I$(top_builddir)/audio/ \
--I$(top_builddir)/video
+	-I$(top_builddir) \
+	-I$(top_builddir)/high-level \
+	-I$(top_builddir)/highest-level \
+	-I$(top_builddir)/physics \
+	-I$(top_builddir)/audio \
+	-I$(top_builddir)/video \
+	-I$(top_builddir)/utils

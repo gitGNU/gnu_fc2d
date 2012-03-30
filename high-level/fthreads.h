@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <glib.h>
+#include "utils/red-black.h"
 
 struct fThread;
 typedef struct fThread fThread;
@@ -28,9 +29,21 @@ struct fThread {
   GMutex* mutex;
   GCond* cond;
   GThread* thread;
+  
+  /* red-black tree properties:
+   for current threads */
+  union {
+    struct {
+      gboolean color;
+      fThread* parent;
+      fThread* left;
+      fThread* right;
+    };
+    TRedBlack rb1;
+  };
 };
 
-extern GList* current_threads;
+extern fThread* current_threads;
 
 void thsys_add();
 void thsys_remove();
@@ -41,3 +54,8 @@ void thsys_remove_him_by_function(GCallback* function);
 void wait( float value );
 void waitp( float value );
 void waits( float value );
+
+inline void fth_tree-insert( fThread* tree, fThread* data );
+inline void fth_rotate-right( fThread* node );
+inline void fth_rotate-left( fThread* node );
+

@@ -80,6 +80,7 @@ data/audio/sound/Makefile
 high-level/Makefile
 highest-level/Makefile
 physics/Makefile
+utils/Makefile
 video/Makefile
 fgameengine.pc
 config.h

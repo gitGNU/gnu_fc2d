@@ -15,41 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef __UTILS_RED_BLACK_H__
+#define __UTILS_RED_BLACK_H__ 1
 
-#include <glib.h>
-#include "fthreads.h"
+struct TRedBlack;
+typedef struct TRedBlack TRedBlack;
 
-fThread* current_threads;
+struct TRedBlack{
+  /* FALSE - Black
+     TRUE - Red */
+  gboolean color;
+  void* parent;
+  void* left;
+  void* right; 
+};
 
-inline void fth_tree-insert( fThread* tree, fThread* data ) {
-     fThread *x, *y;
-
-        x = tree;
-
-        while (x != NULL) {
-                y = x;
-
-                if ( data->thread < x->thread )
-                        x = x->left;
-                else
-                        x = x->right;
-        }
-
-        data->parent = y;
-	data->left = NULL;
-	data->right = NULL;
-
-        if ( data->thread < y->thread )
-                y->left = d;
-        else
-                y->right = d;
-
-}
-
-inline void fth_rotate-right( fThread* node ) {
-  
-}
-
-inline void fth_rotate-left( fThread* node ) {
-  
-}
+#endif
