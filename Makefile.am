@@ -65,21 +65,15 @@ fgameengineincludedir = $(includedir)/fgameengine-@FGE_VERSION@/
 libfgameengine_1_0_la_SOURCES = fge.cpp $(fgameengineinclude_HEADERS)
 
 libfgameengine_1_0_la_LIBADD = \
+$(libutils) \
 $(libhighlevel) \
 $(libhighestlevel) \
 $(libaudio) \
 $(libvideo) \
-$(libphysics) \
-$(libutils)
+$(libphysics)
 	
 
 libfgameengine_1_0_la_DEPENDENCIES = $(libfgameengine_1_0_la_LIBADD)
 
 INCLUDES= \
-	-I$(top_builddir) \
-	-I$(top_builddir)/high-level \
-	-I$(top_builddir)/highest-level \
-	-I$(top_builddir)/physics \
-	-I$(top_builddir)/audio \
-	-I$(top_builddir)/video \
-	-I$(top_builddir)/utils
+	-I$(top_builddir)

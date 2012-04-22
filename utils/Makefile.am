@@ -1,5 +1,4 @@
-noinst_libdir=$(libdir)
-noinst_lib_LTLIBRARIES = libutils.la
+noinst_LTLIBRARIES = libutils.la
 
 utilsinclude_HEADERS = utils.h red-black.h
 

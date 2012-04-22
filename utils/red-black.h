@@ -75,10 +75,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 \
         return x;\
 }
-                
+ 
+struct _TRedBlack;
 typedef struct _TRedBlack TRedBlack;
 
-struct _TRedBlack{
+struct _TRedBlack {
   /* FALSE - Black
      TRUE - Red */
   char color;

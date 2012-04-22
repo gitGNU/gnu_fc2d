@@ -1,5 +1,4 @@
-noinst_libdir=$(libdir)
-noinst_lib_LTLIBRARIES = libhighest-level.la
+noinst_LTLIBRARIES = libhighest-level.la
 
 highestlevelinclude_HEADERS =  highest-level.h
 

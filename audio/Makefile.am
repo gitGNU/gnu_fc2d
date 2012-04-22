@@ -1,5 +1,4 @@
-noinst_libdir=$(libdir)
-noinst_lib_LTLIBRARIES = libaudio.la
+noinst_LTLIBRARIES = libaudio.la
 
 audioincludedir = $(includedir)/fgameengine-@FGE_VERSION@/audio/
 

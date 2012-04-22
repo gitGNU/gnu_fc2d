@@ -23,10 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif
 
-custom_list_struct( fThreadl, fThread );
-
 struct fThread;
 typedef struct fThread fThread;
+
+custom_list_struct( fThreadl, fThread );
 
 struct fThread {
     fThreadl parallel;
