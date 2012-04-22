@@ -19,10 +19,10 @@ libhigh_level_la_SOURCES = \
 	fthreads.c \
 	$(highlevelinclude_HEADERS)
 
-libhigh_level_la_LIBADD = \
-	$(libutils)
+#libhigh_level_la_LIBADD = \
+#	$(libutils)
 
-libhigh_level_la_DEPENDENCIES = $(libhigh_level_la_LIBADD)
+#libhigh_level_la_DEPENDENCIES = $(libhigh_level_la_LIBADD)
 
 INCLUDES= \
 	-I$(top_builddir) \

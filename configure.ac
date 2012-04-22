@@ -46,7 +46,6 @@ AC_SUBST(FGE_MICRO_VERSION)
 #check for libraries
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( PYTHON, python >= python_required_version )
-PKG_CHECK_MODULES( OPENAL, openal >= openal_required_version )
 
 
 
@@ -57,7 +56,7 @@ AC_CONFIG_HEADERS([auto-config.h])
 F_CHECK_LIB IRRLICHT irrlicht
 
 FGE_CFLAGS=fge_cflags
-FGE_LIBS="-lirrlicht -lGL -lGLU -lXrandr -lXext -lX11 -Wall"
+FGE_LIBS="-lGL -lGLU -lXrandr -lXext -lX11 -Wall"
 
 AC_SUBST(FGE_CFLAGS)
 AC_SUBST(FGE_LIBS)

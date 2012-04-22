@@ -18,38 +18,77 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glib.h>
 #include "fthreads.h"
+#include "utils/utils.h"
 
-fThread* current_threads;
+TRedBlack* current_threads = NULL;
+TRedBlack* all_threads = NULL;
 
-inline void fth_tree-insert( fThread* tree, fThread* data ) {
-     fThread *x, *y;
+GMutex* thsys_mutex = NULL;
 
-        x = tree;
+fThread* thsys_last_inserted = NULL;
 
-        while (x != NULL) {
-                y = x;
+void thsys_init() {
+    g_thread_init(NULL);
 
-                if ( data->thread < x->thread )
-                        x = x->left;
-                else
-                        x = x->right;
-        }
-
-        data->parent = y;
-	data->left = NULL;
-	data->right = NULL;
-
-        if ( data->thread < y->thread )
-                y->left = d;
-        else
-                y->right = d;
-
+    thsys_mutex = g_mutex_new();
 }
 
-inline void fth_rotate-right( fThread* node ) {
-  
+void _thsys_add( GThread* this ) {
+	fThread* new_thread = NULL;
+	
+	if( all_threads == NULL || 
+		fth_tree_search_all( container_of( all_threads, fThread, rb2 ), this ) == NULL ) {
+			
+		new_thread = g_try_new0(fThread, 1);
+	
+		/*Insert this thread in "all threads" tree*/
+		fth_tree_insert_all( 
+		container_of( all_threads, fThread, rb2 ),
+		new_thread
+		);
+		t_insert( &all_threads, &(new_thread->rb2) );
+	
+		/*Insert this thread in "current running threads" tree*/
+		fth_tree_insert( 
+		container_of( current_threads, fThread, rb1 ),
+		new_thread
+		);
+		t_insert( &current_threads, &(new_thread->rb1) );
+		
+		/*Add "new_thread" to execution stack(serie)*/
+		if( thsys_last_inserted != NULL ) {
+			/*List insert procedures*/
+			new_thread->series.next = thsys_last_inserted->series.next;
+			new_thread->series.prev = thsys_last_inserted;
+			
+			thsys_last_inserted->series.next = new_thread;
+			thsys_last_inserted->series.next->series.prev = new_thread;
+			
+		} else {
+			/*It begins with a circular list, to always be a circular list*/
+			new_thread->series.next = new_thread;
+			new_thread->series.prev = new_thread;
+		}
+		
+		thsys_last_inserted = new_thread;
+		
+		/*Adjust variables*/
+		
+	}
+	
 }
 
-inline void fth_rotate-left( fThread* node ) {
-  
+void fth_tree_insert( fThread* tree, fThread* data ) {
+    t_insert_custom( fThread, tree, thread, data, rb1 );
+	
 }
+
+fThread* fth_tree_search( fThread* tree, GThread* data )
+	t_search_custom( fThread, tree, thread, data, rb1 );
+	
+	
+void fth_tree_insert_all( fThread* tree, fThread* data )
+	t_insert_custom( fThread, tree, thread, data, rb2 );
+	
+fThread* fth_tree_search_all( fThread* tree, GThread* data )
+	t_search_custom( fThread, tree, thread, data, rb2 );

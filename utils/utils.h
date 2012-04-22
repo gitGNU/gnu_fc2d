@@ -15,3 +15,39 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#ifndef __UTILS_UTILS_H__
+#define __UTILS_UTILS_H__ 1
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*!
+ * \brief cast a member of a structure out to the containing structure
+ * \param ptr the pointer to the member
+ * \param type the type of the container struct this is embedded in.
+ * \param member the name of the member within the struct.
+ *
+ */
+#define container_of(ptr, type, member) ({			\
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
+	(type *)( (char *)__mptr - offsetof(type,member) );})
+
+typedef void (*FCallback)(void* data);
+
+#define custom_list(type) \
+	type* next; \
+	type* prev;
+
+
+#define custom_list_struct( name, type )\
+	typedef struct {\
+		custom_list(type)\
+	} name
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

@@ -1,9 +1,9 @@
-noinst_libdir=`pwd .`
+noinst_libdir=$(libdir)
 noinst_lib_LTLIBRARIES = libutils.la
 
-videoinclude_HEADERS = utils.h red-black.h
+utilsinclude_HEADERS = utils.h red-black.h
 
-videoincludedir = $(includedir)/fgameengine-@FGE_VERSION@/utils/
+utilsincludedir = $(includedir)/fgameengine-@FGE_VERSION@/utils/
 
 libutils_la_SOURCES = \
 	utils.cpp \

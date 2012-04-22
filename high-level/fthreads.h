@@ -19,43 +19,103 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <glib.h>
 #include "utils/red-black.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+custom_list_struct( fThreadl, fThread );
+
 struct fThread;
 typedef struct fThread fThread;
 
 struct fThread {
-  GList parallel;
-  GList* series;
-  GMutex* mutex_all;
-  GMutex* mutex;
-  GCond* cond;
-  GThread* thread;
-  
-  /* red-black tree properties:
-   for current threads */
-  union {
-    struct {
-      gboolean color;
-      fThread* parent;
-      fThread* left;
-      fThread* right;
-    };
+    fThreadl parallel;
+    fThreadl series;
+    GMutex* mutex_all;
+    GMutex* mutex;
+    GCond* cond;
+    GThread* thread;
+
+    /* red-black trees
+     for current threads */
     TRedBlack rb1;
-  };
+	
+	/* red-black trees
+     for all threads */
+    TRedBlack rb2;
+
 };
 
-extern fThread* current_threads;
+extern TRedBlack* current_threads;
+extern GMutex* thsys_mutex;
 
-void thsys_add();
+extern fThread* thsys_last_inserted;
+
+#define FAST_CUR_THREAD \
+	static GThread* __current_thread = NULL;\
+	\
+	if( __current_thread == NULL )\
+		__current_thread = g_thread_self();
+
+
+#define THSYS_LOCK \
+    if ( thsys_mutex == NULL )\
+        thsys_init();\
+\
+	g_mutex_lock(thsys_mutex);
+
+
+#define THSYS_UNLOCK \
+	g_mutex_unlock(thsys_mutex);
+
+
+/*!
+ * \brief Add current thread to be processed(unstable)
+ *        by threads system
+ * \warning This macro can not be called by two
+ *          processes simultaneously.
+ */
+#define thsys_add() \
+{\
+	FAST_CUR_THREAD\
+	THSYS_LOCK\
+	_thsys_add( __current_thread );\
+	\
+	THSYS_UNLOCK\
+}
+
+/*!
+ * \brief Prepares the "thread system" to be used
+ */
+void thsys_init();
+
+/*!
+ * \brief Add current thread to be processed(unstable)
+ *        by threads system
+ * \warning This function is not thread safe.
+ *          I recommend that you use the macro 
+ *			thsys_add() instead of this function.
+ */
+void _thsys_add( GThread* this );
+
+
+void thsys_addp( fThread* thread );
 void thsys_remove();
-void thsys_add_with_thread( GCallback* function, gpointer data );
+void thsys_add_with_thread( FCallback* function, gpointer data );
+void thsys_addp_with_thread( FCallback* function, gpointer data );
 void thsys_remove_him(GThread* thread);
-void thsys_remove_him_by_function(GCallback* function);
+void thsys_remove_him_by_function(FCallback* function);
 
-void wait( float value );
-void waitp( float value );
-void waits( float value );
+void _wait( float value );
+void _waitp( float value );
+void _waits( float value );
 
-inline void fth_tree-insert( fThread* tree, fThread* data );
-inline void fth_rotate-right( fThread* node );
-inline void fth_rotate-left( fThread* node );
+void fth_tree_insert( fThread* tree, fThread* data );
+fThread* fth_tree_search( fThread* tree, GThread* data );
 
+void fth_tree_insert_all( fThread* tree, fThread* data );
+fThread* fth_tree_search_all( fThread* tree, GThread* data );
+
+#ifdef __cplusplus
+}
+#endif
