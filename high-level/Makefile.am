@@ -1,4 +1,4 @@
-libutils= $(top_builddir)/utils/libutils.la
+libutil=$(top_builddir)/utils/libutils.la
 
 AM_LIBS=$(GLIB_LIBS)
 AM_CFLAGS=$(GLIB_CFLAGS)

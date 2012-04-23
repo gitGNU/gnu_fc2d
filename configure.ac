@@ -20,6 +20,7 @@ m4_define([gtk_required_version], [0.25.0])
 m4_define([openal_required_version], [0.25.0])
 m4_define([gl_required_version], [0.25.0])
 m4_define([glu_required_version], [0.25.0])
+m4_define([sdl_required_version], [0.25.0])
 
 FGE_VERSION=fge_version
 FGE_REAL_VERSION=fge_real_version
@@ -38,6 +39,8 @@ PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( PYTHON, python >= python_required_version )
 PKG_CHECK_MODULES( GL, gl >= gl_required_version )
 PKG_CHECK_MODULES( GLU, glu >= glu_required_version )
+PKG_CHECK_MODULES( SDL, sdl >= sdl_required_version )
+PKG_CHECK_MODULES( GTK, gtk+-2.0 >= gtk_required_version )
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -69,6 +72,7 @@ config.h
 
 LT_INIT
 AC_PROG_LIBTOOL
+AC_REPLACE_FUNCS
 AC_PREREQ([2.56])
 AC_OUTPUT
 

@@ -1,12 +1,12 @@
 AUTOMAKE_OPTIONS = gnu
 ACLOCAL_AMFLAGS = -I m4
 
-libhighlevel= $(top_builddir)/high-level/libhigh-level.la
-libhighestlevel= $(top_builddir)/highest-level/libhighest-level.la
-libaudio= $(top_builddir)/audio/libaudio.la
-libvideo= $(top_builddir)/video/libvideo.la
-libphysics= $(top_builddir)/physics/libphysics.la
-libutils= $(top_builddir)/utils/libutils.la
+libhighlevel=$(top_builddir)/high-level/libhigh-level.la
+libhighestlevel=$(top_builddir)/highest-level/libhighest-level.la
+libaudio=$(top_builddir)/audio/libaudio.la
+libvideo=$(top_builddir)/video/libvideo.la
+libphysics=$(top_builddir)/physics/libphysics.la
+libutils=$(top_builddir)/utils/libutils.la
 
 noinst_DATA = \
     AUTHORS \
@@ -65,12 +65,12 @@ fgameengineincludedir = $(includedir)/fgameengine-@FGE_VERSION@/
 libfgameengine_1_0_la_SOURCES = fge.cpp $(fgameengineinclude_HEADERS)
 
 libfgameengine_1_0_la_LIBADD = \
-$(libutils) \
 $(libhighlevel) \
 $(libhighestlevel) \
 $(libaudio) \
 $(libvideo) \
-$(libphysics)
+$(libphysics) \
+$(libutils)
 	
 
 libfgameengine_1_0_la_DEPENDENCIES = $(libfgameengine_1_0_la_LIBADD)

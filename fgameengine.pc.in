@@ -9,12 +9,16 @@ Description: Complete tool kit for 3D games development.
 Version: @FGE_REAL_VERSION@
 Libs: -L${libdir} -lfgameengine-@FGE_VERSION@  \
 	@GLIB_LIBS@ \
-	@FGE_LIBS@ \
 	@PYTHON_LIBS@ \
-	@OPENAL_LIBS@
+	@GL_LIBS@ \
+	@GLU_LIBS@ \
+	@SDL_LIBS@ \
+	@GTK_LIBS@
 
 Cflags: -I${includedir}/fgameengine-@FGE_VERSION@ \
 	@GLIB_CFLAGS@ \
 	@PYTHON_CFLAGS@ \
-	@FGE_CFLAGS@ \
-	@OPENAL_CFLAGS@
+	@GL_CFLAGS@ \
+	@GLU_CFLAGS@ \
+	@SDL_CFLAGS@ \
+	@GTK_CFLAGS@
