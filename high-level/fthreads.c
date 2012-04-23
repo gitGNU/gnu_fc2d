@@ -73,7 +73,9 @@ void _thsys_add( GThread* this ) {
 		thsys_last_inserted = new_thread;
 		
 		/*Adjust variables*/
-		
+		new_thread->mutex_all = thsys_mutex;
+		new_thread->mutex = g_mutex_new();
+		new_thread->cond = g_cond_new();
 	}
 	
 }
