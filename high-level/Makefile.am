@@ -1,7 +1,7 @@
 libutil=$(top_builddir)/utils/libutils.la
 
-AM_LIBS=$(GLIB_LIBS)
-AM_CFLAGS=$(GLIB_CFLAGS)
+AM_LIBS=$(GLIB_LIBS) $(SDL_LIBS)
+AM_CFLAGS=$(GLIB_CFLAGS) $(SDL_CFLAGS)
 AM_CXXFLAGS=$(AM_CFLAGS)
 
 noinst_LTLIBRARIES = libhigh-level.la

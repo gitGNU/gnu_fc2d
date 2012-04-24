@@ -16,12 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <glib.h>
+
 #ifndef G_THREADS_ENABLED
 #error FGameEngine THSYS need glib with thread support to works
 #endif
 
-#include <glib.h>
 #include "utils/red-black.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +41,9 @@ struct fThread {
     GMutex* mutex;
     GCond* cond;
     GThread* thread;
+	GTimer* timer;
+	double remaining_time;
+	int remaining_frames;
 
     /* red-black trees
      for current threads */
@@ -52,15 +57,30 @@ struct fThread {
 
 extern TRedBlack* current_threads;
 extern GMutex* thsys_mutex;
-
 extern fThread* thsys_last_inserted;
+extern int FPS_MAX;
 
+/*!
+ * \brief This macro set __current_thread
+ *        corresponding to the calling thread. 
+ */
 #define FAST_CUR_THREAD \
 	static GThread* __current_thread = NULL;\
+	static gboolean __current_thread_added = FALSE;\
 	\
-	if( __current_thread == NULL )\
-		__current_thread = g_thread_self();
+	if( __current_thread_added == FALSE ) {\
+		__current_thread = g_thread_self(); \
+		__current_thread_added = TRUE; \
+	}
 
+
+#define FAST_CUR_FTHREAD\
+	static fThread* __current_fthread = NULL; \
+	\
+	if( __current_fthread == NULL ) \
+		__current_fthread = fth_tree_search( \
+		container_of(current_threads, fThread, rb1), \
+		__current_thread);
 
 #define THSYS_LOCK \
     if ( thsys_mutex == NULL )\
@@ -71,22 +91,55 @@ extern fThread* thsys_last_inserted;
 
 #define THSYS_UNLOCK \
 	g_mutex_unlock(thsys_mutex);
-
+	
+#define THSYS_WAIT(cond) \
+	g_mutex_wait(cond, thsys_mutex);
+	
+#define THSYS_WAIT2 \
+	g_mutex_wait(this->cond, this->mutex_all);
 
 /*!
- * \brief Add current thread to be processed(unstable)
+ * \brief Add current thread to be processed
  *        by threads system
- * \warning This macro can not be called by two
- *          processes simultaneously.
  */
 #define thsys_add() \
 {\
-	FAST_CUR_THREAD\
 	THSYS_LOCK\
-	_thsys_add( __current_thread );\
+	__current_fthread = _thsys_add( __current_thread );\
 	\
-	THSYS_UNLOCK\
 }
+
+/*!
+ * \brief Add current thread to be processed
+ *        by threads system to runs simultane-
+ *        ously with another thread.
+ */
+#define thsys_addp(thread) \
+{\
+	THSYS_LOCK\
+	__current_fthread = _thsys_addp( __current_fthread, thread );\
+	\
+}
+
+/*!
+ * \brief Revove current thread from
+ *        threads system.
+ */
+#define thsys_remove() \
+\{\
+	THSYS_LOCK\
+	_thsys_remove( __current_fthread );\
+	THSYS_UNLOCK\
+\}
+
+
+#define THREADED\
+	FAST_CUR_THREAD \
+	thsys_add();
+
+#define THREADEDP( thread )\
+	FAST_CUR_THREAD \
+	thsys_addp( thread );
 
 /*!
  * \brief Prepares the "thread system" to be used
@@ -94,25 +147,43 @@ extern fThread* thsys_last_inserted;
 void thsys_init();
 
 /*!
- * \brief Add current thread to be processed(unstable)
- *        by threads system
+ * \brief Add a thread to be processed
+ *        by threads system. 
  * \warning This function is not thread safe.
  *          I recommend that you use the macro 
  *			thsys_add() instead of this function.
  */
-void _thsys_add( GThread* this );
+fThread* _thsys_add( GThread* this );
 
+/*!
+ * \brief Add a thread to be processed
+ *        by threads system. Runs simultane-
+ *        ously with another thread.
+ * 
+ * \warning This function is not thread safe.
+ *          I recommend that you use the macro 
+ *			thsys_addp() instead of this function.
+ */
+fThread* _thsys_addp( fThread* this, fThread* thread );
 
-void thsys_addp( fThread* thread );
-void thsys_remove();
+/*!
+ * \brief Revove a thread from
+ *        threads system.
+ * 
+ * \param this A thread to be removed
+ * \warning This function is not thread safe.
+ *          I recommend that you use the macro 
+ *			thsys_remove() instead of this function.
+ */
+void _thsys_remove( fThread* this );
 void thsys_add_with_thread( FCallback* function, gpointer data );
 void thsys_addp_with_thread( FCallback* function, gpointer data );
 void thsys_remove_him(GThread* thread);
 void thsys_remove_him_by_function(FCallback* function);
 
-void _wait( float value );
-void _waitp( float value );
-void _waits( float value );
+void _wait( fThread* this, double value );
+void _waitp( fThread* this, double value );
+void _waits( fThread* this, double value );
 
 void fth_tree_insert( fThread* tree, fThread* data );
 fThread* fth_tree_search( fThread* tree, GThread* data );
