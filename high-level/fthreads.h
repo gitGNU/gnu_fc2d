@@ -93,10 +93,10 @@ extern int FPS_MAX;
 	g_mutex_unlock(thsys_mutex);
 	
 #define THSYS_WAIT(cond) \
-	g_mutex_wait(cond, thsys_mutex);
+	g_cond_wait(cond, thsys_mutex);
 	
 #define THSYS_WAIT2 \
-	g_mutex_wait(this->cond, this->mutex_all);
+	g_cond_wait(this->cond, this->mutex_all);
 
 /*!
  * \brief Add current thread to be processed
@@ -134,13 +134,18 @@ extern int FPS_MAX;
 
 
 #define THREADED\
+	fThread* __current_fthread = NULL; \
 	FAST_CUR_THREAD \
 	thsys_add();
 
 #define THREADEDP( thread )\
+	fThread* __current_fthread = NULL; \
 	FAST_CUR_THREAD \
 	thsys_addp( thread );
 
+	
+#define wait(value) \
+	_wait( __current_fthread, value )
 /*!
  * \brief Prepares the "thread system" to be used
  */

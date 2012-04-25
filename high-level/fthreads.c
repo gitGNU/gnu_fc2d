@@ -28,6 +28,7 @@ GMutex* thsys_mutex = NULL;
 fThread* thsys_last_inserted = NULL;
 int FPS_MAX = 0;
 
+
 void thsys_init() {
     g_thread_init(NULL);
 
@@ -37,11 +38,11 @@ void thsys_init() {
 fThread* _thsys_addp( fThread* this, fThread* thread ) {
 	fThread* new_thread = NULL;
 	
-	if( all_threads == NULL || 
-		(new_thread = fth_tree_search_all( container_of( all_threads, fThread, rb2 ), this )) == NULL ) {
+	if( 1/*all_threads == NULL || 
+		(new_thread = fth_tree_search_all( container_of( all_threads, fThread, rb2 ), this )) == NULL*/ ) {
 			
 		new_thread = g_try_new0(fThread, 1);
-	
+#if 0
 		/*Insert this thread in "all threads" tree*/
 		fth_tree_insert_all( 
 		container_of( all_threads, fThread, rb2 ),
@@ -55,7 +56,7 @@ fThread* _thsys_addp( fThread* this, fThread* thread ) {
 		new_thread
 		);
 		t_insert( &current_threads, &(new_thread->rb1) );
-		
+#endif
 		/*Adjust variables*/
 		new_thread->mutex_all = thsys_mutex;
 		new_thread->mutex = g_mutex_new();
@@ -71,9 +72,11 @@ fThread* _thsys_addp( fThread* this, fThread* thread ) {
 		thread->parallel.next = new_thread;
 		thread->parallel.next->parallel.prev = new_thread;
 		
-		THSYS_WAIT(new_thread->cond)
+		THSYS_UNLOCK
 		/*From this moment, the function is not thread safe*/
 	}
+	
+	g_mutex_lock(new_thread->mutex);
 	
 	return new_thread;
 	
@@ -82,11 +85,12 @@ fThread* _thsys_addp( fThread* this, fThread* thread ) {
 fThread* _thsys_add( GThread* this ) {
 	fThread* new_thread = NULL;
 	
-	if( all_threads == NULL || 
-		(new_thread = fth_tree_search_all( container_of( all_threads, fThread, rb2 ), this )) == NULL ) {
+	if( 1/*all_threads == NULL || 
+		(new_thread = fth_tree_search_all( container_of( all_threads, fThread, rb2 ), this )) == NULL*/ ) {
 			
 		new_thread = g_try_new0(fThread, 1);
 	
+#if 0
 		/*Insert this thread in "all threads" tree*/
 		fth_tree_insert_all( 
 		container_of( all_threads, fThread, rb2 ),
@@ -100,7 +104,8 @@ fThread* _thsys_add( GThread* this ) {
 		new_thread
 		);
 		t_insert( &current_threads, &(new_thread->rb1) );
-		
+	
+#endif
 		/*Adjust variables*/
 		new_thread->mutex_all = thsys_mutex;
 		new_thread->mutex = g_mutex_new();
@@ -137,56 +142,79 @@ fThread* _thsys_add( GThread* this ) {
 		new_thread->parallel.prev = new_thread;
 	}
 	
+	g_mutex_lock(new_thread->mutex);
+	
 	return new_thread;
 	
 }
 
 void _wait( fThread* this, double value ) {
 	
-	fThread* x = NULL;
-	
-	x = this;
+	fThread *x = NULL, *y = NULL, *z = NULL;
+	double time;
 	
 	g_timer_start( this->timer );
 	
-	g_cond_wait( this->cond, this->mutex );
+	g_mutex_unlock(this->mutex);
+	
+	if( this != this->parallel.next ) {
+		for( x = this->parallel.next; x != this && !g_mutex_trylock(x->mutex); x = x->parallel.next )
+			g_cond_wait( this->cond, this->mutex );
+		
+ 		if( x != this )
+			y = x;
+		
+		z = x;
+		
+	}
 	
 	if( ((int)value) >= 0 ) {
 		this->remaining_time = 0;
 		this->remaining_frames = ((int)value);
 	} else {
-		this->remaining_time = value;
+		this->remaining_time = -value;
 		this->remaining_frames = 0;
 	}
-	
+
 	/* 'this' is already locked by "wait", 
 	   so I know it's not 'this', I know
 	   also that thread is not running */
-	
-	while( this->remaining_time > 0 || this->remaining_frames > 0 ) {
-		if( !g_mutex_trylock(x->mutex) ) {
-			if( x->series.next == this ) {
-				SDL_Delay( this->remaining_time );
-				return;
-			} else
-				x = x->series.next;
-		} else {
-			g_cond_signal( x->cond );
-			g_cond_wait( this->cond, this->mutex );
-		}
-		
-		g_timer_end( this->timer );
-		
-		this->remaining_frames--;
-		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
 
+	x = this->series.next;
+	while( this->remaining_time > 0 || this->remaining_frames > 0 ) {
+		
+		if( x == this ) {
+			if( this->remaining_time > 0 )
+				SDL_Delay( this->remaining_time * 1000 );
+		} else {
+			if( !g_mutex_trylock(x->mutex) ) {
+				x = x->series.next;
+			} else {
+				g_cond_signal( x->cond );
+				g_mutex_unlock( x->mutex );
+				g_cond_wait( this->cond, this->mutex );
+			}
+		}
+
+		g_timer_stop( this->timer );
+
+		this->remaining_frames--;
+		this->remaining_time -= (time = g_timer_elapsed( this->timer, NULL ));
+		
 		g_timer_start( this->timer );
+		
+		if( x == this )
+			break;
 	}
+
+	if( y != NULL )
+		g_cond_signal( y->cond );
 	
-	for( x = this; !g_mutex_trylock(x->mutex) && x != this; x = x->parallel.next );
+	if( z != NULL )
+		g_mutex_unlock( z->mutex );
 	
-	if( x != this )
-		g_cond_signal( x->cond );
+
+	g_mutex_lock( this->mutex );
 	
 }
 
