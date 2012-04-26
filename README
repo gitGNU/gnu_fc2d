@@ -1,0 +1,35 @@
+Introduction
+=========================
+FGameEngine is a free library, developed for fun,
+which is distributed under the GNU GPL license.
+Its original focus is the creation of games, but
+covers many other utilities, for example creating
+3D simulations, that can be interactive or not.
+FGameEngine, allows the creation of non-graphic
+applications too.
+
+About it`s versions
+=========================
+Older versions of FGameEngine can still be downloaded.
+The recent versions of FGameEngine, has a different
+focus of the former. FGameEngine began as a library
+for use together with CrystalSpace. From version 
+0.1, this changed, recent versions of FGameEngine,
+are not intended to be used along with CrystalSpace.
+In terms of source code source, are very different
+versions. Recent versions of FGameEngine, try supply
+the characteristics of the older versions (before 0.1)
+with improvements, but are very different things.
+
+About me
+==========================
+My name is Fabio J. Gonzalez, I am the original creator
+of FGameEngine. In this text, FGameEngine name refers
+only to versions published by Fabio J. Gonzalez, with
+email: fabiojosue@gmail.com or gonzalfj@users.sourceforge.net
+FGameEngine is not a "fork" of any other software. Your
+original code was written by 
+Fabio J. Gonzalez <gonzalfj@users.sourceforge.net>.
+
+Facebook profile:
+http://www.facebook.com/profile.php?id=100000897098800
