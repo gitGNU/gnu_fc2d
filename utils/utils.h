@@ -34,7 +34,8 @@ extern "C" {
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
 	(type *)( (char *)__mptr - offsetof(type,member) );})
 
-typedef void (*FCallback)(void* data);
+typedef void (*FCallback)(fThread* __current_fthread);
+typedef int (*FCallbackCompare)( void* a, void* b );
 
 #define custom_list(type) \
 	type* next; \

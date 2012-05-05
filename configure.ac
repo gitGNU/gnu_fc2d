@@ -19,8 +19,8 @@ m4_define([python_required_version], [0.25.0])
 m4_define([gtk_required_version], [0.25.0])
 m4_define([openal_required_version], [0.25.0])
 m4_define([gl_required_version], [0.25.0])
-m4_define([glu_required_version], [0.25.0])
 m4_define([sdl_required_version], [0.25.0])
+m4_define([gthread_required_version], [0.25.0])
 
 FGE_VERSION=fge_version
 FGE_REAL_VERSION=fge_real_version
@@ -38,9 +38,8 @@ AC_SUBST(FGE_MICRO_VERSION)
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( PYTHON, python >= python_required_version )
 PKG_CHECK_MODULES( GL, gl >= gl_required_version )
-PKG_CHECK_MODULES( GLU, glu >= glu_required_version )
 PKG_CHECK_MODULES( SDL, sdl >= sdl_required_version )
-PKG_CHECK_MODULES( GTK, gtk+-2.0 >= gtk_required_version )
+PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version )
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -54,6 +53,9 @@ AC_PROG_INSTALL
 
 AC_CONFIG_FILES([
 Makefile
+bin/Makefile
+bin/fge-run
+bin/fge-config
 audio/Makefile
 data/Makefile
 data/images/Makefile

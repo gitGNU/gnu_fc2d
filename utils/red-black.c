@@ -17,9 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "utils/red-black.h"
+#include <glib.h>
 
 
-void t_delete( TRedBlack* node ) {
+void t_delete( TRedBlack** root, TRedBlack* x ) {
   
 }
 
@@ -101,4 +102,77 @@ void t_rotate_left( TRedBlack** root, TRedBlack* x ) {
     y->p->left = y;
   else 
     y->p->right = y;
+}
+
+TRRedBlack* rb_new( FCallbackCompare compare, void* data ) {
+	TRRedBlack* x;
+	
+	x = g_try_new(TRRedBlack, 1);
+	
+	x->compare = compare;
+	x->rb.data = data;
+	x->rb.color = BLACK;
+	x->rb.p = NULL;
+	x->rb.left = NULL;
+	x->rb.right = NULL;
+	
+	return x;
+}
+
+TRedBlack* rb_search( TRRedBlack** root, void* data ) {
+	
+	TRedBlack *x;
+	
+	x = (*root);
+	
+	while( x != NULL ) {
+		
+		if( (*root)->compare( data, x->data ) < 0 )
+			x = x->left;
+		else if( (*root)->compare( data, x->data ) > 0 )
+			x = x->right;
+		else
+			return x;
+	}
+	
+	return NULL;
+}
+
+void rb_insert( TRRedBlack** root, void* data ) {
+	
+	TRedBlack *x, *y;
+	
+	x = (*root);
+	
+	while( x != NULL ) {
+		y = x;
+		
+		if( (*root)->compare( data, x->data ) < 0 )
+			x = x->left;
+		else if( (*root)->compare( data, x->data ) > 0 )
+			x = x->right;
+	}
+	
+	x = g_try_new0( TRedBlack, 1 );
+	x->data = data;
+	
+	x->p = y;
+	
+	if( (*root)->compare( data, x->data ) < 0 )
+		y->left = x;
+	else
+		y->right = x;
+	
+	t_insert( root, x );
+	
+}
+
+void rb_delete( TRRedBlack** root, void* data ) {
+	TRedBlack* x;
+	
+	x = rb_search( root, data );
+	
+	if( x != NULL ) {
+		t_delete(root, x);
+	}
 }

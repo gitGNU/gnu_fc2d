@@ -1,0 +1,15 @@
+#!/bin/sh
+
+##Set all ambient variables
+#and runs a command.
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+datarootdir=@datarootdir@
+
+export LD_LIBRARY_PATH=${libdir}
+export PKG_CONFIG_PATH=${libdir}/pkgconfig
+
+$@

@@ -21,8 +21,34 @@ versions. Recent versions of FGameEngine, try supply
 the characteristics of the older versions (before 0.1)
 with improvements, but are very different things.
 
+Installation
+=========================
+If you are installing from a distribution of a release use:
+./configure && make && sudo make install
+
+If you are installing from SVN:
+sh autogen.sh; ./configure && make && sudo make install
+
+Read INSTALL for more details 
+
+Directories
+=========================
+
+Source Code of FGameEngine:
+high-level
+highest-level
+utils
+physics
+video
+
+Useful scripts and binary executables:
+bin
+
+Audio, images, etc that FGameEngine needs:
+data
+
 About me
-==========================
+=========================
 My name is Fabio J. Gonzalez, I am the original creator
 of FGameEngine. In this text, FGameEngine name refers
 only to versions published by Fabio J. Gonzalez, with

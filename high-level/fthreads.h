@@ -39,11 +39,19 @@ struct fThread {
     fThreadl series;
     GMutex* mutex_all;
     GMutex* mutex;
+	GMutex* mutex_line;
+	GMutex* mutexp;
     GCond* cond;
+	GCond* condp;
+	gpointer* data;
     GThread* thread;
 	GTimer* timer;
 	double remaining_time;
 	int remaining_frames;
+	FCallback func;
+	
+	
+	fThread* p; /*!< The thread that created this */
 
     /* red-black trees
      for current threads */
@@ -58,7 +66,11 @@ struct fThread {
 extern TRedBlack* current_threads;
 extern GMutex* thsys_mutex;
 extern fThread* thsys_last_inserted;
+extern fThread* thsys_mutex_line;
+extern fThread* thsys_root;
 extern int FPS_MAX;
+
+#define CFTHREAD fThread* __current_fthread
 
 /*!
  * \brief This macro set __current_thread
@@ -105,7 +117,7 @@ extern int FPS_MAX;
 #define thsys_add() \
 {\
 	THSYS_LOCK\
-	__current_fthread = _thsys_add( __current_thread );\
+	__current_fthread = _thsys_add( __current_fthread, __current_thread );\
 	\
 }
 
@@ -158,7 +170,7 @@ void thsys_init();
  *          I recommend that you use the macro 
  *			thsys_add() instead of this function.
  */
-fThread* _thsys_add( GThread* this );
+fThread* _thsys_add( fThread* __current_fthread, GThread* this );
 
 /*!
  * \brief Add a thread to be processed
@@ -181,10 +193,11 @@ fThread* _thsys_addp( fThread* this, fThread* thread );
  *			thsys_remove() instead of this function.
  */
 void _thsys_remove( fThread* this );
-void thsys_add_with_thread( FCallback* function, gpointer data );
-void thsys_addp_with_thread( FCallback* function, gpointer data );
-void thsys_remove_him(GThread* thread);
-void thsys_remove_him_by_function(FCallback* function);
+gboolean _thsys_add_with_thread( fThread* parent, FCallback* function, gpointer data );
+gboolean _thsys_addp_with_thread( fThread* parent, FCallback* function, gpointer data );
+gboolean thsys_remove_him(GThread* thread);
+gboolean thsys_remove_him_by_function(FCallback* function);
+gboolean thsys_remove_him_by_fthread(fThread* thread);
 
 void _wait( fThread* this, double value );
 void _waitp( fThread* this, double value );

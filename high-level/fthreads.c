@@ -26,6 +26,8 @@ TRedBlack* all_threads = NULL;
 
 GMutex* thsys_mutex = NULL;
 fThread* thsys_last_inserted = NULL;
+fThread* thsys_mutex_line = NULL;
+fThread* thsys_root = NULL;
 int FPS_MAX = 0;
 
 
@@ -33,6 +35,7 @@ void thsys_init() {
     g_thread_init(NULL);
 
     thsys_mutex = g_mutex_new();
+	thsys_mutex_line = g_mutex_new();
 }
 
 fThread* _thsys_addp( fThread* this, fThread* thread ) {
@@ -59,8 +62,11 @@ fThread* _thsys_addp( fThread* this, fThread* thread ) {
 #endif
 		/*Adjust variables*/
 		new_thread->mutex_all = thsys_mutex;
+		new_thread->mutex_line = thsys_mutex_line;
 		new_thread->mutex = g_mutex_new();
+		new_thread->mutexp = g_mutex_new();
 		new_thread->cond = g_cond_new();
+		new_thread->condp = g_cond_new();
 		new_thread->timer = g_timer_new();
 		
 		new_thread->series.next = new_thread;
@@ -76,13 +82,14 @@ fThread* _thsys_addp( fThread* this, fThread* thread ) {
 		/*From this moment, the function is not thread safe*/
 	}
 	
+	g_mutex_lock(new_thread->mutexp);
 	g_mutex_lock(new_thread->mutex);
 	
 	return new_thread;
 	
 }
 
-fThread* _thsys_add( GThread* this ) {
+fThread* _thsys_add( fThread* __current_fthread, GThread* this ) {
 	fThread* new_thread = NULL;
 	
 	if( 1/*all_threads == NULL || 
@@ -108,8 +115,11 @@ fThread* _thsys_add( GThread* this ) {
 #endif
 		/*Adjust variables*/
 		new_thread->mutex_all = thsys_mutex;
+		new_thread->mutex_line = thsys_mutex_line;
 		new_thread->mutex = g_mutex_new();
+		new_thread->mutexp = g_mutex_new();
 		new_thread->cond = g_cond_new();
+		new_thread->condp = g_cond_new();
 		new_thread->timer = g_timer_new();
 		
 		/*Add "new_thread" to execution stack(serie)*/
@@ -142,6 +152,7 @@ fThread* _thsys_add( GThread* this ) {
 		new_thread->parallel.prev = new_thread;
 	}
 	
+	g_mutex_lock(new_thread->mutexp);
 	g_mutex_lock(new_thread->mutex);
 	
 	return new_thread;
@@ -150,24 +161,11 @@ fThread* _thsys_add( GThread* this ) {
 
 void _wait( fThread* this, double value ) {
 	
-	fThread *x = NULL, *y = NULL, *z = NULL;
+	fThread *x = NULL, *prev = NULL;
 	double time;
 	
 	g_timer_start( this->timer );
-	
-	g_mutex_unlock(this->mutex);
-	
-	if( this != this->parallel.next ) {
-		for( x = this->parallel.next; x != this && !g_mutex_trylock(x->mutex); x = x->parallel.next )
-			g_cond_wait( this->cond, this->mutex );
 		
- 		if( x != this )
-			y = x;
-		
-		z = x;
-		
-	}
-	
 	if( ((int)value) >= 0 ) {
 		this->remaining_time = 0;
 		this->remaining_frames = ((int)value);
@@ -180,41 +178,88 @@ void _wait( fThread* this, double value ) {
 	   so I know it's not 'this', I know
 	   also that thread is not running */
 
+
+	g_mutex_lock(this->mutex_line);
 	x = this->series.next;
-	while( this->remaining_time > 0 || this->remaining_frames > 0 ) {
+	g_mutex_unlock(this->mutex_line);
 		
-		if( x == this ) {
-			if( this->remaining_time > 0 )
-				SDL_Delay( this->remaining_time * 1000 );
-		} else {
-			if( !g_mutex_trylock(x->mutex) ) {
-				x = x->series.next;
-			} else {
-				g_cond_signal( x->cond );
-				g_mutex_unlock( x->mutex );
-				g_cond_wait( this->cond, this->mutex );
-			}
-		}
-
-		g_timer_stop( this->timer );
-
+	/* wait frames cycles */
+	while( this->remaining_frames > 0 && x != this ) {
+		g_cond_signal( x->cond );
+		g_cond_wait( this->cond, this->mutex );
+		
 		this->remaining_frames--;
-		this->remaining_time -= (time = g_timer_elapsed( this->timer, NULL ));
+	}
+	
+	/*wait time*/
+#if 0
+	if( this->remaining_time > 0 && x != this ) {
+
+		/*Remove me from "series" list*/
+		g_mutex_lock(this->mutex_line);		
+		this->series.prev->series.next =
+			this->series.next;
+		this->series.next->series.prev =
+			this->series.prev;
+		g_mutex_unlock(this->mutex_line);
 		
+		g_mutex_lock(x->mutex);
+		g_cond_signal( x->cond );
+		g_mutex_unlock( x->mutex );
+		
+		g_timer_stop( this->timer );
+		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
+		
+		SDL_Delay( this->remaining_time * 1000 );
+		this->remaining_time = 0;
+				
+		/* This thread return to list
+			and wait be called */
+		g_mutex_lock(this->mutex_line);
+		prev = this->series.prev;
+		this->series.next = prev->series.next;
+		prev->series.next = this;
+		prev->series.next->series.prev = this;
+		g_mutex_unlock(this->mutex_line);
+		
+		g_cond_wait( this->cond, this->mutex );
+		
+	} else if ( this->remaining_time > 0 ) {
+		g_timer_stop( this->timer );
+		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
+		
+		SDL_Delay( this->remaining_time * 1000 );
+	}
+#else
+	while( this->remaining_time > 0 && x != this ) {
+		g_timer_stop( this->timer );
+		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
 		g_timer_start( this->timer );
 		
-		if( x == this )
-			break;
+		g_cond_signal( x->cond );
+		g_cond_wait( this->cond, this->mutex );
 	}
-
-	if( y != NULL )
-		g_cond_signal( y->cond );
 	
-	if( z != NULL )
-		g_mutex_unlock( z->mutex );
+	if ( this->remaining_time > 0 && x == this ) {
+		g_timer_stop( this->timer );
+		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
+		
+		SDL_Delay( this->remaining_time * 1000 );
+	}
+#endif
 	
+	x = this->parallel.next;
+	if( x != this ) {
+		/* If the thread is not over, I hope it finishes */
+		if( !g_mutex_trylock(x->mutexp) )
+			g_cond_wait(x->condp, x->mutexp); 
+		
+		g_cond_signal( x->condp );
 
-	g_mutex_lock( this->mutex );
+	}
+}
+
+gboolean _thsys_add_with_thread( fThread* parent, FCallback* function, gpointer data ) {
 	
 }
 
@@ -227,7 +272,7 @@ void fth_tree_insert( fThread* tree, fThread* data ) {
 fThread* fth_tree_search( fThread* tree, GThread* data )
 	t_search_custom( fThread, tree, thread, data, rb1 );
 	
-	
+
 void fth_tree_insert_all( fThread* tree, fThread* data )
 	t_insert_custom( fThread, tree, thread, data, rb2 );
 	

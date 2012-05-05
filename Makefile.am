@@ -43,7 +43,8 @@ DIST_SUBDIRS = \
 	high-level\
 	highest-level \
 	physics \
-	utils
+	utils \
+	bin
 
 SUBDIRS = $(DIST_SUBDIRS)
 

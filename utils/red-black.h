@@ -65,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 \
         x = tree;\
 \
-        while (x != NULL || x->member != data) {\
+        while (x != NULL && x->member != data ) {\
 \
                 if ( data < x->member )\
                         x = container_of( x->redblack.left, type, redblack);\
@@ -73,11 +73,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         x = container_of( x->redblack.right, type, redblack);\
         }\
 \
-        return x;\
+		if( x->member == data ) \
+			return x;\
+		\
+		return NULL;\
 }
  
 struct _TRedBlack;
 typedef struct _TRedBlack TRedBlack;
+
+struct _TRRedBlack;
+typedef struct _TRRedBlack TRRedBlack;
 
 struct _TRedBlack {
   /* FALSE - Black
@@ -86,9 +92,15 @@ struct _TRedBlack {
   struct _TRedBlack* p;
   struct _TRedBlack* left;
   struct _TRedBlack* right;
+  void* data;
 };
 
-void t_delete( TRedBlack* node );
+struct _TRRedBlack {
+	struct _TRedBlack rb;
+	FCallbackCompare compare;
+};
+
+void t_delete( TRedBlack** root, TRedBlack* x );
 
 /*!
  * \brief Called after insert a node on a tree
@@ -113,5 +125,11 @@ void t_delete( TRedBlack* node );
 void t_insert( TRedBlack** root, TRedBlack* x );
 void t_rotate_right( TRedBlack** root, TRedBlack* y );
 void t_rotate_left( TRedBlack** root, TRedBlack* x );
+
+TRRedBlack* rb_new( FCallbackCompare compare, void* data );
+void rb_insert( TRRedBlack** root, void* data );
+void rb_delete( TRRedBlack** root, void* data );
+
+TRedBlack* rb_search( TRRedBlack** root, void* data );
 
 #endif
