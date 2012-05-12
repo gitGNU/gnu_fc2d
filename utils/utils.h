@@ -23,6 +23,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif
 
+#define mod(x) \
+	(x > 0? x : (-x))
+
+
+#define FCALLBACK(x) \
+	((FCallback)(x))
 /*!
  * \brief cast a member of a structure out to the containing structure
  * \param ptr the pointer to the member
@@ -34,8 +40,14 @@ extern "C" {
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
 	(type *)( (char *)__mptr - offsetof(type,member) );})
 
-typedef void (*FCallback)(fThread* __current_fthread);
+
+typedef void (*FCallback)(void* data);
 typedef int (*FCallbackCompare)( void* a, void* b );
+
+typedef struct {
+	FCallback function;
+	void* data;
+} Function;
 
 #define custom_list(type) \
 	type* next; \
@@ -46,6 +58,20 @@ typedef int (*FCallbackCompare)( void* a, void* b );
 	typedef struct {\
 		custom_list(type)\
 	} name
+
+	
+/*!
+ * \brief Insert a new member on a linked list
+ * \param previ a old member of the list
+ * \param this The new member being added to the list after the former
+ * \param list the name of list member
+ */
+#define list_insert( previ, this, list ) \
+	this->list.next = previ->list.next;\
+	this->list.prev = previ;\
+	previ->list.next = this;\
+	previ->list.next->list.prev = this;
+
 
 #ifdef __cplusplus
 }

@@ -41,6 +41,7 @@ struct fThread {
     GMutex* mutex;
 	GMutex* mutex_line;
 	GMutex* mutexp;
+	GMutex* mutex_wait;
     GCond* cond;
 	GCond* condp;
 	gpointer* data;
@@ -49,7 +50,7 @@ struct fThread {
 	double remaining_time;
 	int remaining_frames;
 	FCallback func;
-	
+	gboolean toswitch;
 	
 	fThread* p; /*!< The thread that created this */
 
@@ -65,8 +66,6 @@ struct fThread {
 
 extern TRedBlack* current_threads;
 extern GMutex* thsys_mutex;
-extern fThread* thsys_last_inserted;
-extern fThread* thsys_mutex_line;
 extern fThread* thsys_root;
 extern int FPS_MAX;
 
@@ -117,19 +116,8 @@ extern int FPS_MAX;
 #define thsys_add() \
 {\
 	THSYS_LOCK\
-	__current_fthread = _thsys_add( __current_fthread, __current_thread );\
-	\
-}
-
-/*!
- * \brief Add current thread to be processed
- *        by threads system to runs simultane-
- *        ously with another thread.
- */
-#define thsys_addp(thread) \
-{\
-	THSYS_LOCK\
-	__current_fthread = _thsys_addp( __current_fthread, thread );\
+	__current_fthread = _thsys_add( __current_thread );\
+	THSYS_UNLOCK\
 	\
 }
 
@@ -138,26 +126,36 @@ extern int FPS_MAX;
  *        threads system.
  */
 #define thsys_remove() \
-\{\
+{\
 	THSYS_LOCK\
 	_thsys_remove( __current_fthread );\
 	THSYS_UNLOCK\
-\}
+}
 
 
-#define THREADED\
+#define THREADED \
 	fThread* __current_fthread = NULL; \
+	thsys_init();\
 	FAST_CUR_THREAD \
 	thsys_add();
-
-#define THREADEDP( thread )\
-	fThread* __current_fthread = NULL; \
-	FAST_CUR_THREAD \
-	thsys_addp( thread );
-
 	
 #define wait(value) \
 	_wait( __current_fthread, value )
+
+#define waits(value) \
+	_waits( __current_fthread, value )
+	
+#define waitp() \
+	_waitp( __current_fthread )
+	
+
+#define thsys_add_with_thread(function, data)\
+	_thsys_add_with_thread( __current_fthread, function, data )
+
+#define thsys_addp_with_thread(function, data)\
+	_thsys_addp_with_thread( __current_fthread, function, data )
+	
+#define CUR __current_fthread
 /*!
  * \brief Prepares the "thread system" to be used
  */
@@ -168,20 +166,9 @@ void thsys_init();
  *        by threads system. 
  * \warning This function is not thread safe.
  *          I recommend that you use the macro 
- *			thsys_add() instead of this function.
+ *			THREADED instead of this function.
  */
-fThread* _thsys_add( fThread* __current_fthread, GThread* this );
-
-/*!
- * \brief Add a thread to be processed
- *        by threads system. Runs simultane-
- *        ously with another thread.
- * 
- * \warning This function is not thread safe.
- *          I recommend that you use the macro 
- *			thsys_addp() instead of this function.
- */
-fThread* _thsys_addp( fThread* this, fThread* thread );
+fThread* _thsys_add( GThread* this );
 
 /*!
  * \brief Revove a thread from
@@ -200,7 +187,7 @@ gboolean thsys_remove_him_by_function(FCallback* function);
 gboolean thsys_remove_him_by_fthread(fThread* thread);
 
 void _wait( fThread* this, double value );
-void _waitp( fThread* this, double value );
+void _waitp( fThread* this );
 void _waits( fThread* this, double value );
 
 void fth_tree_insert( fThread* tree, fThread* data );

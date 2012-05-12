@@ -1,11 +1,17 @@
 noinst_LTLIBRARIES = libvideo.la
 
-videoinclude_HEADERS = video.h
+AM_LIBS=$(GLIB_LIBS) $(SDL_LIBS)
+AM_CFLAGS=$(GLIB_CFLAGS) $(SDL_CFLAGS)
+AM_CXXFLAGS=$(AM_CFLAGS)
+
+videoinclude_HEADERS = video.h window.h render.h
 
 videoincludedir = $(includedir)/fgameengine-@FGE_VERSION@/video/
 
 libvideo_la_SOURCES = \
 	video.cpp \
+	window.c\
+	render.c\
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

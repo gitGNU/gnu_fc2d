@@ -65,17 +65,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 \
         x = tree;\
 \
-        while (x != NULL && x->member != data ) {\
+        while ( x != NULL ) {\
 \
                 if ( data < x->member )\
                         x = container_of( x->redblack.left, type, redblack);\
-                else\
+                else if( data > x->member )\
                         x = container_of( x->redblack.right, type, redblack);\
+                else \
+						return x;\
         }\
 \
-		if( x->member == data ) \
-			return x;\
-		\
 		return NULL;\
 }
  

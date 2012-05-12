@@ -1,7 +1,4 @@
-Except where otherwise noted, ALL FILES IN THIS PROJECT, are licensed under
-GNU GPL version 3, or (at your option) any later version. See COPYING for
-more details.
-
+/*
 FGameEngine - Complete tool kit for 3D games development.
 Copyright (C) 2012  Fabio J. Gonzalez
 
@@ -17,5 +14,25 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
-Your copy of GNU General Public License is in file named COPYING.
+#ifndef __VIDEO_WINDOW_H__
+#define __VIDEO_WINDOW_H__ 1
+
+#include <SDL.h>
+#include <SDL_opengl.h>
+#include <glib.h>
+
+typedef struct {
+	SDL_Surface* screen;
+	gboolean fullscreen;
+	unsigned int width;
+	unsigned int height;
+	unsigned int bits;
+	
+} fWindow;
+
+fWindow* window_new( int x, int y, int bits, gboolean fullscreen );
+void window_free( fWindow* w );
+
+#endif

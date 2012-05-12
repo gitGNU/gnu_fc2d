@@ -1,5 +1,9 @@
 noinst_LTLIBRARIES = libaudio.la
 
+AM_LIBS=$(GLIB_LIBS)
+AM_CFLAGS=$(GLIB_CFLAGS)
+AM_CXXFLAGS=$(AM_CFLAGS)
+
 audioincludedir = $(includedir)/fgameengine-@FGE_VERSION@/audio/
 
 audioinclude_HEADERS = \

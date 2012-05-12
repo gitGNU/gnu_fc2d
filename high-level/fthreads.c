@@ -25,144 +25,53 @@ TRedBlack* current_threads = NULL;
 TRedBlack* all_threads = NULL;
 
 GMutex* thsys_mutex = NULL;
-fThread* thsys_last_inserted = NULL;
-fThread* thsys_mutex_line = NULL;
 fThread* thsys_root = NULL;
 int FPS_MAX = 0;
 
 
 void thsys_init() {
+	
+	/*This function has been called before?*/
+	if( thsys_mutex != NULL )
+		return;
+
     g_thread_init(NULL);
-
     thsys_mutex = g_mutex_new();
-	thsys_mutex_line = g_mutex_new();
 }
 
-fThread* _thsys_addp( fThread* this, fThread* thread ) {
+fThread* _thsys_add( GThread* this ) {
 	fThread* new_thread = NULL;
 	
-	if( 1/*all_threads == NULL || 
-		(new_thread = fth_tree_search_all( container_of( all_threads, fThread, rb2 ), this )) == NULL*/ ) {
-			
-		new_thread = g_try_new0(fThread, 1);
-#if 0
-		/*Insert this thread in "all threads" tree*/
-		fth_tree_insert_all( 
-		container_of( all_threads, fThread, rb2 ),
-		new_thread
-		);
-		t_insert( &all_threads, &(new_thread->rb2) );
+	new_thread = g_try_new0( fThread, 1 );
 	
-		/*Insert this thread in "current running threads" tree*/
-		fth_tree_insert( 
-		container_of( current_threads, fThread, rb1 ),
-		new_thread
-		);
-		t_insert( &current_threads, &(new_thread->rb1) );
-#endif
-		/*Adjust variables*/
-		new_thread->mutex_all = thsys_mutex;
-		new_thread->mutex_line = thsys_mutex_line;
-		new_thread->mutex = g_mutex_new();
-		new_thread->mutexp = g_mutex_new();
-		new_thread->cond = g_cond_new();
-		new_thread->condp = g_cond_new();
-		new_thread->timer = g_timer_new();
-		
-		new_thread->series.next = new_thread;
-		new_thread->series.prev = new_thread;
-		
-		new_thread->parallel.next = thread->parallel.next;
-		new_thread->parallel.prev = thread;
-			
-		thread->parallel.next = new_thread;
-		thread->parallel.next->parallel.prev = new_thread;
-		
-		THSYS_UNLOCK
-		/*From this moment, the function is not thread safe*/
-	}
+	/* Adjust variables for synchronism */
+	new_thread->mutex_all = thsys_mutex;
+	new_thread->mutex_line = g_mutex_new();
+	new_thread->mutex = g_mutex_new();
+	new_thread->mutexp = g_mutex_new();
+	new_thread->mutex_wait = g_mutex_new();
+	new_thread->cond = g_cond_new();
+	new_thread->condp = g_cond_new();
+	new_thread->timer = g_timer_new();
 	
-	g_mutex_lock(new_thread->mutexp);
-	g_mutex_lock(new_thread->mutex);
+	/*Adjust more variables*/
+	new_thread->p = NULL;
+	new_thread->thread = this;
 	
-	return new_thread;
+	g_mutex_lock(new_thread->mutex_line);
 	
-}
-
-fThread* _thsys_add( fThread* __current_fthread, GThread* this ) {
-	fThread* new_thread = NULL;
+	new_thread->parallel.next = new_thread;
+	new_thread->parallel.prev = new_thread;
 	
-	if( 1/*all_threads == NULL || 
-		(new_thread = fth_tree_search_all( container_of( all_threads, fThread, rb2 ), this )) == NULL*/ ) {
-			
-		new_thread = g_try_new0(fThread, 1);
-	
-#if 0
-		/*Insert this thread in "all threads" tree*/
-		fth_tree_insert_all( 
-		container_of( all_threads, fThread, rb2 ),
-		new_thread
-		);
-		t_insert( &all_threads, &(new_thread->rb2) );
-	
-		/*Insert this thread in "current running threads" tree*/
-		fth_tree_insert( 
-		container_of( current_threads, fThread, rb1 ),
-		new_thread
-		);
-		t_insert( &current_threads, &(new_thread->rb1) );
-	
-#endif
-		/*Adjust variables*/
-		new_thread->mutex_all = thsys_mutex;
-		new_thread->mutex_line = thsys_mutex_line;
-		new_thread->mutex = g_mutex_new();
-		new_thread->mutexp = g_mutex_new();
-		new_thread->cond = g_cond_new();
-		new_thread->condp = g_cond_new();
-		new_thread->timer = g_timer_new();
-		
-		/*Add "new_thread" to execution stack(serie)*/
-		if( thsys_last_inserted != NULL ) {
-			/*List insert procedure*/
-			new_thread->series.next = thsys_last_inserted->series.next;
-			new_thread->series.prev = thsys_last_inserted;
-			
-			thsys_last_inserted->series.next = new_thread;
-			thsys_last_inserted->series.next->series.prev = new_thread;
-			
-			thsys_last_inserted = new_thread;
-			/* Wait your turn in line. To prevent
-			   two or more threads run at the same
-			   time */
-			THSYS_WAIT(new_thread->cond)
-		} else {
-			/* It begins with a circular list,
-			   to always be a circular list */
-			new_thread->series.next = new_thread;
-			new_thread->series.prev = new_thread;
-			
-			thsys_last_inserted = new_thread;
-			
-			THSYS_UNLOCK
-		}
-		
-		/*From this point, the function is not thread safe*/
-		new_thread->parallel.next = new_thread;
-		new_thread->parallel.prev = new_thread;
-	}
-	
-	g_mutex_lock(new_thread->mutexp);
-	g_mutex_lock(new_thread->mutex);
-	
-	return new_thread;
-	
+	g_mutex_unlock(new_thread->mutex_line);
 }
 
 void _wait( fThread* this, double value ) {
 	
 	fThread *x = NULL, *prev = NULL;
 	double time;
+	
+	g_mutex_lock( this->mutex_wait );
 	
 	g_timer_start( this->timer );
 		
@@ -184,7 +93,10 @@ void _wait( fThread* this, double value ) {
 	g_mutex_unlock(this->mutex_line);
 		
 	/* wait frames cycles */
-	while( this->remaining_frames > 0 && x != this ) {
+	while( (this->remaining_frames > 0 || value == 0) && x != this ) {
+		if( g_mutex_trylock( x->mutex_wait ) ) {
+			thsys_remove_him_by_fthread( x );
+		}
 		g_cond_signal( x->cond );
 		g_cond_wait( this->cond, this->mutex );
 		
@@ -250,23 +162,130 @@ void _wait( fThread* this, double value ) {
 	
 	x = this->parallel.next;
 	if( x != this ) {
-		/* If the thread is not over, I hope it finishes */
+		/* If the thread is not over, I wait it finishes */
 		if( !g_mutex_trylock(x->mutexp) )
 			g_cond_wait(x->condp, x->mutexp); 
 		
 		g_cond_signal( x->condp );
 
 	}
+	
+	g_mutex_unlock( this->mutex_wait );
 }
 
 gboolean _thsys_add_with_thread( fThread* parent, FCallback* function, gpointer data ) {
 	
+	fThread* new_thread = NULL;
+	
+	new_thread = g_try_new0( fThread, 1 );
+	
+	/* Adjust variables for synchronism */
+	new_thread->mutex_all = thsys_mutex;
+	if( parent != NULL )
+		new_thread->mutex_line = parent->mutex_line;
+	else
+		new_thread->mutex_line = g_mutex_new();
+	new_thread->mutex = g_mutex_new();
+	new_thread->mutexp = g_mutex_new();
+	new_thread->mutex_wait = g_mutex_new();
+	new_thread->cond = g_cond_new();
+	new_thread->condp = g_cond_new();
+	new_thread->timer = g_timer_new();
+	
+	/*Adjust more variables*/
+	new_thread->p = parent;
+	new_thread->func = function;
+	new_thread->data = data;
+	
+	g_mutex_lock(new_thread->mutex_line);
+	
+	if( parent )
+		list_insert( parent, new_thread, series )
+	
+	new_thread->parallel.next = new_thread;
+	new_thread->parallel.prev = new_thread;
+	
+	g_mutex_unlock(new_thread->mutex_line);
+	if( parent )
+		g_mutex_lock( new_thread->mutex );
+	
+	new_thread->thread = g_thread_create( function, data, TRUE, NULL );
+	
+	if( parent )
+		g_cond_wait( parent->cond, new_thread->mutex );
+	
+	return TRUE;
+}
+
+gboolean _thsys_addp_with_thread( fThread* parent, FCallback* function, gpointer data ) {
+	
+	fThread* new_thread = NULL;
+	
+	new_thread = g_try_new0( fThread, 1 );
+	
+	/* Adjust variables for synchronism */
+	new_thread->mutex_all = thsys_mutex;
+	if( parent != NULL )
+		new_thread->mutex_line = parent->mutex_line;
+	else
+		new_thread->mutex_line = g_mutex_new();
+	new_thread->mutex = g_mutex_new();
+	new_thread->mutexp = g_mutex_new();
+	new_thread->mutex_wait = g_mutex_new();
+	new_thread->cond = g_cond_new();
+	new_thread->condp = g_cond_new();
+	new_thread->timer = g_timer_new();
+	
+	/*Adjust more variables*/
+	new_thread->p = parent;
+	new_thread->func = function;
+	new_thread->data = data;
+	
+	g_mutex_lock(new_thread->mutex_line);
+	
+	if( parent )
+		list_insert( parent, new_thread, parallel )
+	
+	new_thread->series.next = new_thread;
+	new_thread->series.prev = new_thread;
+	
+	g_mutex_unlock(new_thread->mutex_line);
+	
+	new_thread->thread = g_thread_create( function, data, TRUE, NULL );
+	
+	return TRUE;
+}
+
+void _thsys_remove( fThread* this ) {
+}
+
+gboolean thsys_remove_him_by_fthread(fThread* thread) {
+	
+	if( thread == NULL )
+		return FALSE;
+	
+	g_mutex_lock(thread->mutex_line);
+	thread->series.next->series.prev = thread->series.prev;
+	thread->series.prev->series.next = thread->series.next;
+	
+	thread->parallel.next->parallel.prev = thread->parallel.prev;
+	thread->parallel.prev->parallel.next = thread->parallel.next;
+	g_mutex_unlock(thread->mutex_line);
+	
+	g_mutex_free(thread->mutex);
+	g_mutex_free(thread->mutexp);
+	g_cond_free(thread->cond);
+	g_cond_free(thread->condp);
+	g_mutex_free(thread->mutexp);
+	g_mutex_free(thread->mutex_wait);
+	
+	g_free(thread);
+	
+	return TRUE;
 }
 
 void fth_tree_insert( fThread* tree, fThread* data ) {
-	
     t_insert_custom( fThread, tree, thread, data, rb1 );
-	
 }
 
 fThread* fth_tree_search( fThread* tree, GThread* data )

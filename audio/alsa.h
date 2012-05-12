@@ -19,6 +19,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __AUDIO_ALSA_H__
 #define __AUDIO_ALSA_H__ 1
 
+#include <alsa/asoundlib.h>
+#include <high-level/fthreads.h>
+#include <glib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct {
+	snd_pcm_t* handle;
+	snd_pcm_stream_t stream;
+	snd_pcm_access_t access;
+	snd_pcm_format_t format;
+	unsigned int rate;
+	unsigned int channels;
+	char* out_name;
+} alsa_audio;
+
+typedef struct {
+	guint16 samples[65535];
+	guint16 read;
+	guint16 write;
+	gboolean readed;
+} audio_loop;
+
+extern audio_loop* audio_input_loop;
+extern audio_loop* audio_output_loop;
+extern GMutex* aud_mutex;
+extern fThread* aud_fthread;
+
+int get_audio( alsa_audio* audio );
+
+alsa_audio* get_audio_output();
+alsa_audio* get_audio_input();
+
+void audio_output_mainloop( CFTHREAD );
+void audio_input_mainloop( CFTHREAD );
+void audio_mainloop();
+
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

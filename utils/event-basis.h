@@ -1,7 +1,4 @@
-Except where otherwise noted, ALL FILES IN THIS PROJECT, are licensed under
-GNU GPL version 3, or (at your option) any later version. See COPYING for
-more details.
-
+/*
 FGameEngine - Complete tool kit for 3D games development.
 Copyright (C) 2012  Fabio J. Gonzalez
 
@@ -17,5 +14,13 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
-Your copy of GNU General Public License is in file named COPYING.
+#include <utils/utils.h>
+#include <glib.h>
+
+extern GHashTable* f_connect_hash;
+
+int f_signal_connect( const char* name, FCallback function );
+void f_signal_disconnect( const char* name, FCallback function );
+void f_signal_emit( const char* name, void* data );
