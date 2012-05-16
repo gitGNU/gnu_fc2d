@@ -27,6 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif
 
+#define psamplef( sample, balance ) \
+	psamplei( ((float)(sample)) * 0xffff, balance )
+
 typedef struct {
 	snd_pcm_t* handle;
 	snd_pcm_stream_t stream;
@@ -58,11 +61,10 @@ void audio_output_mainloop( CFTHREAD );
 void audio_input_mainloop( CFTHREAD );
 void audio_mainloop();
 
-
+void psamplei( guint16 sample, float balance );
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

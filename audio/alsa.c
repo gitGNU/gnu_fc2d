@@ -204,3 +204,11 @@ void audio_mainloop() {
 	 * automatic termination of the 'fThread' */
 	wait(0);
 }
+
+void psamplei( guint16 sample, float balance ) {
+	
+	CFTHREAD = aud_fthread;
+	
+	if( aud_fthread == NULL )
+		return;
+}

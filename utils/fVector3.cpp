@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "fVector3.h"
+#include <math.h>
 
 fVector3::fVector3( float ax, float ay, float az ) {
     x = ax;
@@ -41,11 +42,11 @@ inline void fVector3::set( fVector3& vec ) {
     if ( eold )
         delete eold;
 
-    if ( old )
+    if ( old ) {
         eold = new fVector3( old->x, old->y, old->z );
-
-    if ( old )
         delete old;
+	}
+	
     old = new fVector3( x, y, z );
 
     this->x = vec.x;
@@ -149,4 +150,8 @@ fVector3& fVector3::operator-( float v1 ) {
 fVector3& fVector3::operator/( float v1 ) {
 	this->set( x / v1,  y / v1, z / v1 );
     return *this;
+}
+
+float fVector3::magnitude() {
+	return sqrt( x*x + y*y + z*z );
 }

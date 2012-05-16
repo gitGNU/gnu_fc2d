@@ -16,6 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __CONFIG_H__
+#define __CONFIG_H__ 1
+
 #include "auto-config.h"
 
 #define FGE_DATA "@prefix@/share/fgameengine-@FGE_VERSION@"
+
+#if HAVE_SDL || HAVE_X11
+#define HAVE_DISPLAY 1
+#else
+#define HAVE_DISPLAY 0
+#endif
+
+#if HAVE_GL && HAVE_GLU
+#define HAVE_3D 1
+#else
+#define HAVE_3D 0
+#endif
+
+#endif

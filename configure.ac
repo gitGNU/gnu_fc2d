@@ -19,8 +19,10 @@ m4_define([python_required_version], [0.25.0])
 m4_define([gtk_required_version], [0.25.0])
 m4_define([openal_required_version], [0.25.0])
 m4_define([gl_required_version], [0.25.0])
+m4_define([glu_required_version], [0.25.0])
 m4_define([sdl_required_version], [0.25.0])
 m4_define([gthread_required_version], [0.25.0])
+m4_define([x11_required_version], [0.25.0])
 
 FGE_VERSION=fge_version
 FGE_REAL_VERSION=fge_real_version
@@ -36,10 +38,20 @@ AC_SUBST(FGE_MICRO_VERSION)
 
 #check for libraries
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
-PKG_CHECK_MODULES( PYTHON, python >= python_required_version )
-PKG_CHECK_MODULES( GL, gl >= gl_required_version )
-PKG_CHECK_MODULES( SDL, sdl >= sdl_required_version )
 PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version )
+PKG_CHECK_MODULES( PYTHON, python >= python_required_version )
+PKG_CHECK_MODULES( GL, gl >= gl_required_version, AC_DEFINE(HAVE_GL, [1], [Check for GL]),
+	AC_DEFINE(HAVE_GL, [0], [Check for GL])
+)
+PKG_CHECK_MODULES( GLU, glu >= glu_required_version, AC_DEFINE(HAVE_GLU, [1], [Check for GLU]),
+	AC_DEFINE(HAVE_GLU, [0], [Check for GLU])
+)
+PKG_CHECK_MODULES( SDL, sdl >= sdl_required_version, AC_DEFINE(HAVE_SDL, [1], [Check for SDL]),
+	AC_DEFINE(HAVE_SDL, [0], [Check for SDL])
+)
+PKG_CHECK_MODULES( X11, x11 >= x11_required_version, AC_DEFINE(HAVE_X11, [1], [Check for X11]),
+	AC_DEFINE(HAVE_X11, [0], [Check for X11])
+)
 
 AC_CONFIG_MACRO_DIR([m4])
 

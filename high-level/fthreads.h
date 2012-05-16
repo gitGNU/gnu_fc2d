@@ -50,7 +50,7 @@ struct fThread {
 	double remaining_time;
 	int remaining_frames;
 	FCallback func;
-	gboolean toswitch;
+	int active;
 	
 	fThread* p; /*!< The thread that created this */
 
@@ -140,13 +140,13 @@ extern int FPS_MAX;
 	thsys_add();
 	
 #define wait(value) \
-	_wait( __current_fthread, value )
+	_wait( __current_fthread, value, 0 )
 
 #define waits(value) \
-	_waits( __current_fthread, value )
+	_waits( __current_fthread, value, 0 )
 	
 #define waitp() \
-	_waitp( __current_fthread )
+	_waitp( __current_fthread, 0 )
 	
 
 #define thsys_add_with_thread(function, data)\
@@ -154,8 +154,19 @@ extern int FPS_MAX;
 
 #define thsys_addp_with_thread(function, data)\
 	_thsys_addp_with_thread( __current_fthread, function, data )
+
+
+#define waitk( value, id ) \
+	_wait( __current_fthread, value, id )
+
+#define waitsk( value, id ) \
+	_waits( __current_fthread, value, id )
 	
+#define waitpk( id ) \
+	_waitp( __current_fthread, id )
+
 #define CUR __current_fthread
+
 /*!
  * \brief Prepares the "thread system" to be used
  */
@@ -186,9 +197,9 @@ gboolean thsys_remove_him(GThread* thread);
 gboolean thsys_remove_him_by_function(FCallback* function);
 gboolean thsys_remove_him_by_fthread(fThread* thread);
 
-void _wait( fThread* this, double value );
-void _waitp( fThread* this );
-void _waits( fThread* this, double value );
+void _wait( fThread* this, double value, int id );
+void _waitp( fThread* this, int id );
+void _waits( fThread* this, double value, int id );
 
 void fth_tree_insert( fThread* tree, fThread* data );
 fThread* fth_tree_search( fThread* tree, GThread* data );

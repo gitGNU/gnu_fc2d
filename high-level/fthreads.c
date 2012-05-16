@@ -53,6 +53,7 @@ fThread* _thsys_add( GThread* this ) {
 	new_thread->cond = g_cond_new();
 	new_thread->condp = g_cond_new();
 	new_thread->timer = g_timer_new();
+	new_thread->active = 0;
 	
 	/*Adjust more variables*/
 	new_thread->p = NULL;
@@ -64,21 +65,22 @@ fThread* _thsys_add( GThread* this ) {
 	new_thread->parallel.prev = new_thread;
 	
 	g_mutex_unlock(new_thread->mutex_line);
+	
 }
 
-void _wait( fThread* this, double value ) {
+void _wait( fThread* this, double value, int id ) {
 	
 	fThread *x = NULL, *prev = NULL;
 	double time;
+	GMutex* temp_m = NULL;
 	
-	g_mutex_lock( this->mutex_wait );
+	g_mutex_trylock( this->mutex_wait );
 	
-	g_timer_start( this->timer );
-		
 	if( ((int)value) >= 0 ) {
 		this->remaining_time = 0;
 		this->remaining_frames = ((int)value);
 	} else {
+		g_timer_start( this->timer );
 		this->remaining_time = -value;
 		this->remaining_frames = 0;
 	}
@@ -91,86 +93,42 @@ void _wait( fThread* this, double value ) {
 	g_mutex_lock(this->mutex_line);
 	x = this->series.next;
 	g_mutex_unlock(this->mutex_line);
-		
-	/* wait frames cycles */
-	while( (this->remaining_frames > 0 || value == 0) && x != this ) {
-		if( g_mutex_trylock( x->mutex_wait ) ) {
-			thsys_remove_him_by_fthread( x );
+	
+	while( (this->remaining_frames > 0 || this->remaining_time > 0 || value == 0) && x != this ) {
+		if( this->remaining_time > 0 ) {
+			g_timer_stop( this->timer );
+			
+			this->remaining_time -= 
+			g_timer_elapsed( this->timer, NULL );
 		}
-		g_cond_signal( x->cond );
-		g_cond_wait( this->cond, this->mutex );
 		
-		this->remaining_frames--;
-	}
-	
-	/*wait time*/
-#if 0
-	if( this->remaining_time > 0 && x != this ) {
-
-		/*Remove me from "series" list*/
-		g_mutex_lock(this->mutex_line);		
-		this->series.prev->series.next =
-			this->series.next;
-		this->series.next->series.prev =
-			this->series.prev;
-		g_mutex_unlock(this->mutex_line);
+		if( this->active != id ) {
+			if( temp_m == NULL )
+				temp_m = g_mutex_new();
+			
+			g_cond_wait( this->cond, temp_m );
+		} else {
+			/* As it is, obligatorily, a synchronized system,
+			 * if the function is not finished it this
+			 * waiting */
+			if( g_mutex_trylock(x->mutex) ) {
+				g_mutex_unlock(x->mutex);
+				thsys_remove_him_by_fthread(x);
+			}
+			g_mutex_lock( x->mutex );
+			g_cond_broadcast(x->cond);
+			g_cond_wait( this->cond, this->mutex );
+		}
 		
-		g_mutex_lock(x->mutex);
-		g_cond_signal( x->cond );
-		g_mutex_unlock( x->mutex );
-		
-		g_timer_stop( this->timer );
-		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
-		
-		SDL_Delay( this->remaining_time * 1000 );
-		this->remaining_time = 0;
-				
-		/* This thread return to list
-			and wait be called */
-		g_mutex_lock(this->mutex_line);
-		prev = this->series.prev;
-		this->series.next = prev->series.next;
-		prev->series.next = this;
-		prev->series.next->series.prev = this;
-		g_mutex_unlock(this->mutex_line);
-		
-		g_cond_wait( this->cond, this->mutex );
-		
-	} else if ( this->remaining_time > 0 ) {
-		g_timer_stop( this->timer );
-		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
-		
-		SDL_Delay( this->remaining_time * 1000 );
-	}
-#else
-	while( this->remaining_time > 0 && x != this ) {
-		g_timer_stop( this->timer );
-		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
-		g_timer_start( this->timer );
-		
-		g_cond_signal( x->cond );
-		g_cond_wait( this->cond, this->mutex );
-	}
-	
-	if ( this->remaining_time > 0 && x == this ) {
-		g_timer_stop( this->timer );
-		this->remaining_time -= g_timer_elapsed( this->timer, NULL );
-		
-		SDL_Delay( this->remaining_time * 1000 );
-	}
-#endif
-	
-	x = this->parallel.next;
-	if( x != this ) {
-		/* If the thread is not over, I wait it finishes */
-		if( !g_mutex_trylock(x->mutexp) )
-			g_cond_wait(x->condp, x->mutexp); 
-		
-		g_cond_signal( x->condp );
-
+		if( this->remaining_time > 0 )
+			g_timer_start( this->timer );
+		else
+			this->remaining_frames--;
 	}
 	
 	g_mutex_unlock( this->mutex_wait );
+	
+	g_free( temp_m );
 }
 
 gboolean _thsys_add_with_thread( fThread* parent, FCallback* function, gpointer data ) {
@@ -191,6 +149,7 @@ gboolean _thsys_add_with_thread( fThread* parent, FCallback* function, gpointer 
 	new_thread->cond = g_cond_new();
 	new_thread->condp = g_cond_new();
 	new_thread->timer = g_timer_new();
+	new_thread->active = 0;
 	
 	/*Adjust more variables*/
 	new_thread->p = parent;
@@ -235,6 +194,7 @@ gboolean _thsys_addp_with_thread( fThread* parent, FCallback* function, gpointer
 	new_thread->cond = g_cond_new();
 	new_thread->condp = g_cond_new();
 	new_thread->timer = g_timer_new();
+	new_thread->active = 0;
 	
 	/*Adjust more variables*/
 	new_thread->p = parent;
@@ -290,7 +250,6 @@ void fth_tree_insert( fThread* tree, fThread* data ) {
 
 fThread* fth_tree_search( fThread* tree, GThread* data )
 	t_search_custom( fThread, tree, thread, data, rb1 );
-	
 
 void fth_tree_insert_all( fThread* tree, fThread* data )
 	t_insert_custom( fThread, tree, thread, data, rb2 );

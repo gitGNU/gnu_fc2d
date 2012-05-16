@@ -19,10 +19,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __UTILS_FVECTOR3__
 #define __UTILS_FVECTOR3__ 1
 
+#ifdef __cplusplus
+
 class fVector3 {
 public:
   fVector3* old;
   fVector3* eold;
+  
+  union {
+		struct {
+			float x;
+			float y;
+			float z;
+		};
+		float m[3];
+  };
   
   fVector3( float ax, float ay, float az );
   fVector3( fVector3& vec );
@@ -31,6 +42,8 @@ public:
   inline void set( float x, float y, float z );
   float dot_product( fVector3& v2 );
   fVector3& cross_product( fVector3& v2 );
+  float dist( fVector3& v );
+  float magnitude();
   
   fVector3& operator+( fVector3& v1 );
   fVector3& operator-( fVector3& v1 );
@@ -54,5 +67,33 @@ public:
   fVector3& operator/( float v1 );
   
 };
+
+#else
+
+struct fVector3;
+typedef struct fVector3 fVector3;
+
+struct fVector3 {
+  fVector3* old;
+  fVector3* eold;
+	union {
+		struct {
+			float x;
+			float y;
+			float z;
+		};
+		float m[3];
+  };
+};
+
+fVector3 fVector3( float ax, float ay, float az );
+void vec_set( fVector3 vec, fVector3 v2 );
+inline void set( float x, float y, float z );
+float dot_product( fVector3& v2 );
+fVector3& cross_product( fVector3& v2 );
+float dist( fVector3& v );
+float magnitude();
+
+#endif
 
 #endif

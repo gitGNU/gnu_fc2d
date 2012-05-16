@@ -21,10 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 GHashTable* f_connect_hash = NULL;
 
+G_LOCK_DEFINE (f_connect_mutex);
+
 int f_signal_connect( const char* name, FCallback function ) {
 	
 	GHashTable** hash = &f_connect_hash;
-	GList* l;
+	GList** l;
+	
+	G_LOCK(f_connect_mutex);
 	
 	if( *hash == NULL )
 		*hash = g_hash_table_new( g_str_hash, g_str_equal );
@@ -32,38 +36,52 @@ int f_signal_connect( const char* name, FCallback function ) {
 	l = g_hash_table_lookup ( *hash, name );
 	
 	if( l != NULL )
-		g_list_append( l, function );
+		*l = g_list_prepend( *l, function );
 	else {
-		l = g_list_append( NULL, function );
+		l = g_malloc( sizeof(GList*) );
+		*l = g_list_append( NULL, function );
 		g_hash_table_insert( *hash, name, l );
 	}
-	
+	G_UNLOCK(f_connect_mutex);
 }
 
 void f_signal_disconnect( const char* name, FCallback function ) {
 	
 	GHashTable** hash = &f_connect_hash;
-	GList* l;
+	GList** l;
+	
+	G_LOCK(f_connect_mutex);
 	
 	l = g_hash_table_lookup ( *hash, name );
 	
 	if( l != NULL ) {
-		l = g_list_remove( l, function );
-		if( l == NULL ) 
+		*l = g_list_remove( *l, function );
+		if( *l == NULL ) {
+			g_free(l);
 			g_hash_table_remove( *hash, name );
+		}
 	}
+	
+	G_UNLOCK(f_connect_mutex);
 }
 
 void f_signal_emit( const char* name, void* data ) {
 	
 	GHashTable** hash = &f_connect_hash;
+	GList** li;
 	GList* l;
 	
-	l = g_hash_table_lookup ( *hash, name );
+	G_LOCK(f_connect_mutex);
 	
-	if( l != NULL ) {
+	li = g_hash_table_lookup ( *hash, name );
+	
+	
+	if( li != NULL ) {
+		l = *li;
 		for( ; l != NULL; l = l->next ) {
 			FCALLBACK(l->data)(data);
 		}
 	}
+	
+	G_UNLOCK(f_connect_mutex);
 }

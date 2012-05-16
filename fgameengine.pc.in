@@ -7,16 +7,20 @@ datarootdir=@datarootdir@
 Name: FGameEngine
 Description: Complete tool kit for 3D games development.
 Version: @FGE_REAL_VERSION@
-Libs: -L${libdir} -lfgameengine-@FGE_VERSION@  \
+Libs: -L${libdir} -lfgameengine-@FGE_VERSION@ \
 	@GLIB_LIBS@ \
+	@GTHREAD_LIBS@ \
 	@PYTHON_LIBS@ \
 	@GL_LIBS@ \
+	@GLU_LIBS@ \
 	@SDL_LIBS@ \
-	@GTHREAD_LIBS@
+	@X11_LIBS@
 
 Cflags: -I${includedir}/fgameengine-@FGE_VERSION@ \
 	@GLIB_CFLAGS@ \
+	@GTHREAD_CFLAGS@ \
 	@PYTHON_CFLAGS@ \
 	@GL_CFLAGS@ \
+	@GLU_CFLAGS@ \
 	@SDL_CFLAGS@ \
-	@GTHREAD_CFLAGS@
+	@X11_CFLAGS@
