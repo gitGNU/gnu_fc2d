@@ -66,6 +66,7 @@ AC_PROG_INSTALL
 AC_CONFIG_FILES([
 Makefile
 bin/Makefile
+doc/Makefile
 bin/fge-run
 bin/fge-config
 audio/Makefile

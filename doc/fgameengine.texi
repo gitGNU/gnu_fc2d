@@ -1,0 +1,78 @@
+\input texinfo   @c -*-texinfo-*-
+@setfilename fgameengine.info
+@settitle FGameEngine user and developer manual
+
+@set UPDATED 16 May 2012
+@set UPDATED-MONTH May 2012
+@set EDITION 0.0.1
+@set VERSION 0.0.1
+
+@ifnottex @c texi2pdf don't understand copying and insertcopying ???
+@c modifications must also be done in the titlepage
+@copying
+Copyright @copyright{} 2012
+Fabio J. Gonzalez
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled ``GNU
+Free Documentation License''.
+@end copying
+@c WTF does the info get the copying output and the plaintext output not ????
+@ifplaintext
+@insertcopying
+@end ifplaintext
+@end ifnottex
+
+
+@titlepage
+@title FGameEngine user and developer manual
+@subtitle FGameEngine, version @value{VERSION}, @value{UPDATED}
+@author Fabio J. Gonzalez @email{gonzalfj@@users.sourceforge.net}
+
+@dircategory FGameEngine - Complete tool kit for 3D games development
+@direntry
+* fgameengine: (fgameengine).   FGameEngine user and developer manual
+@end direntry
+
+@ifnottex
+@node Top
+@top FGameEngine user and developer manual
+@c WTF doesn't texi2html include the titlepage?
+@ifhtml
+@insertcopying 
+@end ifhtml
+
+FGameEngine is a library that able a easy way to develop 3D games.
+@shortcontents
+
+@menu
+* Basic app::
+* Event system::
+* Thread system::
+* Sound system::
+* Graphics::
+* Copying this manual::
+@end menu
+
+@node See also
+@chapter See also
+
+@b{glib}@r{(8),}
+@b{sdl}@r{(8),}
+@b{X11}@r{(8)}
+@b{gl}@r{(8)}
+@b{glu}@r{(8)}
+
+@node Copying this manual
+@appendix Copying this manual
+
+@menu
+* GNU Free Documentation License::  License for copying this manual
+@end menu
+
+@include fdl.texi
+
+@bye

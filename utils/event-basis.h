@@ -21,6 +21,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern GHashTable* f_connect_hash;
 
-int f_signal_connect( const char* name, FCallback function );
-void f_signal_disconnect( const char* name, FCallback function );
-void f_signal_emit( const char* name, void* data );
+#define f_signal_connect(name,function) \
+	f_signal_connect_full(0, name, function)
+
+	
+#define f_signal_disconnect(name,function) \
+	f_signal_disconnect_full(0, name, function)
+	
+#define f_signal_emit(name, data) \
+	f_signal_emit_full(0, name, data)
+	
+GHashTable* f_signal_obj_get( gpointer id );
+
+void f_signal_obj_delete( gpointer id );
+
+int f_signal_connect_full( gpointer obj, 
+						   const char* name,
+						   FCallback function );
+
+void f_signal_disconnect_full( gpointer obj,
+							   const char* name,
+							   FCallback function );
+
+void f_signal_emit_full( gpointer obj,
+						 const char* name,
+						 void* data );

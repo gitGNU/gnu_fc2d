@@ -78,9 +78,9 @@ struct fWindow {
 	XVisualInfo *vi;
 	XSetWindowAttributes swa;
 	Window root;
-	Colormap cmap;
-	
+	Colormap cmap;	
 #endif
+	
 	char* name;
 	gboolean fullscreen;
 	unsigned int width;
