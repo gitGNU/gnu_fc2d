@@ -59,7 +59,8 @@ Display* window_getdisplay( const char* name );
 void window_deletedisplay( const char* name );
 
 #if HAVE_3D
-void window_set( fWindow* w );
+inline void window_set( fWindow* w );
+inline void window_draw( fWindow* w );
 #endif
 
 #endif

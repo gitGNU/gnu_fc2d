@@ -26,9 +26,11 @@ extern "C" {
 #define mod(x) \
 	(x > 0? x : (-x))
 
-
 #define FCALLBACK(x) \
 	((FCallback)(x))
+	
+#define FCALLBACK2(x) \
+	((FCallback2)(x))
 /*!
  * \brief cast a member of a structure out to the containing structure
  * \param ptr the pointer to the member
@@ -42,6 +44,7 @@ extern "C" {
 
 
 typedef void (*FCallback)(void* data);
+typedef void (*FCallback2)(void* data, void* data2);
 typedef int (*FCallbackCompare)( void* a, void* b );
 
 typedef struct {

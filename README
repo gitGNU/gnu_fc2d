@@ -6,7 +6,9 @@ Its original focus is the creation of games, but
 covers many other utilities, for example creating
 3D simulations, that can be interactive or not.
 FGameEngine, allows the creation of non-graphic
-applications too.
+applications too. FGameEngine was licensed with
+a strong copyleft, and read COPYING LICENSE
+for more information.
 
 About it`s versions
 =========================
@@ -23,23 +25,23 @@ with improvements, but are very different things.
 
 Installation
 =========================
-If you are installing from a distribution of a release use:
+If you are installing from a distribution, use:
 ./configure && make && sudo make install
 
 If you are installing from SVN:
-sh autogen.sh; ./configure && make && sudo make install
+sh autogen.sh && make && sudo make install
 
 Read INSTALL for more details 
 
 Directories
 =========================
-
 Source Code of FGameEngine:
 high-level
 highest-level
 utils
 physics
 video
+net
 
 Useful scripts and binary executables:
 bin
@@ -47,11 +49,18 @@ bin
 Audio, images, etc that FGameEngine needs:
 data
 
+See also
+=========================
+After installing FGameEngine, I recommend you
+read the documentation in 'doc'. You can read
+it using 'info doc/fgameengine.info' or simply
+'info fgameengine' in your shell console.
+
 About me
 =========================
 My name is Fabio J. Gonzalez, I am the original creator
-of FGameEngine. In this text, FGameEngine name refers
-only to versions published by Fabio J. Gonzalez, with
+of FGameEngine. In this text, FGameEngine name refers to
+FGameEngine as published by Fabio J. Gonzalez, with
 email: fabiojosue@gmail.com or gonzalfj@users.sourceforge.net
 FGameEngine is not a "fork" of any other software. Your
 original code was written by 

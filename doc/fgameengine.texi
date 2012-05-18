@@ -4,8 +4,27 @@
 
 @set UPDATED 16 May 2012
 @set UPDATED-MONTH May 2012
-@set EDITION 0.0.1
-@set VERSION 0.0.1
+@set EDITION SVN
+@set VERSION SVN
+
+@titlepage
+@title FGameEngine user and developer manual
+@subtitle A User's Guide for FGameEngine
+@subtitle May, 2012
+@author Fabio J. Gonzalez @email{fabiojosue@@gmail.com} 
+@email{gonzalfj@@users.sourceforge.net}
+
+Copyright @copyright{} 2012
+Fabio J. Gonzalez
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled ``GNU
+Free Documentation License''.
+
+@end titlepage
 
 @ifnottex @c texi2pdf don't understand copying and insertcopying ???
 @c modifications must also be done in the titlepage
@@ -26,45 +45,79 @@ Free Documentation License''.
 @end ifplaintext
 @end ifnottex
 
+@contents
 
-@titlepage
-@title FGameEngine user and developer manual
-@subtitle FGameEngine, version @value{VERSION}, @value{UPDATED}
-@author Fabio J. Gonzalez @email{gonzalfj@@users.sourceforge.net}
+@node Top, (dir), (dir)
 
-@dircategory FGameEngine - Complete tool kit for 3D games development
-@direntry
-* fgameengine: (fgameengine).   FGameEngine user and developer manual
-@end direntry
+@top General Introduction
+The complete engine for 3D games and more.
+The main focus of FGameEngine is GNU/Linux
+but may work on other systems (who knows?).
+This manual will introduce you, FGameEngine.
+It will teach you how to create games,
+reading/writing songs and videos, using
+the event system, and how to create 
+graphical user interfaces, etc.
+@chapter Downloading
 
-@ifnottex
-@node Top
-@top FGameEngine user and developer manual
-@c WTF doesn't texi2html include the titlepage?
-@ifhtml
-@insertcopying 
-@end ifhtml
-
-FGameEngine is a library that able a easy way to develop 3D games.
-@shortcontents
+@code{}
 
 @menu
-* Basic app::
-* Event system::
-* Thread system::
-* Sound system::
-* Graphics::
+* Introduction::
 * Copying this manual::
 @end menu
 
-@node See also
-@chapter See also
+@node Introduction
+@chapter Introduction
 
-@b{glib}@r{(8),}
-@b{sdl}@r{(8),}
-@b{X11}@r{(8)}
-@b{gl}@r{(8)}
-@b{glu}@r{(8)}
+@menu
+* What is FGameEngine?::  A brief description of FGameEngine
+* What do FGameEngine?:: A list of main features
+@end menu
+
+@node What is FGameEngine?
+@section What is FGameEngine?
+
+FGameEngine is a library for easy creation
+of various types of programs, such as video
+editors, games, etc. FGameEngine is an
+abstraction layer for some libraries, too.
+
+@node What do FGameEngine?
+@section What do FGameEngine?
+
+FGameEngine is planned to allow you
+simply and quickly to:
+@table @code
+@item Media
+Load and write media( eg AVI, MPEG, OGG Vorbis, MP3 ).
+
+@item Its own graphical interface
+Draw on the screen fields with values animation support 
+(As the Blender(enter the frame typing @kbd{@key{I}}))
+for graphical interaction with the User.
+
+@item Its own event system
+Make programs that respond to events, add many functions
+to the same event. The abstraction layer FGameEngine 
+provides support to various types of events 
+(or fEvents, if you prefer).
+
+@item Its own thread system
+You can make lines of threads in synchronism. You can make
+lines of threads to run simultaneously and one after 
+another, including mixing any lines. A function called outside
+threads(fThreads system) system can enter the system using a
+existent 'fThread' and exit the system quickly.
+
+@item Its own sound system
+FGameEngine becomes playing sounds in the 'background',
+using the threads system (or fthreads). Samples are
+automatically placed in the play line and played.
+All this is trying to stop you work as little as
+possible.
+
+@end table
 
 @node Copying this manual
 @appendix Copying this manual

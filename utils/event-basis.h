@@ -16,28 +16,38 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __UTILS_EVENT_BASIS_H__
+#define __UTILS_EVENT_BASIS_H__ 1
+
 #include <utils/utils.h>
 #include <glib.h>
 
 extern GHashTable* f_connect_hash;
 
+#define FEVENTFUNCTION(x) \
+	((FEventFunction*)(x))
+
 #define f_signal_connect(name,function) \
-	f_signal_connect_full(0, name, function)
+	f_signal_connect_full((gpointer)0, name, function, NULL)
 
 	
 #define f_signal_disconnect(name,function) \
-	f_signal_disconnect_full(0, name, function)
+	f_signal_disconnect_full((gpointer)0, name, function)
 	
 #define f_signal_emit(name, data) \
-	f_signal_emit_full(0, name, data)
+	f_signal_emit_full((gpointer)0, name, data)
+	
+typedef struct {
+	FCallback2 function;
+	gpointer data;
+} FEventFunction;
 	
 GHashTable* f_signal_obj_get( gpointer id );
 
-void f_signal_obj_delete( gpointer id );
-
 int f_signal_connect_full( gpointer obj, 
 						   const char* name,
-						   FCallback function );
+						   FCallback function,
+						   gpointer data);
 
 void f_signal_disconnect_full( gpointer obj,
 							   const char* name,
@@ -45,4 +55,6 @@ void f_signal_disconnect_full( gpointer obj,
 
 void f_signal_emit_full( gpointer obj,
 						 const char* name,
-						 void* data );
+						 gpointer data );
+
+#endif

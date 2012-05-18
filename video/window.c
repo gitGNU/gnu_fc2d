@@ -21,6 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if HAVE_DISPLAY
 
+G_LOCK_DEFINE(window_new);
+G_LOCK_DEFINE(window_get);
+
 GHashTable* f_getwindow = NULL;
 
 #if HAVE_X11
@@ -35,6 +38,8 @@ GHashTable* f_getdisplay = NULL;
 Display* window_getdisplay( const char* name ) {
 	GHashTable** hash = &f_getdisplay;
 	Display** display = NULL;
+	
+	G_LOCK_DEFINE(window_get);
 	
 	if( *hash == NULL )
 		*hash = g_hash_table_new( g_str_hash, g_str_equal );
@@ -54,6 +59,8 @@ Display* window_getdisplay( const char* name ) {
 			window_display_default = *display;
 
 	}
+	
+	G_UNLOCK(window_get);
 	
 	return *display;
 }
@@ -86,17 +93,25 @@ void window_deletedisplay( const char* name ) {
 }
 
 #if HAVE_3D
-void window_set( fWindow* w ) {
+inline void window_set( fWindow* w ) {
 	glXMakeCurrent(w->display, w->window, w->glc);
+}
+
+inline void window_draw( fWindow* w ) {
+	glXSwapBuffers(w->display, w->window);
 }
 #endif
 
 #endif 
 
-fWindow* window_new_full( int x, int y, int bits, gboolean fullscreen, const char* display, const char* wname ) {
+fWindow* window_new_full( int x, int y, int bits,
+						  gboolean fullscreen, const char* display,
+						  const char* wname )
+{
 	fWindow* w = window_get(wname);
 	int flags;
-		
+	
+	G_LOCK(window_new);
 #if !HAVE_X11
 	SDL_Init(SDL_INIT_VIDEO);
 #else
@@ -141,7 +156,7 @@ fWindow* window_new_full( int x, int y, int bits, gboolean fullscreen, const cha
 	
 	glEnable( GL_TEXTURE_2D );
  
-	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+	glClearColor( 0.0f, 0.0f, 0.3f, 0.0f );
  
 	glViewport( 0, 0,  w->width, w->height );
  
@@ -155,8 +170,14 @@ fWindow* window_new_full( int x, int y, int bits, gboolean fullscreen, const cha
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
 	
+	window_draw(w);
 #endif
-
+	
+	//TODO: We avoid calling this function all the time?
+	XAllowEvents( w->display, AsyncPointer, CurrentTime );
+	
+	G_UNLOCK(window_new);
+	
 	return w;
 }
 

@@ -1,7 +1,4 @@
-Except where otherwise noted, all files in this project, are licensed under
-GNU GPL version 3, or (at your option) any later version. See COPYING for
-more details.
-
+/*
 FGameEngine - Complete tool kit for 3D games development.
 Copyright (C) 2012  Fabio J. Gonzalez
 
@@ -17,5 +14,35 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
-Your copy of GNU General Public License is in file named COPYING.
+#include <utils/fevents.h>
+#include <glib.h>
+
+#if HAVE_X11
+#include<X11/X.h>
+#include<X11/Xlib.h>
+#endif
+
+void fevent_process( fEvent* evt ) {
+	
+}
+
+void fevent_windowstep( fWindow* w ) {
+//TODO: Support to no X11 events
+#if HAVE_X11
+	XEvent evt;
+#endif
+	
+#if HAVE_X11
+	XWindowEvent( w->display, w->window, KeyPressMask | KeyReleaseMask |
+		ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
+		ExposureMask, &evt);
+#endif
+	
+	
+}
+
+void fevent_windowloop( fWindow* w ) {
+	
+}

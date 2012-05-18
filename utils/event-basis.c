@@ -21,13 +21,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 GHashTable* f_connect_hash = NULL;
 
-G_LOCK_DEFINE (f_connect_mutex);
+int feventb_searchfunction( 
+	FEventFunction* a,
+	FEventFunction* b ) {
+	
+	if( a->function < b->function ) 
+		return -1;
+	else if( a->function > b->function )
+		return 1;
+	else
+		return 0;
+}
 
-GHashTable* f_signal_obj_get( gpointer id ) {
+GHashTable* 
+f_signal_obj_get( gpointer id ) 
+{
 	GHashTable** hash = &f_connect_hash;
 	GHashTable** h;
-	
-	G_LOCK(f_connect_mutex);
 	
 	if( *hash == NULL )
 		*hash = g_hash_table_new( g_direct_hash, g_direct_equal );
@@ -39,77 +49,92 @@ GHashTable* f_signal_obj_get( gpointer id ) {
 		*h = g_hash_table_new( g_str_hash, g_str_equal );
 	}
 	
-	G_UNLOCK(f_connect_mutex);
-	
 	return *h;
 }
-void f_signal_obj_delete( gpointer id ) {
-	
-}
 
-int f_signal_connect_full( gpointer obj, const char* name, FCallback function ) {
-	
+int f_signal_connect_full( 
+	gpointer obj, 
+	const char* name, 
+	FCallback function,
+	gpointer data
+) {
 	GHashTable* hash = NULL;
 	GList** l = NULL;
-	
-	G_LOCK(f_connect_mutex);
+	FEventFunction* evtf;
 	
 	hash = f_signal_obj_get(obj);
+	evtf = g_malloc0( sizeof(FEventFunction) );
 	
 	l = g_hash_table_lookup ( hash, name );
 	
+	evtf->function = function;
+	evtf->data = data;
+	
 	if( l != NULL )
-		*l = g_list_prepend( *l, function );
+		*l = g_list_prepend( *l, evtf );
 	else {
 		l = g_malloc( sizeof(GList*) );
-		*l = g_list_append( NULL, function );
+		*l = g_list_append( NULL, evtf );
 		g_hash_table_insert( hash, name, l );
 	}
-	G_UNLOCK(f_connect_mutex);
 	
 	return 0;
 }
 
-void f_signal_disconnect_full( gpointer obj, const char* name, FCallback function ) {
+void f_signal_disconnect_full( 
+	gpointer obj,
+	const char* name,
+	FCallback function 
+) {
 	
 	GHashTable* hash = NULL;
 	GList** l = NULL;
-	
-	G_LOCK(f_connect_mutex);
+	GList* m;
+	FEventFunction evtf;
 	
 	hash = f_signal_obj_get(obj);
 	
 	l = g_hash_table_lookup ( hash, name );
 	
+	evtf.function = function;
+	
 	if( l != NULL ) {
-		*l = g_list_remove( *l, function );
+		m = g_list_find_custom(*l, 
+							   &evtf, 
+						 feventb_searchfunction );
+		*l = g_list_delete_link (*l, m);
 		if( *l == NULL ) {
 			g_free(l);
 			g_hash_table_remove( hash, name );
 		}
 	}
 	
-	G_UNLOCK(f_connect_mutex);
 }
 
-void f_signal_emit_full( gpointer obj,  const char* name, void* data ) {
+void f_signal_emit_full( 
+	gpointer obj,
+	const char* name,
+	gpointer data
+) {
 	
 	GHashTable* hash = NULL;
 	GList** li = NULL;
 	GList* l = NULL;
 	
-	G_LOCK(f_connect_mutex);
-	
 	hash = f_signal_obj_get(obj);
+	
+	if( hash == NULL ) printf("F");
 	
 	li = g_hash_table_lookup ( hash, name );
 	
 	if( li != NULL ) {
+		printf("A");
 		l = *li;
 		for( ; l != NULL; l = l->next ) {
-			FCALLBACK(l->data)(data);
+			printf(".");
+			FEVENTFUNCTION(l->data)->function(data, 
+								FEVENTFUNCTION(l->data)->data);
 		}
 	}
 	
-	G_UNLOCK(f_connect_mutex);
 }

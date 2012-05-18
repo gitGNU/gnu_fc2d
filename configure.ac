@@ -67,6 +67,7 @@ AC_CONFIG_FILES([
 Makefile
 bin/Makefile
 doc/Makefile
+net/Makefile
 bin/fge-run
 bin/fge-config
 audio/Makefile
