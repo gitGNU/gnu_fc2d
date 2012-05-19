@@ -17,13 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <glib.h>
+#include <utils/utils.h>
 
 #ifndef G_THREADS_ENABLED
 #error FGameEngine THSYS need glib with thread support to works
 #endif
 
-#include "utils/red-black.h"
-
+/*!
+ * \file fthreads.h
+ * This is the fthreads system FGameEngine.
+ * Using this system you can add fthreads 
+ * the two lines of fthreads(parallel and series).
+ * To save programmer effort it is strongly
+ * automated. Just create fthreads and call 
+ * wait() function!
+ */
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +42,13 @@ typedef struct fThread fThread;
 
 custom_list_struct( fThreadl, fThread );
 
+typedef enum {
+	PARALLEL,
+	SERIES
+} ListType;
+
 struct fThread {
+	ListType ltype;
     fThreadl parallel;
     fThreadl series;
     GMutex* mutex_all;
@@ -44,29 +58,16 @@ struct fThread {
 	GMutex* mutex_wait;
     GCond* cond;
 	GCond* condp;
-	gpointer* data;
     GThread* thread;
 	GTimer* timer;
 	double remaining_time;
 	int remaining_frames;
-	FCallback func;
-	int active;
 	
 	fThread* p; /*!< The thread that created this */
 
-    /* red-black trees
-     for current threads */
-    TRedBlack rb1;
-	
-	/* red-black trees
-     for all threads */
-    TRedBlack rb2;
-
 };
 
-extern TRedBlack* current_threads;
-extern GMutex* thsys_mutex;
-extern fThread* thsys_root;
+extern GHashTable* thsys_hash;
 extern int FPS_MAX;
 
 #define CFTHREAD fThread* __current_fthread
@@ -110,102 +111,73 @@ extern int FPS_MAX;
 	g_cond_wait(this->cond, this->mutex_all);
 
 /*!
- * \brief Add current thread to be processed
- *        by threads system
+ * \brief Alloc memory and set default values
  */
-#define thsys_add() \
-{\
-	THSYS_LOCK\
-	__current_fthread = _thsys_add( __current_thread );\
-	THSYS_UNLOCK\
-	\
-}
+void thsys_initvalues( fThread* fth )
 
-/*!
- * \brief Revove current thread from
- *        threads system.
- */
-#define thsys_remove() \
-{\
-	THSYS_LOCK\
-	_thsys_remove( __current_fthread );\
-	THSYS_UNLOCK\
-}
+/*!\brief Get a unique fThread for some thread */
+fThread* thsyshash_get1( GThread* th );
 
+/*!\brief Get a unique fThread for this thread */
+fThread* thsyshash_get();
 
-#define THREADED \
-	fThread* __current_fthread = NULL; \
-	thsys_init();\
-	FAST_CUR_THREAD \
-	thsys_add();
-	
-#define wait(value) \
-	_wait( __current_fthread, value, 0 )
+/*! \brief Remove this thread from hash table
+  * \warning Only use this function if you know
+ * what you are doing. Misuse of it can 
+ * compromise the internal state of 
+ * FGameEngine. 
+ * \note FGameEngine automatically deletes
+ * fthreads */
+void thsyshash_delete();
 
-#define waits(value) \
-	_waits( __current_fthread, value, 0 )
-	
-#define waitp() \
-	_waitp( __current_fthread, 0 )
-	
-
-#define thsys_add_with_thread(function, data)\
-	_thsys_add_with_thread( __current_fthread, function, data )
-
-#define thsys_addp_with_thread(function, data)\
-	_thsys_addp_with_thread( __current_fthread, function, data )
-
-
-#define waitk( value, id ) \
-	_wait( __current_fthread, value, id )
-
-#define waitsk( value, id ) \
-	_waits( __current_fthread, value, id )
-	
-#define waitpk( id ) \
-	_waitp( __current_fthread, id )
-
-#define CUR __current_fthread
-
-/*!
- * \brief Prepares the "thread system" to be used
+/*! 
+ * \brief Simply start the fthreads system
+ * \note You not have to call this function
+ * to use fthreads system
  */
 void thsys_init();
 
-/*!
- * \brief Add a thread to be processed
- *        by threads system. 
- * \warning This function is not thread safe.
- *          I recommend that you use the macro 
- *			THREADED instead of this function.
+/*! \brief Adds a thread to run series to this
+ * @return The identifier for new fThread 
  */
-fThread* _thsys_add( GThread* this );
+fThread* thsys_add( FCallback function, gpointer data );
+
+/*! \brief Adds a thread to run parallel to this
+ * \return The identifier for new fThread 
+ */
+fThread* thsys_addp( FCallback function, gpointer data );
+
+/*! \brief Remove a thread from fthreads system
+ * \return The identifier for new fThread 
+ * \warning Only use this function if you know
+ * what you are doing. Misuse of it can 
+ * compromise the internal state of 
+ * FGameEngine. 
+ * \note FGameEngine automatically deletes
+ * fthreads 
+ */
+gboolean thsys_remove(fThread* thread);
 
 /*!
- * \brief Revove a thread from
- *        threads system.
- * 
- * \param this A thread to be removed
- * \warning This function is not thread safe.
- *          I recommend that you use the macro 
- *			thsys_remove() instead of this function.
+ * \brief This function lets other threads work.
+ * \param value The number of cycles to wait if
+ * positive. The number of second to wait if 
+ * negative. 
  */
-void _thsys_remove( fThread* this );
-gboolean _thsys_add_with_thread( fThread* parent, FCallback* function, gpointer data );
-gboolean _thsys_addp_with_thread( fThread* parent, FCallback* function, gpointer data );
-gboolean thsys_remove_him(GThread* thread);
-gboolean thsys_remove_him_by_function(FCallback* function);
-gboolean thsys_remove_him_by_fthread(fThread* thread);
+void wait( float value );
 
-void _wait( fThread* this, double value, int id );
-void _waitp( fThread* this, int id );
-void _waits( fThread* this, double value, int id );
+/*!
+ * \brief This function lets other threads work,
+ *        but no stop this function.
+ */
+void waitp();
 
-void fth_tree_insert( fThread* tree, fThread* data );
-fThread* fth_tree_search( fThread* tree, GThread* data );
+/*!
+ * \brief While this function is running,
+ *        nobody connected to it runs.
+ */
+void waits( float value );
 
-void fth_tree_insert_all( fThread* tree, fThread* data );
-fThread* fth_tree_search_all( fThread* tree, GThread* data );
 
 #ifdef __cplusplus
 }

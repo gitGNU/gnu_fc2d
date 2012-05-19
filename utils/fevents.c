@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <utils/fevents.h>
+#include <utils/event-basis.h>
 #include <glib.h>
 
 #if HAVE_X11
@@ -24,25 +25,100 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include<X11/Xlib.h>
 #endif
 
-void fevent_process( fEvent* evt ) {
-	
+gboolean fevent_process( fEvent* evt ) {
 }
 
-void fevent_windowstep( fWindow* w ) {
+fEvent* fevent_windowstep( fWindow* w ) {
 //TODO: Support to no X11 events
-#if HAVE_X11
-	XEvent evt;
-#endif
+	static fEvent* fevt = NULL;
+	
+	if( fevt == NULL )
+		fevt = g_malloc0( sizeof(fEvent) );
+	
+	fevt->obj = w;
 	
 #if HAVE_X11
+	XEvent evt;
+	
 	XWindowEvent( w->display, w->window, KeyPressMask | KeyReleaseMask |
 		ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
 		ExposureMask, &evt);
+	
+	if( evt.type == Expose ) {
+		fevt->id = FEXPOSE_EVENT;
+		FEXPOSEEVENT(fevt)->x = evt.xexpose.x;
+		FEXPOSEEVENT(fevt)->y = evt.xexpose.y;
+		FEXPOSEEVENT(fevt)->width = evt.xexpose.width;
+		FEXPOSEEVENT(fevt)->height = evt.xexpose.height;
+		f_signal_emit_full(w, "expose-event", fevt);
+	} else if( evt.type == MotionNotify ) {
+		fevt->id = FMOUSE_EVENT;
+		FMOUSEEVENT(fevt)->x = evt.xmotion.x;
+		FMOUSEEVENT(fevt)->y = evt.xmotion.y;
+		FMOUSEEVENT(fevt)->x_root = evt.xmotion.x_root;
+		FMOUSEEVENT(fevt)->y_root = evt.xmotion.y_root;
+		FMOUSEEVENT(fevt)->button = FBUTTON_NONE;
+		f_signal_emit_full(w, "mouse-motion-event", fevt);
+	} else if( evt.type == KeyPress ) {
+		fevt->id = FKEY_EVENT;
+		FKEYEVENT(fevt)->state = FKEY_DOWN;
+		FKEYEVENT(fevt)->keycode = evt.xkey.keycode;
+		FKEYEVENT(fevt)->x = evt.xkey.x;
+		FKEYEVENT(fevt)->y = evt.xkey.y;
+		f_signal_emit_full(w, "key-event", fevt);
+	} else if( evt.type == KeyRelease ) {
+		fevt->id = FKEY_EVENT;
+		FKEYEVENT(fevt)->state = FKEY_UP;
+		FKEYEVENT(fevt)->keycode = evt.xkey.keycode;
+		FKEYEVENT(fevt)->x = evt.xkey.x;
+		FKEYEVENT(fevt)->y = evt.xkey.y;
+		f_signal_emit_full(w, "key-event", fevt);
+	} else if( evt.type == ButtonPress ) {
+		fevt->id = FMOUSE_EVENT;
+		FMOUSEEVENT(fevt)->x = evt.xbutton.x;
+		FMOUSEEVENT(fevt)->y = evt.xbutton.y;
+		FMOUSEEVENT(fevt)->x_root = evt.xbutton.x_root;
+		FMOUSEEVENT(fevt)->y_root = evt.xbutton.y_root;
+		FMOUSEEVENT(fevt)->state = FBUTTON_DOWN;
+		
+		if( evt.xbutton.button == 0 )
+			FMOUSEEVENT(fevt)->button = FBUTTON_LEFT;
+		else if( evt.xbutton.button == 1 )
+			FMOUSEEVENT(fevt)->button = FBUTTON_MIDDLE;
+		else if( evt.xbutton.button == 2 )
+			FMOUSEEVENT(fevt)->button = FBUTTON_RIGHT;
+		
+		f_signal_emit_full(w, "mouse-button", fevt);
+	} else if( evt.type == ButtonRelease ) {
+		fevt->id = FMOUSE_EVENT;
+		FMOUSEEVENT(fevt)->x = evt.xbutton.x;
+		FMOUSEEVENT(fevt)->y = evt.xbutton.y;
+		FMOUSEEVENT(fevt)->x_root = evt.xbutton.x_root;
+		FMOUSEEVENT(fevt)->y_root = evt.xbutton.y_root;
+		FMOUSEEVENT(fevt)->state = FBUTTON_UP;
+		
+		if( evt.xbutton.button == 0 )
+			FMOUSEEVENT(fevt)->button = FBUTTON_LEFT;
+		else if( evt.xbutton.button == 1 )
+			FMOUSEEVENT(fevt)->button = FBUTTON_MIDDLE;
+		else if( evt.xbutton.button == 2 )
+			FMOUSEEVENT(fevt)->button = FBUTTON_RIGHT;
+		
+		f_signal_emit_full(w, "mouse-button", fevt);
+	}
+	
+#else
+#warning Without X11 no have events yet.
 #endif
 	
-	
+	return fevt;
 }
 
 void fevent_windowloop( fWindow* w ) {
+	fEvent* e;
 	
+	while(1) {
+		e = fevent_windowstep(w);
+		
+	}
 }

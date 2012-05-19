@@ -22,6 +22,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <glib.h>
 #include <video/window.h>
 
+/*Macros for casting*/
+#define FEVENT(x) \
+	((fEvent*)(x))
+	
+#define FKEYEVENT(x) \
+	((fKeyEvent*)(x))
+
+#define FMOUSEEVENT(x) \
+	((fMouseEvent*)(x))	
+
+#define FEXPOSEEVENT(x) \
+	((fExposeEvent*)(x))
+
 struct _fEvent;
 typedef struct _fEvent fEvent;
 
@@ -37,21 +50,47 @@ typedef struct _fExposeEvent fExposeEvent;
 enum _fEventId;
 typedef enum _fEventId fEventId;
 
+typedef enum {
+	FKEY_DOWN,
+	FKEY_UP
+} fKeyState;
+
+typedef enum {
+	FBUTTON_DOWN,
+	FBUTTON_UP
+} fButtonState;
+
+typedef enum {
+	FBUTTON_NONE,
+	FBUTTON_LEFT,
+	FBUTTON_MIDDLE,
+	FBUTTON_RIGHT
+} fButton;
+
 struct _fMouseEvent {
-	unsigned int x;
-	unsigned int y;
+	int x;
+	int y;
+	int x_root;
+	int y_root;
+	
+	fButton button;
+	fButtonState state;
 };
 
 struct _fKeyEvent {
-	unsigned int x;
-	unsigned int y;
+	/*Mouse cordinates*/
+	int x;
+	int y;
+	
+	fKeyState state;
+	unsigned int keycode;
 };
 
 struct _fExposeEvent {
-	unsigned int x;
-	unsigned int y;
-	unsigned int width;
-	unsigned int height;
+	int x;
+	int y;
+	int width;
+	int height;
 };
 
 enum _fEventId {
@@ -76,8 +115,8 @@ struct _fEvent {
 	gpointer obj;
 };
 
-void fevent_process( fEvent* evt );
-void fevent_windowstep( fWindow* w );
+gboolean fevent_process( fEvent* evt );
+fEvent* fevent_windowstep( fWindow* w );
 void fevent_windowloop( fWindow* w );
 
 #endif

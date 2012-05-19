@@ -2,7 +2,7 @@
 @setfilename fgameengine.info
 @settitle FGameEngine user and developer manual
 
-@set UPDATED 16 May 2012
+@set UPDATED 18 May 2012
 @set UPDATED-MONTH May 2012
 @set EDITION SVN
 @set VERSION SVN
@@ -56,16 +56,98 @@ but may work on other systems (who knows?).
 This manual will introduce you, FGameEngine.
 It will teach you how to create games,
 reading/writing songs and videos, using
-the event system, and how to create 
-graphical user interfaces, etc.
-@chapter Downloading
-
-@code{}
+the event system, how to create 
+graphical user interfaces etc.
+The new versions of FGameEngine are under terms of
+GNU GPL, instead of GNU LGPL.
+For more details, download FGameEngine and 
+see file COPYING. @xref{Getting FGameEngine}
 
 @menu
+* Preface::
 * Introduction::
 * Copying this manual::
 @end menu
+
+@node Preface
+@chapter Preface
+
+@menu
+* Official web site::
+* Getting FGameEngine::
+@end menu
+
+@node Official web site
+@section Official web site
+I suggest visiting the official website of
+FGameEngine, it can contain information
+about the current state of development of
+FGameEngine.
+Currently the official website of FGameEngine
+is @url{http://fgc.sf.net}.
+
+@node Getting FGameEngine
+@section Getting FGameEngine
+
+@menu
+* From SVN::
+* Released versions::
+@end menu
+
+@node From SVN
+@subsection From SVN
+SVN stores a historic of all changes.
+Can be reversed to any stage of
+development.
+To begin open a @dfn{command line}(like @command{konsole} in @dfn{KDE}
+or @command{terminal}).
+Create a directory called 
+@file{FGameEngine} unsing 
+@code{@command{mkdir} @file{FGameEngine}}
+use @code{@command{svn} checkout 
+@url{svn://svn.code.sf.net/p/fgc/code/trunk}}
+to obtain the latest version of FGameEngine
+Using SVN you can get the latest changes in
+the project.
+Latest changes can be both bug fixes and
+new features. These two things are separated
+in different directories in SVN
+repository.
+@table @code
+
+@item Directory @file{trunk}
+The latest features added to FGameEngine. Downloading it,
+you can get the very latest changes in FGameEngine.
+It is very likely that this version is highly unstable.
+As always here is the latest version, the version number
+is always @dfn{1.0.0}.
+
+@item Directory @file{tags}
+When the work is done or almost done. The work is copied
+to this directory, where, not adds new features, there are
+only bug fixes. At this point, get a version number. 
+After spending some time in this directory, the versions
+are released. There may be bug fixes even after the
+launch. Therefore there should be only two version numbers,
+not three(You should know that the third number is used
+only for correction of BUGS. FGameEngine is installed on
+your machine using only the first two numbers).
+
+@item Directory @file{extra}
+This is not released. They are just demos and tests during
+the development of FGameEngine and other things.
+
+@item Directory @file{website}
+The development of the official web page of FGameEngine.
+
+@end table
+
+@node Released versions
+@subsection Released versions
+You can get all the releases of FGameEngine on page 
+@url{http://sourceforge.net/projects/fgc/files/}. 
+To download the latest version, visit 
+@url{http://sourceforge.net/projects/fgc/files/latest/download}
 
 @node Introduction
 @chapter Introduction
@@ -78,7 +160,7 @@ graphical user interfaces, etc.
 @node What is FGameEngine?
 @section What is FGameEngine?
 
-FGameEngine is a library for easy creation
+FGameEngine is a library to easy creation
 of various types of programs, such as video
 editors, games, etc. FGameEngine is an
 abstraction layer for some libraries, too.
@@ -88,7 +170,7 @@ abstraction layer for some libraries, too.
 
 FGameEngine is planned to allow you
 simply and quickly to:
-@table @code
+@table @dfn
 @item Media
 Load and write media( eg AVI, MPEG, OGG Vorbis, MP3 ).
 
@@ -111,9 +193,9 @@ threads(fThreads system) system can enter the system using a
 existent 'fThread' and exit the system quickly.
 
 @item Its own sound system
-FGameEngine becomes playing sounds in the 'background',
+FGameEngine becomes playing sounds in the @dfn{background},
 using the threads system (or fthreads). Samples are
-automatically placed in the play line and played.
+automatically placed in play line and played.
 All this is trying to stop you work as little as
 possible.
 

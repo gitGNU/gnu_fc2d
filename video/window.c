@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "window.h"
 #include <glib.h>
+#include <utils/fevents.h>
 
 #if HAVE_DISPLAY
 
@@ -173,10 +174,15 @@ fWindow* window_new_full( int x, int y, int bits,
 	window_draw(w);
 #endif
 	
+#if HAVE_X11
 	//TODO: We avoid calling this function all the time?
 	XAllowEvents( w->display, AsyncPointer, CurrentTime );
-	
+#endif
 	G_UNLOCK(window_new);
+	
+#if HAVE_X11
+	
+#endif
 	
 	return w;
 }

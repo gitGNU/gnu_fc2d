@@ -57,8 +57,8 @@ int get_audio( alsa_audio* audio );
 alsa_audio* get_audio_output();
 alsa_audio* get_audio_input();
 
-void audio_output_mainloop( CFTHREAD );
-void audio_input_mainloop( CFTHREAD );
+void audio_output_mainloop();
+void audio_input_mainloop();
 void audio_mainloop();
 
 void psamplei( guint16 sample, float balance );

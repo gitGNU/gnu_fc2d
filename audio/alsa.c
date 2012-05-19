@@ -137,13 +137,11 @@ alsa_audio* get_audio_input() {
 		return audio;
 }
 
-void audio_output_mainloop( CFTHREAD ) {
+void audio_output_mainloop() {
 	alsa_audio* audio;
 	int rest;
 	guint16* buf;
 	int err;
-	
-	thsys_addp_with_thread( audio_input_mainloop, NULL );
 	
 	audio = get_audio_output();
 	
@@ -179,7 +177,7 @@ void audio_output_mainloop( CFTHREAD ) {
 	}
 }
 
-void audio_input_mainloop( CFTHREAD ) {
+void audio_input_mainloop() {
 	alsa_audio* audio;
 	
 	audio = get_audio_input();
@@ -190,15 +188,12 @@ void audio_input_mainloop( CFTHREAD ) {
 }
 
 void audio_mainloop() {
-	THREADED
 	
-	aud_fthread = CUR;
+	aud_fthread = thsyshash_get();
 	
 	aud_mutex = g_mutex_new();
 	audio_input_loop = g_try_new0( audio_loop, 1 );
 	audio_output_loop = g_try_new0( audio_loop, 1 );
-	
-	thsys_add_with_thread( audio_output_mainloop, NULL );
 	
 	/* The function does not return, to avoid the
 	 * automatic termination of the 'fThread' */

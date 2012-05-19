@@ -47,6 +47,7 @@ f_signal_obj_get( gpointer id )
 	if( h == NULL ) {
 		h = g_malloc( sizeof(GHashTable*) );
 		*h = g_hash_table_new( g_str_hash, g_str_equal );
+		g_hash_table_insert( *hash, id, h );
 	}
 	
 	return *h;
@@ -123,15 +124,11 @@ void f_signal_emit_full(
 	
 	hash = f_signal_obj_get(obj);
 	
-	if( hash == NULL ) printf("F");
-	
 	li = g_hash_table_lookup ( hash, name );
 	
 	if( li != NULL ) {
-		printf("A");
 		l = *li;
 		for( ; l != NULL; l = l->next ) {
-			printf(".");
 			FEVENTFUNCTION(l->data)->function(data, 
 								FEVENTFUNCTION(l->data)->data);
 		}
