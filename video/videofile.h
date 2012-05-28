@@ -15,3 +15,35 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#ifndef __VIDEO_VIDEOFILE_H__
+#define __VIDEO_VIDEOFILE_H__ 1
+
+#include <config.h>
+
+#if HAVE_VIDEO
+
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <glib.h>
+
+extern gboolean videofilesystem_INITED;
+
+typedef struct {
+   AVFormatContext *format_ctx;
+   AVStream* audio_stream;
+   AVStream* video_stream;
+   AVCodec* audio_codec;
+   AVCodec* video_codec;
+} fVideoFile;
+
+inline void vf_init();
+fVideoFile* vf_open(const char* name);
+
+
+#else
+#error Before install LIBAVCODEC and LIBAVFORMAT\
+	you can NOT use this file.
+#endif
+
+#endif

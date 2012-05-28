@@ -35,4 +35,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define HAVE_3D 0
 #endif
 
+#if HAVE_LIBAVCODEC && HAVE_LIBAVFORMAT
+#define HAVE_VIDEO 1
+#else
+#define HAVE_VIDEO 0
+#endif
+
 #endif

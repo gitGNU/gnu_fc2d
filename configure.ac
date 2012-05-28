@@ -32,6 +32,8 @@ m4_define([glu_required_version], [0.25.0])
 m4_define([sdl_required_version], [0.25.0])
 m4_define([gthread_required_version], [0.25.0])
 m4_define([x11_required_version], [0.25.0])
+m4_define([libvcodec_required_version], [0.25.0])
+m4_define([libvformat_required_version], [0.25.0])
 
 FGE_VERSION=fge_version
 FGE_REAL_VERSION=fge_real_version
@@ -48,9 +50,12 @@ AC_SUBST(FGE_MICRO_VERSION)
 #check for libraries
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version )
-PKG_CHECK_MODULES( PYTHON, python >= python_required_version )
-PKG_CHECK_MODULES( GL, gl >= gl_required_version, AC_DEFINE(HAVE_GL, [1], [Check for GL]),
-	AC_DEFINE(HAVE_GL, [0], [Check for GL])
+PKG_CHECK_MODULES( PYTHON, python >= python_required_version, 
+				   AC_DEFINE(HAVE_PYTHON, [1], [Check for PYTHON]), 
+				   AC_DEFINE(HAVE_PYTHON, [0], [Check for PYTHON]) )
+PKG_CHECK_MODULES( GL, gl >= gl_required_version, 
+				   AC_DEFINE(HAVE_GL, [1], [Check for GL]),
+				   AC_DEFINE(HAVE_GL, [0], [Check for GL])
 )
 PKG_CHECK_MODULES( GLU, glu >= glu_required_version, AC_DEFINE(HAVE_GLU, [1], [Check for GLU]),
 	AC_DEFINE(HAVE_GLU, [0], [Check for GLU])
@@ -61,6 +66,13 @@ PKG_CHECK_MODULES( SDL, sdl >= sdl_required_version, AC_DEFINE(HAVE_SDL, [1], [C
 PKG_CHECK_MODULES( X11, x11 >= x11_required_version, AC_DEFINE(HAVE_X11, [1], [Check for X11]),
 	AC_DEFINE(HAVE_X11, [0], [Check for X11])
 )
+PKG_CHECK_MODULES( LIBAVCODEC, libavcodec >= libavcodec_required_version, 
+				   AC_DEFINE(HAVE_LIBAVCODEC, [1], [Check for LIBAVCODEC]), 
+				   AC_DEFINE(HAVE_LIBAVCODEC, [0], [Check for LIBAVCODEC]) )
+
+PKG_CHECK_MODULES( LIBAVFORMAT, libavformat >= libavformat_required_version, 
+				   AC_DEFINE(HAVE_LIBAVFORMAT, [1], [Check for LIBAVFORMAT]), 
+				   AC_DEFINE(HAVE_LIBAVFORMAT, [0], [Check for LIBAVFORMAT]) )
 
 AC_CONFIG_MACRO_DIR([m4])
 
