@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define __AUDIO_ALSA_H__ 1
 
 #include <alsa/asoundlib.h>
-#include <high-level/fthreads.h>
+#include <high-level/threads.h>
 #include <glib.h>
 
 #ifdef __cplusplus

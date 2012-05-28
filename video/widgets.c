@@ -16,16 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VIDEO_RENDER_H__
-#define __VIDEO_RENDER_H__ 1
+#include "window.h"
+#include <glib.h>
+#include <video/fwidgets.h>
 
-#define fColorM(c) \
-	(c)->r, (c)->g, (c)->b
-
-#include <video/window.h>
-
-void RenderScene( fWindow* w );
-void RenderGUI( fWindow* w );
-void Render( fWindow* w );
 
 #endif

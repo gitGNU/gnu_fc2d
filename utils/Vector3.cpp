@@ -16,8 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "fVector3.h"
+#include <utils/Vector3.h>
 #include <math.h>
+
+#if 0
 
 fVector3::fVector3( float ax, float ay, float az ) {
     x = ax;
@@ -155,3 +157,30 @@ fVector3& fVector3::operator/( float v1 ) {
 float fVector3::magnitude() {
 	return sqrt( x*x + y*y + z*z );
 }
+
+#endif
+
+void vec_set( float* v1, float* v2 ) {
+	v1[0] = v2[0];
+	v1[1] = v2[1];
+	v1[2] = v2[2];
+}
+
+void vec_add( float* v1, float* v2 ) {
+	v1[0] += v2[0];
+	v1[1] += v2[1];
+	v1[2] += v2[2];
+}
+
+void vec_sub( float* v1, float* v2 ) {
+	v1[0] -= v2[0];
+	v1[1] -= v2[1];
+	v1[2] -= v2[2];
+}
+
+void vec_scale( float* v1, float* v2 ) {
+	v1[0] *= v2[0];
+	v1[1] *= v2[1];
+	v1[2] *= v2[2];
+}
+

@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glib.h>
 #include <video/window.h>
+#include <video/widgets.h>
 
 /*Macros for casting*/
 #define FEVENT(x) \
@@ -34,21 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define FEXPOSEEVENT(x) \
 	((fExposeEvent*)(x))
-
-struct _fEvent;
-typedef struct _fEvent fEvent;
-
-struct _fKeyEvent;
-typedef struct _fKeyEvent fKeyEvent;
-
-struct _fMouseEvent;
-typedef struct _fMouseEvent fMouseEvent;
-
-struct _fExposeEvent;
-typedef struct _fExposeEvent fExposeEvent;
-
-enum _fEventId;
-typedef enum _fEventId fEventId;
 
 typedef enum {
 	FKEY_DOWN,
@@ -67,7 +53,7 @@ typedef enum {
 	FBUTTON_RIGHT
 } fButton;
 
-struct _fMouseEvent {
+typedef struct {
 	int x;
 	int y;
 	int x_root;
@@ -75,33 +61,42 @@ struct _fMouseEvent {
 	
 	fButton button;
 	fButtonState state;
-};
+} fMouseEvent;
 
-struct _fKeyEvent {
+typedef struct {
 	/*Mouse cordinates*/
 	int x;
 	int y;
 	
 	fKeyState state;
 	unsigned int keycode;
-};
+} fKeyEvent;
 
-struct _fExposeEvent {
+typedef struct {
 	int x;
 	int y;
 	int width;
 	int height;
-};
+} fExposeEvent;
 
-enum _fEventId {
+typedef enum {
 	FKEY_EVENT,
 	FMOUSE_EVENT,
 	FEXPOSE_EVENT
-};
+} fEventId;
 
-struct _fEvent {
+typedef enum {
+	TYPE_FWIDGET,
+	TYPE_NONE
+} fObjType;
+
+typedef struct {
 	/* Is the first for casting */
 	union {
+		struct {
+			int x;
+			int y;
+		};
 		fKeyEvent key;
 		fMouseEvent mouse;
 		fExposeEvent expose;
@@ -109,11 +104,13 @@ struct _fEvent {
 	
 	fEventId id;
 	char* msg;
+	char* name;
 	/*!
 	 * \brief The object that launched the event 
 	 */
 	gpointer obj;
-};
+	fObjType obj_type;
+} fEvent;
 
 gboolean fevent_process( fEvent* evt );
 fEvent* fevent_windowstep( fWindow* w );

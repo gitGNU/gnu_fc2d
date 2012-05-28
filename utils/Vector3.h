@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __UTILS_FVECTOR3__
 #define __UTILS_FVECTOR3__ 1
 
+#if 0
+
 #ifdef __cplusplus
 
 class fVector3 {
@@ -70,10 +72,10 @@ public:
 
 #else
 
-struct fVector3;
-typedef struct fVector3 fVector3;
+struct _fVector3;
+typedef struct _fVector3 fVector3;
 
-struct fVector3 {
+struct _fVector3 {
   fVector3* old;
   fVector3* eold;
 	union {
@@ -86,6 +88,8 @@ struct fVector3 {
   };
 };
 
+#endif
+
 fVector3 fVector3( float ax, float ay, float az );
 void vec_set( fVector3 vec, fVector3 v2 );
 inline void set( float x, float y, float z );
@@ -95,5 +99,25 @@ float dist( fVector3& v );
 float magnitude();
 
 #endif
+
+struct fVector3;
+typedef struct fVector3 fVector3;
+
+struct fVector3 {
+	union {
+		struct {
+			float x;
+			float y;
+			float z;
+		};
+		float m[3];
+  };
+  
+};
+
+void vec_set( float* v1, float* v2 );
+void vec_add( float* v1, float* v2 );
+void vec_sub( float* v1, float* v2 );
+void vec_scale( float* v1, float* v2 );
 
 #endif

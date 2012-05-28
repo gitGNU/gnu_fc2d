@@ -17,8 +17,8 @@ utilsinclude_HEADERS = \
 	utils.h \
 	red-black.h \
 	event-basis.h \
-	fVector3.h \
-	fevents.h
+	Vector3.h \
+	events.h
 
 utilsincludedir = $(includedir)/fgameengine-@FGE_VERSION@/utils/
 
@@ -26,8 +26,8 @@ libutils_la_SOURCES = \
 	utils.cpp \
 	event-basis.c \
 	red-black.c \
-	fVector3.cpp \
-	fevents.c \
+	Vector3.cpp \
+	events.c \
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

@@ -40,8 +40,13 @@ extern GHashTable* f_connect_hash;
 typedef struct {
 	FCallback2 function;
 	gpointer data;
+	gpointer obj;
 } FEventFunction;
-	
+
+int feventb_searchfunction( 
+	FEventFunction* a,
+	FEventFunction* b );
+
 GHashTable* f_signal_obj_get( gpointer id );
 
 int f_signal_connect_full( gpointer obj, 

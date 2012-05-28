@@ -6,13 +6,13 @@ AM_CXXFLAGS=$(AM_CFLAGS)
 
 noinst_LTLIBRARIES = libhigh-level.la
 
-highlevelinclude_HEADERS = high-level.h fthreads.h
+highlevelinclude_HEADERS = high-level.h threads.h
 
 highlevelincludedir = $(includedir)/fgameengine-@FGE_VERSION@/high-level/
 
 libhigh_level_la_SOURCES = \
 	high-level.cpp \
-	fthreads.c \
+	threads.c \
 	$(highlevelinclude_HEADERS)
 
 libhigh_level_la_LIBADD = \

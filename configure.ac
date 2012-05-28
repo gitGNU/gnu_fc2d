@@ -4,13 +4,22 @@ m4_define([fge_major_version], [1])
 m4_define([fge_minor_version], [0])
 m4_define([fge_micro_version], [0])
 
+#For releases only
+##################
+#m4_define([fge_real_version], 
+#          [fge_major_version.fge_minor_version.fge_micro_version])
+#
+#m4_define([fge_version], 
+#          [fge_major_version.fge_minor_version])
+##################
+
 m4_define([fge_real_version], 
-          [fge_major_version.fge_minor_version.fge_micro_version])
+          [SVN])
 
 m4_define([fge_version], 
-          [fge_major_version.fge_minor_version])
+          [SVN])
 
-AC_INIT([FGameEngine], fge_real_version, [https://sourceforge.net/p/fgc/tickets/new/], [FGameEngine], [https://sourceforge.net/p/fgc/wiki/Home/])
+AC_INIT([FGameEngine], fge_real_version, [https://sourceforge.net/p/fgc/tickets/new/], [FGameEngine], [http://fgc.sf.net])
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 no-define])
 

@@ -11,7 +11,14 @@ AM_CFLAGS+= $(X11_CFLAGS)
 
 AM_CXXFLAGS= $(AM_CFLAGS)
 
-videoinclude_HEADERS = video.h window.h render.h
+videoinclude_HEADERS = \
+	video.h \
+	window.h \
+	render.h \
+	widgets.h \
+	image.h \
+	mesh.h \
+	videofile.h
 
 videoincludedir = $(includedir)/fgameengine-@FGE_VERSION@/video/
 
@@ -19,6 +26,9 @@ libvideo_la_SOURCES = \
 	video.cpp \
 	window.c\
 	render.c\
+	image.c \
+	mesh.c \
+	videofile.c
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

@@ -16,16 +16,25 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VIDEO_RENDER_H__
-#define __VIDEO_RENDER_H__ 1
+#ifndef __VIDEO_MESH_H__
+#define __VIDEO_MESH_H__ 1
 
-#define fColorM(c) \
-	(c)->r, (c)->g, (c)->b
+#include <video/image.h>
+#include <utils/Vector3.h>
+#include <glib.h>
 
-#include <video/window.h>
+typedef struct {
+	fVector3 v1;
+	fVector3 v2;
+	fVector3 v3;
+	fVector3 v1_tex;
+	fVector3 v2_tex;
+	fVector3 v3_tex;
+} fTriangle;
 
-void RenderScene( fWindow* w );
-void RenderGUI( fWindow* w );
-void Render( fWindow* w );
+typedef struct {
+	GList* tri;
+	fImage* tex;
+} fMesh;
 
 #endif

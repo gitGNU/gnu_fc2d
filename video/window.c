@@ -16,9 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "window.h"
 #include <glib.h>
-#include <utils/fevents.h>
+#include <video/window.h>
+#include <utils/events.h>
 
 #if HAVE_DISPLAY
 
@@ -42,9 +42,10 @@ Display* window_getdisplay( const char* name ) {
 	
 	G_LOCK_DEFINE(window_get);
 	
-	if( *hash == NULL )
+	if( *hash == NULL ) {
 		*hash = g_hash_table_new( g_str_hash, g_str_equal );
-	
+		XInitThreads();
+	}
 	if( name != NULL )
 		display = g_hash_table_lookup ( *hash, name );
 	
@@ -94,13 +95,15 @@ void window_deletedisplay( const char* name ) {
 }
 
 #if HAVE_3D
-inline void window_set( fWindow* w ) {
+void window_set( fWindow* w ) {
 	glXMakeCurrent(w->display, w->window, w->glc);
 }
 
-inline void window_draw( fWindow* w ) {
+void window_draw( fWindow* w ) {
 	glXSwapBuffers(w->display, w->window);
 }
+
+
 #endif
 
 #endif 
@@ -111,6 +114,8 @@ fWindow* window_new_full( int x, int y, int bits,
 {
 	fWindow* w = window_get(wname);
 	int flags;
+	GThread* th;
+	fThread* this;
 	
 	G_LOCK(window_new);
 #if !HAVE_X11
@@ -142,8 +147,6 @@ fWindow* window_new_full( int x, int y, int bits,
 	w->window = XCreateWindow(w->display, w->root,
 						0, 0, w->width, w->height, 0, w->vi->depth, InputOutput, w->vi->visual, CWColormap | CWEventMask, &(w->swa));
 	XMapWindow(w->display, w->window);
-	
-	w->glc = glXCreateContext(w->display, w->vi, NULL, GL_TRUE);
 #else
 	//TODO: Support to work without GL and GLU
 #warning Work without GL and GLU is not supported yet. \
@@ -151,37 +154,24 @@ fWindow* window_new_full( int x, int y, int bits,
 #endif
 	
 #endif
-	
-#if HAVE_3D
-	window_set(w);
-	
-	glEnable( GL_TEXTURE_2D );
- 
-	glClearColor( 0.0f, 0.0f, 0.3f, 0.0f );
- 
-	glViewport( 0, 0,  w->width, w->height );
- 
-	glClear( GL_COLOR_BUFFER_BIT );
- 
-	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity();
- 
-	glOrtho(0.0f, w->width, w->height, 0.0f, -1.0f, 1.0f);
- 
-	glMatrixMode( GL_MODELVIEW );
-	glLoadIdentity();
-	
-	window_draw(w);
-#endif
-	
+		
 #if HAVE_X11
 	//TODO: We avoid calling this function all the time?
-	XAllowEvents( w->display, AsyncPointer, CurrentTime );
+	XAllowEvents( w->display, GrabModeAsync, CurrentTime );
 #endif
 	G_UNLOCK(window_new);
 	
 #if HAVE_X11
 	
+#if HAVE_3D
+	this = thsyshash_get();
+	//thsys_addleaving( this, window_draw, w );
+#endif
+	this->child_coming = NULL;
+	this->child_leaving = NULL;
+	
+	thsys_add( fevent_windowloop, w );
+
 #endif
 	
 	return w;

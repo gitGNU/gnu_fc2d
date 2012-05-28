@@ -44,6 +44,8 @@ extern "C" {
 #endif
 
 #include <glib.h>
+#include <high-level/threads.h>
+#include <video/widgets.h>
 
 extern GHashTable* f_getwindow;
 
@@ -59,13 +61,22 @@ Display* window_getdisplay( const char* name );
 void window_deletedisplay( const char* name );
 
 #if HAVE_3D
-inline void window_set( fWindow* w );
-inline void window_draw( fWindow* w );
+void window_set( fWindow* w );
+void window_draw( fWindow* w );
 #endif
 
 #endif
 
 struct fWindow {
+	union {
+		fWidget widget;
+		struct {
+			unsigned int x;
+			unsigned int y;
+			unsigned int width;
+			unsigned int height;
+		};
+	};
 #if HAVE_SDL
 	SDL_Surface* screen;
 #endif
@@ -84,8 +95,6 @@ struct fWindow {
 	
 	char* name;
 	gboolean fullscreen;
-	unsigned int width;
-	unsigned int height;
 	unsigned int bits;
 	
 };

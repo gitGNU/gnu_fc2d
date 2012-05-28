@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __UTILS_UTILS_H__
 #define __UTILS_UTILS_H__ 1
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,6 +63,13 @@ typedef struct {
 	typedef struct {\
 		custom_list(type)\
 	} name
+
+
+/*! \brief Pointers to begin and end of lists */
+typedef struct {
+	GList* first;
+	GList* last;
+} GListBase;
 
 	
 /*!

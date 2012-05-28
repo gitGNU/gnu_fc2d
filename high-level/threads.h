@@ -16,8 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __HIGH_LEVEL_FTHREADS_H__
+#define __HIGH_LEVEL_FTHREADS_H__ 1
+
 #include <glib.h>
 #include <utils/utils.h>
+#include <utils/event-basis.h>
 
 #ifndef G_THREADS_ENABLED
 #error FGameEngine THSYS need glib with thread support to works
@@ -25,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*!
  * \file fthreads.h
- * This is the fthreads system FGameEngine.
+ * This is the FGameEngine threads system.
  * Using this system you can add fthreads 
  * the two lines of fthreads(parallel and series).
  * To save programmer effort it is strongly
@@ -40,31 +44,47 @@ extern "C" {
 struct fThread;
 typedef struct fThread fThread;
 
-custom_list_struct( fThreadl, fThread );
+typedef struct {
+	fThread* next;
+	fThread* prev;
+} fThreadl;
 
 typedef enum {
 	PARALLEL,
-	SERIES
+	SERIES,
+	NONE
 } ListType;
 
 struct fThread {
+	GThread* thread;
 	ListType ltype;
     fThreadl parallel;
     fThreadl series;
     GMutex* mutex_all;
     GMutex* mutex;
 	GMutex* mutex_line;
+	GMutex* mutex_data;
 	GMutex* mutexp;
 	GMutex* mutex_wait;
     GCond* cond;
 	GCond* condp;
-    GThread* thread;
 	GTimer* timer;
 	double remaining_time;
 	int remaining_frames;
-	
+	GList* coming;
+	GList* leaving;
+	FEventFunction* evtf;
+	GList* child_coming;
+	GList* child_leaving;
+	GHashTable* data;
 	fThread* p; /*!< The thread that created this */
-
+	fThread* pp; /*!< parent parallel */
+	fThread* ps;/*!< parent series */
+	ListType call_mode;
+	unsigned int series_num;
+	unsigned int parallel_num;
+	unsigned int series_count;
+	unsigned int parallel_count;
 };
 
 extern GHashTable* thsys_hash;
@@ -110,16 +130,50 @@ extern int FPS_MAX;
 #define THSYS_WAIT2 \
 	g_cond_wait(this->cond, this->mutex_all);
 
+/*! 
+ *\brief Actions to be performed ​​when entering thread
+ */
+void thsys_addcoming( fThread* th, 
+					  FCallback2 function, gpointer data );
+
+/*! 
+ *\brief Actions to be performed ​​when leaving thread
+ */
+void thsys_addleaving( fThread* th, 
+					  FCallback2 function, gpointer data );
+
+/*! 
+ *\brief Actions to be performed ​​when entering thread
+ */
+void thsys_removecoming( fThread* th, 
+					  FCallback2 function );
+
+/*! 
+ *\brief Actions to be performed ​​when leaving thread
+ */
+void thsys_removeleaving( fThread* th, 
+					  FCallback2 function );
+
 /*!
  * \brief Alloc memory and set default values
  */
-void thsys_initvalues( fThread* fth )
+void thsys_initvalues( fThread* fth );
+
+/*!
+ * \brief Free memory and delete it from lists
+ */
+void thsys_deletevalues( fThread* fth );
 
 /*!\brief Get a unique fThread for some thread */
 fThread* thsyshash_get1( GThread* th );
 
-/*!\brief Get a unique fThread for this thread */
+/*!\brief Get a unique fThread for this thread
+   \note Never return NULL*/
 fThread* thsyshash_get();
+
+/*!\brief Try to get a unique fThread for this thread
+   \return The fthread. If no exists return NULL. */
+fThread* thsyshash_try_get();
 
 /*! \brief Remove this thread from hash table
   * \warning Only use this function if you know
@@ -130,12 +184,21 @@ fThread* thsyshash_get();
  * fthreads */
 void thsyshash_delete();
 
+/*! \brief Remove some thread from hash table
+  * \warning Only use this function if you know
+ * what you are doing. Misuse of it can 
+ * compromise the internal state of 
+ * FGameEngine. 
+ * \note FGameEngine automatically deletes
+ * fthreads */
+void thsyshash_delete1( GThread* th );
+
 /*! 
  * \brief Simply start the fthreads system
  * \note You not have to call this function
  * to use fthreads system
  */
-void thsys_init();
+inline void thsys_init();
 
 /*! \brief Adds a thread to run series to this
  * @return The identifier for new fThread 
@@ -164,11 +227,11 @@ gboolean thsys_remove(fThread* thread);
  * positive. The number of second to wait if 
  * negative. 
  */
-void wait( float value );
+void wait( double value );
 
 /*!
  * \brief This function lets other threads work,
- *        but no stop this function.
+ *        but no stop calling function.
  */
 void waitp();
 
@@ -176,9 +239,17 @@ void waitp();
  * \brief While this function is running,
  *        nobody connected to it runs.
  */
-void waits( float value );
+void waits( double value );
 
+/*!
+ * \brief Wait until all threads are here.
+ */
+void synchronize( ListType mode );
+
+void thsys_step( ListType mode );
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

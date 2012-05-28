@@ -16,16 +16,35 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VIDEO_RENDER_H__
-#define __VIDEO_RENDER_H__ 1
+#ifndef __VIDEO_WIDGETS_H__
+#define __VIDEO_WIDGETS_H__ 1
 
-#define fColorM(c) \
-	(c)->r, (c)->g, (c)->b
+#include <config.h>
+#include <glib.h>
 
-#include <video/window.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void RenderScene( fWindow* w );
-void RenderGUI( fWindow* w );
-void Render( fWindow* w );
+#define FWIDGET(x) \
+	((fWidget*)(x))
+
+struct _fWidget;
+typedef struct _fWidget fWidget;
+
+struct _fWidget {
+	unsigned int x;
+	unsigned int y;
+	unsigned int width;
+	unsigned int height;
+	
+	
+	
+	GList* childs;
+};
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

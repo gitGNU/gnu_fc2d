@@ -60,14 +60,14 @@ pkgconfig_DATA = fgameengine.pc
 #AM_CXXFLAGS=`cs-config --cflags`
 #AM_LDFLAGS=`cs-config --libs`
 
-lib_LTLIBRARIES = libfgameengine-1.0.la
+lib_LTLIBRARIES = libfgameengine-SVN.la
 
 fgameengineinclude_HEADERS = fge.h config.h auto-config.h
 fgameengineincludedir = $(includedir)/fgameengine-@FGE_VERSION@/
 
-libfgameengine_1_0_la_SOURCES = fge.cpp $(fgameengineinclude_HEADERS)
+libfgameengine_SVN_la_SOURCES = fge.cpp $(fgameengineinclude_HEADERS)
 
-libfgameengine_1_0_la_LIBADD = \
+libfgameengine_SVN_la_LIBADD = \
 $(libhighlevel) \
 $(libhighestlevel) \
 $(libaudio) \
@@ -76,7 +76,7 @@ $(libphysics) \
 $(libutils)
 	
 
-libfgameengine_1_0_la_DEPENDENCIES = $(libfgameengine_1_0_la_LIBADD)
+libfgameengine_SVN_la_DEPENDENCIES = $(libfgameengine_SVN_la_LIBADD)
 
 INCLUDES= \
 	-I$(top_builddir)

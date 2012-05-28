@@ -16,9 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <utils/fevents.h>
+#include <utils/events.h>
 #include <utils/event-basis.h>
+#include <video/window.h>
+#include <video/render.h>
+#include <video/widgets.h>
 #include <glib.h>
+#include <high-level/threads.h>
 
 #if HAVE_X11
 #include<X11/X.h>
@@ -26,6 +30,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 gboolean fevent_process( fEvent* evt ) {
+	fWidget* widget;
+	fWidget* widget2;
+	GList* l;
+	
+	if( evt->obj_type == TYPE_FWIDGET ) {
+		widget = evt->obj;
+		
+		if( evt->x > widget->x &&
+			evt->x <= widget->x &&
+			evt->y > widget->y &&
+			evt->y <= widget->y
+		) {
+			for( l = widget->childs; l != NULL; l = l->next ) {
+				widget2 = l->data;
+				
+				if( evt->x > widget2->x &&
+					evt->x <= widget2->x &&
+					evt->y > widget2->y &&
+					evt->y <= widget2->y
+				) 
+					f_signal_emit_full( widget2, evt->name, evt);
+			}
+			
+			return TRUE;
+		}
+		
+	}
+	
+	return FALSE;
 }
 
 fEvent* fevent_windowstep( fWindow* w ) {
@@ -41,8 +74,8 @@ fEvent* fevent_windowstep( fWindow* w ) {
 	XEvent evt;
 	
 	XWindowEvent( w->display, w->window, KeyPressMask | KeyReleaseMask |
-		ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
-		ExposureMask, &evt);
+		ButtonPressMask | ButtonReleaseMask | PointerMotionMask | 
+		ButtonMotionMask| ExposureMask, &evt);
 	
 	if( evt.type == Expose ) {
 		fevt->id = FEXPOSE_EVENT;
@@ -50,29 +83,37 @@ fEvent* fevent_windowstep( fWindow* w ) {
 		FEXPOSEEVENT(fevt)->y = evt.xexpose.y;
 		FEXPOSEEVENT(fevt)->width = evt.xexpose.width;
 		FEXPOSEEVENT(fevt)->height = evt.xexpose.height;
+		fevt->name = "expose-event";
 		f_signal_emit_full(w, "expose-event", fevt);
-	} else if( evt.type == MotionNotify ) {
+		fevent_process( w );
+	} if( evt.type == MotionNotify ) {
 		fevt->id = FMOUSE_EVENT;
 		FMOUSEEVENT(fevt)->x = evt.xmotion.x;
 		FMOUSEEVENT(fevt)->y = evt.xmotion.y;
 		FMOUSEEVENT(fevt)->x_root = evt.xmotion.x_root;
 		FMOUSEEVENT(fevt)->y_root = evt.xmotion.y_root;
 		FMOUSEEVENT(fevt)->button = FBUTTON_NONE;
+		fevt->name = "mouse-motion-event";
 		f_signal_emit_full(w, "mouse-motion-event", fevt);
+		fevent_process( w );
 	} else if( evt.type == KeyPress ) {
 		fevt->id = FKEY_EVENT;
 		FKEYEVENT(fevt)->state = FKEY_DOWN;
 		FKEYEVENT(fevt)->keycode = evt.xkey.keycode;
 		FKEYEVENT(fevt)->x = evt.xkey.x;
 		FKEYEVENT(fevt)->y = evt.xkey.y;
+		fevt->name = "key-event";
 		f_signal_emit_full(w, "key-event", fevt);
+		fevent_process( w );
 	} else if( evt.type == KeyRelease ) {
 		fevt->id = FKEY_EVENT;
 		FKEYEVENT(fevt)->state = FKEY_UP;
 		FKEYEVENT(fevt)->keycode = evt.xkey.keycode;
 		FKEYEVENT(fevt)->x = evt.xkey.x;
 		FKEYEVENT(fevt)->y = evt.xkey.y;
+		fevt->name = "key-event";
 		f_signal_emit_full(w, "key-event", fevt);
+		fevent_process( w );
 	} else if( evt.type == ButtonPress ) {
 		fevt->id = FMOUSE_EVENT;
 		FMOUSEEVENT(fevt)->x = evt.xbutton.x;
@@ -87,8 +128,9 @@ fEvent* fevent_windowstep( fWindow* w ) {
 			FMOUSEEVENT(fevt)->button = FBUTTON_MIDDLE;
 		else if( evt.xbutton.button == 2 )
 			FMOUSEEVENT(fevt)->button = FBUTTON_RIGHT;
-		
-		f_signal_emit_full(w, "mouse-button", fevt);
+		fevt->name = "mouse-button-event";
+		f_signal_emit_full(w, "mouse-button-event", fevt);
+		fevent_process( w );
 	} else if( evt.type == ButtonRelease ) {
 		fevt->id = FMOUSE_EVENT;
 		FMOUSEEVENT(fevt)->x = evt.xbutton.x;
@@ -103,8 +145,9 @@ fEvent* fevent_windowstep( fWindow* w ) {
 			FMOUSEEVENT(fevt)->button = FBUTTON_MIDDLE;
 		else if( evt.xbutton.button == 2 )
 			FMOUSEEVENT(fevt)->button = FBUTTON_RIGHT;
-		
-		f_signal_emit_full(w, "mouse-button", fevt);
+		fevt->name = "mouse-button-event";
+		f_signal_emit_full(w, "mouse-button-event", fevt);
+		fevent_process( w );
 	}
 	
 #else
@@ -117,8 +160,10 @@ fEvent* fevent_windowstep( fWindow* w ) {
 void fevent_windowloop( fWindow* w ) {
 	fEvent* e;
 	
+	thsys_addp( Render, w );
+	
 	while(1) {
 		e = fevent_windowstep(w);
-		
+		wait(1);
 	}
 }
