@@ -1,6 +1,6 @@
 /*
 FGameEngine - Complete tool kit for 3D games development.
-Copyright (C) 2012  Fabio J. Gonzalez
+Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -168,11 +168,11 @@ void thsys_deletevalues( fThread* fth );
 fThread* thsyshash_get1( GThread* th );
 
 /*!\brief Get a unique fThread for this thread
-   \note Never return NULL*/
+   \note Never returns NULL*/
 fThread* thsyshash_get();
 
 /*!\brief Try to get a unique fThread for this thread
-   \return The fthread. If no exists return NULL. */
+   \return The fthread. If no exists returns NULL. */
 fThread* thsyshash_try_get();
 
 /*! \brief Remove this thread from hash table

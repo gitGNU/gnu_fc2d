@@ -34,6 +34,7 @@ m4_define([gthread_required_version], [0.25.0])
 m4_define([x11_required_version], [0.25.0])
 m4_define([libvcodec_required_version], [0.25.0])
 m4_define([libvformat_required_version], [0.25.0])
+m4_define([alsa_required_version], [0.25.0])
 
 FGE_VERSION=fge_version
 FGE_REAL_VERSION=fge_real_version
@@ -48,11 +49,18 @@ AC_SUBST(FGE_MINOR_VERSION)
 AC_SUBST(FGE_MICRO_VERSION)
 
 #check for libraries
+
+PKG_CHECK_MODULES( ALSA, alsa >= alsa_required_version, 
+				   AC_DEFINE(HAVE_ALSA, [1], [Check for ALSA]),
+				   AC_DEFINE(HAVE_ALSA, [0], [Check for ALSA])
+)
+
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version )
 PKG_CHECK_MODULES( PYTHON, python >= python_required_version, 
 				   AC_DEFINE(HAVE_PYTHON, [1], [Check for PYTHON]), 
 				   AC_DEFINE(HAVE_PYTHON, [0], [Check for PYTHON]) )
+
 PKG_CHECK_MODULES( GL, gl >= gl_required_version, 
 				   AC_DEFINE(HAVE_GL, [1], [Check for GL]),
 				   AC_DEFINE(HAVE_GL, [0], [Check for GL])

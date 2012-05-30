@@ -1,6 +1,6 @@
 /*
 FGameEngine - Complete tool kit for 3D games development.
-Copyright (C) 2012  Fabio J. Gonzalez
+Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "alsa.h"
+#include <audio/alsa.h>
 #include <stdio.h>
 
 audio_loop* audio_input_loop = NULL;
@@ -64,7 +64,7 @@ int get_audio( alsa_audio* audio ) {
 		return -1;
 	}
 
-	if ((err = snd_pcm_hw_params_set_format ( audio->handle, hw_params, SND_PCM_FORMAT_S16_LE)) < 0) {
+	if ((err = snd_pcm_hw_params_set_format ( audio->handle, hw_params, audio->format)) < 0) {
 		fprintf (stderr, "cannot set sample format (%s)\n",
 			 snd_strerror (err));
 		return -1;
@@ -99,15 +99,22 @@ int get_audio( alsa_audio* audio ) {
 	return 0;
 	
 }
+
 alsa_audio* get_audio_output() {
-	alsa_audio* audio = NULL;
+	static alsa_audio* audio = NULL;
+	
+	if( audio != NULL )
+		return audio;
 	
 	audio = g_try_new0( alsa_audio, 1 );
+	
+	audio_output_loop = g_try_new0( audio_loop, 1 );
+	audio_output_loop->alsa = audio;
 	
 	audio->stream = SND_PCM_STREAM_PLAYBACK;
 	audio->access = SND_PCM_ACCESS_RW_INTERLEAVED;
 	audio->channels = 2;
-	audio->format = SND_PCM_FORMAT_S16_LE;
+	audio->format = SND_PCM_FORMAT_FLOAT_LE;
 	audio->out_name = "default";
 	audio->rate = 44100;
 	
@@ -119,15 +126,21 @@ alsa_audio* get_audio_output() {
 	
 }
 alsa_audio* get_audio_input() {
-	alsa_audio* audio = NULL;
+	static alsa_audio* audio = NULL;
+	
+	if( audio != NULL )
+		return audio;
 	
 	audio = g_try_new0( alsa_audio, 1 );
 	
+	audio_input_loop = g_try_new0( audio_loop, 1 );
+	audio_input_loop->alsa = audio;
+	
 	audio->stream = SND_PCM_STREAM_CAPTURE;
 	audio->access = SND_PCM_ACCESS_RW_INTERLEAVED;
-	audio->channels = 2;
-	audio->format = SND_PCM_FORMAT_S16_LE;
-	audio->out_name = "default";
+	audio->channels = 1;
+	audio->format = SND_PCM_FORMAT_FLOAT_LE;
+	audio->out_name = "pulse";
 	audio->rate = 44100;
 	
 	if( get_audio( audio ) < 0 ) {
@@ -192,8 +205,6 @@ void audio_mainloop() {
 	aud_fthread = thsyshash_get();
 	
 	aud_mutex = g_mutex_new();
-	audio_input_loop = g_try_new0( audio_loop, 1 );
-	audio_output_loop = g_try_new0( audio_loop, 1 );
 	
 	/* The function does not return, to avoid the
 	 * automatic termination of the 'fThread' */
@@ -206,4 +217,50 @@ void psamplei( guint16 sample, float balance ) {
 	
 	if( aud_fthread == NULL )
 		return;
+}
+
+void audio_read( float* buf, unsigned int samples  ) {
+	alsa_audio* a;
+	int err;
+	float* end;
+	
+	a = audio_input_loop->alsa;
+	
+	end = &buf[samples];
+	
+	for( ; buf < end; buf+=128 ) {
+		if( end - buf > 128 ) {
+			if ( (err = snd_pcm_readi( a->handle, buf, 128 )) 
+				!= 128 )
+				fprintf (stderr, "read audio failed (%s)\n",
+					snd_strerror (err));
+		} else
+			if ( (err = snd_pcm_readi( a->handle, buf, end - buf )) 
+				!= end - buf )
+				fprintf (stderr, "read audio failed (%s)\n",
+					snd_strerror (err));
+	}
+}
+
+void audio_write( float* buf, unsigned int frames ) {
+	alsa_audio* a;
+	int err;
+	float* end;
+	
+	a = audio_output_loop->alsa;
+	
+	end = &buf[frames];
+	
+	for( ; buf < end; buf+=128 ) {
+		if( end - buf > 128 ) {
+			if ( (err = snd_pcm_writei( a->handle, buf, 128 )) 
+				!= 128 )
+				fprintf (stderr, "write audio failed (%s)\n",
+					snd_strerror (err));
+		} else
+			if ( (err = snd_pcm_writei( a->handle, buf, end - buf )) 
+				!= end - buf )
+				fprintf (stderr, "write audio failed (%s)\n",
+					snd_strerror (err));
+	}
 }

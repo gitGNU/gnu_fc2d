@@ -1,6 +1,6 @@
 /*
 FGameEngine - Complete tool kit for 3D games development.
-Copyright (C) 2012  Fabio J. Gonzalez
+Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,17 +33,6 @@ extern "C" {
 	
 #define FCALLBACK2(x) \
 	((FCallback2)(x))
-/*!
- * \brief cast a member of a structure out to the containing structure
- * \param ptr the pointer to the member
- * \param type the type of the container struct this is embedded in.
- * \param member the name of the member within the struct.
- *
- */
-#define container_of(ptr, type, member) ({			\
-	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
-	(type *)( (char *)__mptr - offsetof(type,member) );})
-
 
 typedef void (*FCallback)(void* data);
 typedef void (*FCallback2)(void* data, void* data2);

@@ -8,11 +8,13 @@ audioincludedir = $(includedir)/fgameengine-@FGE_VERSION@/audio/
 
 audioinclude_HEADERS = \
 	audio.h \
-	alsa.h
+	alsa.h \
+	basic.h
 
 libaudio_la_SOURCES = \
 	audio.cpp \
 	alsa.c \
+	basic.c \
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

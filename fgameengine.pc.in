@@ -16,7 +16,8 @@ Libs: -L${libdir} -lfgameengine-@FGE_VERSION@ \
 	@SDL_LIBS@ \
 	@X11_LIBS@ \
 	@LIBAVCODEC_LIBS@ \
-	@LIBAVFORMAT_LIBS@
+	@LIBAVFORMAT_LIBS@ \
+	@ALSA_LIBS@
 
 Cflags: -I${includedir}/fgameengine-@FGE_VERSION@ \
 	@GLIB_CFLAGS@ \
@@ -27,4 +28,5 @@ Cflags: -I${includedir}/fgameengine-@FGE_VERSION@ \
 	@SDL_CFLAGS@ \
 	@X11_CFLAGS@ \
 	@LIBAVCODEC_CFLAGS@ \
-	@LIBAVFORMAT_CFLAGS@
+	@LIBAVFORMAT_CFLAGS@ \
+	@ALSA_CFLAGS@

@@ -1,6 +1,6 @@
 /*
 FGameEngine - Complete tool kit for 3D games development.
-Copyright (C) 2012  Fabio J. Gonzalez
+Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ typedef struct {
 } alsa_audio;
 
 typedef struct {
+	alsa_audio* alsa;
 	guint16 samples[65535];
 	guint16 read;
 	guint16 write;
@@ -62,6 +63,9 @@ void audio_input_mainloop();
 void audio_mainloop();
 
 void psamplei( guint16 sample, float balance );
+
+void audio_read( float* buf, unsigned int samples );
+void audio_write( float* buf, unsigned int frames );
 
 #ifdef __cplusplus
 }

@@ -16,35 +16,36 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __CONFIG_H__
-#define __CONFIG_H__ 1
+#ifndef __AUDIO_BASIC_H__
+#define __AUDIO_BASIC_H__ 1
 
-#include "auto-config.h"
+#include <config.h>
 
-#define FGE_DATA "@prefix@/share/fgameengine-@FGE_VERSION@"
+#include <glib.h>
 
-#if HAVE_SDL || HAVE_X11
-#define HAVE_DISPLAY 1
-#else
-#define HAVE_DISPLAY 0
-#endif
+#define SFT(x) \
+	((x) * 44100)
 
-#if HAVE_GL && HAVE_GLU
-#define HAVE_3D 1
-#else
-#define HAVE_3D 0
-#endif
+#define WAVE_WINDOW_SIZE 60
 
-#if HAVE_LIBAVCODEC && HAVE_LIBAVFORMAT
-#define HAVE_VIDEO 1
-#else
-#define HAVE_VIDEO 0
-#endif
+/*! \brief Musical Instrument*/
+typedef enum {
+	PIANO,
+	VIOLIN,
+	FLUTE
+} fInstrument;
 
-#if HAVE_ALSA
-#define HAVE_AUDIO 1
-#else
-#define HAVE_AUDIO 0
-#endif
+float wave_df( float* a, guint t, guint d );
+
+void wave_normalize( float* buf, unsigned int samples );
+
+/*! \brief Get frequency in hertz */
+float wave_frequency( float* buf );
+
+/*! \brief Synthesizes the sound of a
+           musical instrument */
+void wave_synthesize( float* buf, guint samples, 
+					  guint freq, fInstrument tr );
+
 
 #endif
