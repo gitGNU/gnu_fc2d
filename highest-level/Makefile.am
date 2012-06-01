@@ -2,7 +2,7 @@ noinst_LTLIBRARIES = libhighest-level.la
 
 highestlevelinclude_HEADERS =  highest-level.h
 
-highestlevelincludedir = $(includedir)/fgameengine-@FGE_VERSION@/highest-level/
+highestlevelincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/highest-level/
 
 libhighest_level_la_SOURCES = \
 	highest-level.cpp \

@@ -1,5 +1,5 @@
 /*
-FGameEngine - Complete tool kit for 3D games development.
+FDiamondEngine - Complete engine for 3D games development.
 Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 fImage* image_new( guint32 width, guint32 height, gboolean alpha ) {
 	fImage* img;
-	const char* made = "FGameEngine image format (fif) made with "
+	const char* made = "FDiamondEngine image format (fif) made with "
 	PACKAGE_STRING"<"PACKAGE_URL">";
 	
 	img = g_malloc( sizeof(fImage) );
@@ -66,7 +66,7 @@ fImage* image_load( const char* filename ) {
 		img->header.color_size != sizeof(float)
 	) {
 		fprintf( stderr, "Incompatible version of\n"
-		"fif (FGameEngine image format or F Image Format).\n" );
+		"fif (FDiamondEngine image format or F Image Format).\n" );
 		return NULL;
 	}
 	

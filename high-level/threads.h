@@ -1,5 +1,5 @@
 /*
-FGameEngine - Complete tool kit for 3D games development.
+FDiamondEngine - Complete engine for 3D games development.
 Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -24,12 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <utils/event-basis.h>
 
 #ifndef G_THREADS_ENABLED
-#error FGameEngine THSYS need glib with thread support to works
+#error FDiamondEngine THSYS need glib with thread support to works
 #endif
 
 /*!
  * \file fthreads.h
- * This is the FGameEngine threads system.
+ * This is the FDiamondEngine threads system.
  * Using this system you can add fthreads 
  * the two lines of fthreads(parallel and series).
  * To save programmer effort it is strongly
@@ -179,8 +179,8 @@ fThread* thsyshash_try_get();
   * \warning Only use this function if you know
  * what you are doing. Misuse of it can 
  * compromise the internal state of 
- * FGameEngine. 
- * \note FGameEngine automatically deletes
+ * FDiamondEngine. 
+ * \note FDiamondEngine automatically deletes
  * fthreads */
 void thsyshash_delete();
 
@@ -188,8 +188,8 @@ void thsyshash_delete();
   * \warning Only use this function if you know
  * what you are doing. Misuse of it can 
  * compromise the internal state of 
- * FGameEngine. 
- * \note FGameEngine automatically deletes
+ * FDiamondEngine. 
+ * \note FDiamondEngine automatically deletes
  * fthreads */
 void thsyshash_delete1( GThread* th );
 
@@ -215,8 +215,8 @@ fThread* thsys_addp( FCallback function, gpointer data );
  * \warning Only use this function if you know
  * what you are doing. Misuse of it can 
  * compromise the internal state of 
- * FGameEngine. 
- * \note FGameEngine automatically deletes
+ * FDiamondEngine. 
+ * \note FDiamondEngine automatically deletes
  * fthreads 
  */
 gboolean thsys_remove(fThread* thread);

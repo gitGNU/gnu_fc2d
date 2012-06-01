@@ -1,7 +1,7 @@
 noinst_LTLIBRARIES = libphysics.la
 
 physicsinclude_HEADERS = physics.h
-physicsincludedir = $(includedir)/fgameengine-@FGE_VERSION@/physics/
+physicsincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/physics/
 
 libphysics_la_SOURCES = \
 	physics.cpp \

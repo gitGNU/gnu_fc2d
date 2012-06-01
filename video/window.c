@@ -1,5 +1,5 @@
 /*
-FGameEngine - Complete tool kit for 3D games development.
+FDiamondEngine - Complete engine for 3D games development.
 Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -150,7 +150,7 @@ fWindow* window_new_full( int x, int y, int bits,
 #else
 	//TODO: Support to work without GL and GLU
 #warning Work without GL and GLU is not supported yet. \
-	Install GL and GLU and recompile FGameEngine
+	Install GL and GLU and recompile FDiamondEngine
 #endif
 	
 #endif

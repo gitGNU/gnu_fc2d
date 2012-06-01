@@ -59,12 +59,21 @@ it using 'info doc/fgameengine.info' or simply
 About me
 =========================
 My name is Fabio J. Gonzalez, I am the original creator
-of FGameEngine. In this text, FGameEngine name refers to
-FGameEngine as published by Fabio J. Gonzalez, with
-email: fabiojosue@gmail.com or gonzalfj@users.sourceforge.net
+of FGameEngine. In this text.
 FGameEngine is not a "fork" of any other software. Your
 original code was written by 
 Fabio J. Gonzalez <gonzalfj@users.sourceforge.net>.
 
 Facebook profile:
 http://www.facebook.com/profile.php?id=100000897098800
+
+  Fabio J. Gonzalez <fabiojosue@gmail.com>
+  FDiamondEngine Maintainer
+
+---------------------------------------------------------------------------
+This file is part of FDiamondEngine
+Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
+
+This file may be modified and/or distributed without restriction.  This is
+not an invitation to misrepresent the history of FDiamondEngine.
+

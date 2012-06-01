@@ -20,7 +20,7 @@ utilsinclude_HEADERS = \
 	Vector3.h \
 	events.h
 
-utilsincludedir = $(includedir)/fgameengine-@FGE_VERSION@/utils/
+utilsincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/utils/
 
 libutils_la_SOURCES = \
 	utils.cpp \

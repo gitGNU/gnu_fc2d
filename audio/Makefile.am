@@ -4,7 +4,7 @@ AM_LIBS=$(GLIB_LIBS)
 AM_CFLAGS=$(GLIB_CFLAGS)
 AM_CXXFLAGS=$(AM_CFLAGS)
 
-audioincludedir = $(includedir)/fgameengine-@FGE_VERSION@/audio/
+audioincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/audio/
 
 audioinclude_HEADERS = \
 	audio.h \

@@ -19,7 +19,7 @@ m4_define([fge_real_version],
 m4_define([fge_version], 
           [SVN])
 
-AC_INIT([FGameEngine], fge_real_version, [https://sourceforge.net/p/fgc/tickets/new/], [FGameEngine], [http://fgc.sf.net])
+AC_INIT([FDiamondEngine], fge_real_version, [https://sourceforge.net/p/fgc/tickets/new/], [FDiamondEngine], [http://fgc.sf.net])
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 no-define])
 
@@ -97,8 +97,8 @@ Makefile
 bin/Makefile
 doc/Makefile
 net/Makefile
-bin/fge-run
-bin/fge-config
+bin/fde-run
+bin/fde-config
 audio/Makefile
 data/Makefile
 data/images/Makefile
@@ -111,7 +111,7 @@ highest-level/Makefile
 physics/Makefile
 utils/Makefile
 video/Makefile
-fgameengine.pc
+fdiamondengine.pc
 config.h
 ])
 

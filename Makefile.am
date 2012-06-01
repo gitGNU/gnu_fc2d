@@ -13,11 +13,11 @@ noinst_DATA = \
     ChangeLog \
     COPYING \
     INSTALL \
-    LICENSE \
     THANKS \
     NEWS \
     README \
-    autogen.sh
+    autogen.sh \
+    TODO
 
 EXTRA_DIST = \
 	$(noinst_DATA)
@@ -51,23 +51,23 @@ DIST_SUBDIRS = \
 SUBDIRS = $(DIST_SUBDIRS)
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = fgameengine.pc
+pkgconfig_DATA = fdiamondengine.pc
 
-#FGameEngine - Library
+#FDiamondEngine - Library
 #======================
 
 #AM_CFLAGS=`cs-config --cflags`
 #AM_CXXFLAGS=`cs-config --cflags`
 #AM_LDFLAGS=`cs-config --libs`
 
-lib_LTLIBRARIES = libfgameengine-SVN.la
+lib_LTLIBRARIES = libFDiamondEngine-SVN.la
 
-fgameengineinclude_HEADERS = fge.h config.h auto-config.h
-fgameengineincludedir = $(includedir)/fgameengine-@FGE_VERSION@/
+fdiamondengineinclude_HEADERS = fge.h config.h auto-config.h
+fdiamondengineincludedir = $(includedir)/fdiamondengine-@FGE_VERSION@/
 
-libfgameengine_SVN_la_SOURCES = fge.cpp $(fgameengineinclude_HEADERS)
+libFDiamondEngine_SVN_la_SOURCES = fge.cpp $(fdiamondengineinclude_HEADERS)
 
-libfgameengine_SVN_la_LIBADD = \
+libFDiamondEngine_SVN_la_LIBADD = \
 $(libhighlevel) \
 $(libhighestlevel) \
 $(libaudio) \
@@ -76,7 +76,7 @@ $(libphysics) \
 $(libutils)
 	
 
-libfgameengine_SVN_la_DEPENDENCIES = $(libfgameengine_SVN_la_LIBADD)
+libFDiamondEngine_SVN_la_DEPENDENCIES = $(libFDiamondEngine_SVN_la_LIBADD)
 
 INCLUDES= \
 	-I$(top_builddir)

@@ -1,2 +1,2 @@
-info_TEXINFOS = fgameengine.texi
-fgameengine_TEXINFOS = fdl.texi
+info_TEXINFOS = fdiamondengine.texi
+fdiamondengine_TEXINFOS = fdl.texi

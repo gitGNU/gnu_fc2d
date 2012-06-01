@@ -1,5 +1,5 @@
 /*
-FGameEngine - Complete tool kit for 3D games development.
+FDiamondEngine - Complete engine for 3D games development.
 Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifndef __UTILS_RED_BLACK_H__
 #define __UTILS_RED_BLACK_H__ 1
 

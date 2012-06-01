@@ -20,7 +20,7 @@ videoinclude_HEADERS = \
 	mesh.h \
 	videofile.h
 
-videoincludedir = $(includedir)/fgameengine-@FGE_VERSION@/video/
+videoincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/video/
 
 libvideo_la_SOURCES = \
 	video.cpp \

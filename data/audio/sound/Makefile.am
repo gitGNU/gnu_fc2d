@@ -1,4 +1,4 @@
-audiodir = $(datadir)/fgameengine-$(FGE_VERSION)/audio/sound
+audiodir = $(datadir)/@PACKAGE_NAME@-@FGE_VERSION@/audio/sound
 audio_DATA= \
 	fgameengine.ogg
 
