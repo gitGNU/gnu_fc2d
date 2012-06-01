@@ -160,10 +160,9 @@ void wave_resynthesize(float* voice, float** dest,
 			
 		}
 		
-		if( old != 0)  {
+		if( old != 0)
 			wave_synthesize( &((*dest)[i]), j, old, tr, 1 );
-			fprintf(stderr, "%f\n", old);
-		}
+		
 		
 		old = f;
 	}
