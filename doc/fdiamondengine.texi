@@ -1,6 +1,6 @@
 \input texinfo   @c -*-texinfo-*-
-@setfilename fgameengine.info
-@settitle FGameEngine user and developer manual
+@setfilename fdiamondengine.info
+@settitle FDiamondEngine user and developer manual
 
 @set UPDATED 18 May 2012
 @set UPDATED-MONTH May 2012
@@ -8,8 +8,8 @@
 @set VERSION SVN
 
 @titlepage
-@title FGameEngine user and developer manual
-@subtitle A User's Guide for FGameEngine
+@title FDiamondEngine user and developer manual
+@subtitle A User's Guide for FDiamondEngine
 @subtitle May, 2012
 @author Fabio J. Gonzalez @email{fabiojosue@@gmail.com} 
 @email{gonzalfj@@users.sourceforge.net}
@@ -51,17 +51,17 @@ Free Documentation License''.
 
 @top General Introduction
 The complete engine for 3D games and more.
-The main focus of FGameEngine is GNU/Linux
+The main focus of FDiamondEngine is GNU/Linux
 but may work on other systems (who knows?).
-This manual will introduce you, FGameEngine.
+This manual will introduce you, FDiamondEngine.
 It will teach you how to create games,
 reading/writing songs and videos, using
 the event system, how to create 
 graphical user interfaces etc.
-The new versions of FGameEngine are under terms of
+The new versions of FDiamondEngine are under terms of
 GNU GPL, instead of GNU LGPL.
-For more details, download FGameEngine and 
-see file COPYING. @xref{Getting FGameEngine}
+For more details, download FDiamondEngine and 
+see file COPYING. @xref{Getting FDiamondEngine}
 
 @menu
 * Preface::
@@ -74,20 +74,20 @@ see file COPYING. @xref{Getting FGameEngine}
 
 @menu
 * Official web site::
-* Getting FGameEngine::
+* Getting FDiamondEngine::
 @end menu
 
 @node Official web site
 @section Official web site
 I suggest visiting the official website of
-FGameEngine, it can contain information
+FDiamondEngine, it can contain information
 about the current state of development of
-FGameEngine.
-Currently the official website of FGameEngine
+FDiamondEngine.
+Currently the official website of FDiamondEngine
 is @url{http://fgc.sf.net}.
 
-@node Getting FGameEngine
-@section Getting FGameEngine
+@node Getting FDiamondEngine
+@section Getting FDiamondEngine
 
 @menu
 * From SVN::
@@ -102,11 +102,11 @@ development.
 To begin open a @dfn{command line}(like @command{konsole} in @dfn{KDE}
 or @command{terminal}).
 Create a directory called 
-@file{FGameEngine} unsing 
-@code{@command{mkdir} @file{FGameEngine}}
+@file{FDiamondEngine} unsing 
+@code{@command{mkdir} @file{FDiamondEngine}}
 use @code{@command{svn} checkout 
 @url{svn://svn.code.sf.net/p/fgc/code/trunk}}
-to obtain the latest version of FGameEngine
+to obtain the latest version of FDiamondEngine
 Using SVN you can get the latest changes in
 the project.
 Latest changes can be both bug fixes and
@@ -116,8 +116,8 @@ repository.
 @table @code
 
 @item Directory @file{trunk}
-The latest features added to FGameEngine. Downloading it,
-you can get the very latest changes in FGameEngine.
+The latest features added to FDiamondEngine. Downloading it,
+you can get the very latest changes in FDiamondEngine.
 It is very likely that this version is highly unstable.
 As always here is the latest version, the version number
 is always @dfn{1.0.0}.
@@ -130,21 +130,21 @@ After spending some time in this directory, the versions
 are released. There may be bug fixes even after the
 launch. Therefore there should be only two version numbers,
 not three(You should know that the third number is used
-only for correction of BUGS. FGameEngine is installed on
+only for correction of BUGS. FDiamondEngine is installed on
 your machine using only the first two numbers).
 
 @item Directory @file{extra}
 This is not released. They are just demos and tests during
-the development of FGameEngine and other things.
+the development of FDiamondEngine and other things.
 
 @item Directory @file{website}
-The development of the official web page of FGameEngine.
+The development of the official web page of FDiamondEngine.
 
 @end table
 
 @node Released versions
 @subsection Released versions
-You can get all the releases of FGameEngine on page 
+You can get all the releases of FDiamondEngine on page 
 @url{http://sourceforge.net/projects/fgc/files/}. 
 To download the latest version, visit 
 @url{http://sourceforge.net/projects/fgc/files/latest/download}
@@ -153,26 +153,28 @@ To download the latest version, visit
 @chapter Introduction
 
 @menu
-* What is FGameEngine?::  A brief description of FGameEngine
-* What do FGameEngine?:: A list of main features
+* What is FDiamondEngine?::  A brief description of FDiamondEngine
+* What do FDiamondEngine?:: A list of main features
 @end menu
 
-@node What is FGameEngine?
-@section What is FGameEngine?
+@node What is FDiamondEngine?
+@section What is FDiamondEngine?
 
-FGameEngine is a library to easy creation
+FDiamondEngine is a library to easy creation
 of various types of programs, such as video
-editors, games, etc. FGameEngine is an
+editors, games, etc. FDiamondEngine is an
 abstraction layer for some libraries, too.
 
-@node What do FGameEngine?
-@section What do FGameEngine?
+@node What do FDiamondEngine?
+@section What do FDiamondEngine?
 
-FGameEngine is planned to allow you
+FDiamondEngine is planned to allow you
 simply and quickly to:
 @table @dfn
 @item Media
 Load and write media( eg AVI, MPEG, OGG Vorbis, MP3 ).
+Using FDiamondEngine, you can simply and generically,
+to play various formats of video/audio.
 
 @item Its own graphical interface
 Draw on the screen fields with values animation support 
@@ -181,7 +183,7 @@ for graphical interaction with the User.
 
 @item Its own event system
 Make programs that respond to events, add many functions
-to the same event. The abstraction layer FGameEngine 
+to the same event. The abstraction layer FDiamondEngine 
 provides support to various types of events 
 (or fEvents, if you prefer).
 
@@ -193,11 +195,15 @@ threads(fThreads system) system can enter the system using a
 existent 'fThread' and exit the system quickly.
 
 @item Its own sound system
-FGameEngine becomes playing sounds in the @dfn{background},
+FDiamondEngine becomes playing sounds in the @dfn{background},
 using the threads system (or fthreads). Samples are
 automatically placed in play line and played.
 All this is trying to stop you work as little as
 possible.
+You can synthesize instrument sounds using FDiamondEngine.
+As also detect the frequency of sound waves, in other words
+synthesize the sound of an instrument playing the music that
+you sing.
 
 @end table
 
