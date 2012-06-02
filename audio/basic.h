@@ -55,11 +55,20 @@ typedef enum {
 } fInstrument;
 
 typedef enum { 
+	NONE,
 	A, B, C, D, E, F,
 	G, DO=C, RE=D,
 	MI=E, FA=F, SOL=G,
 	LA=A, SI=B
 } fMusicalNote;
+
+typedef struct {
+	guint freq; //!< Sound frequency
+	guint dur; //!< Duration in samples(44100 per second)
+	float* voice;
+	guint pos; //!< Position in voice
+	guint samples //!< Limit of samples
+} fResynthesizeEvent; 
 
 float wave_df( float* a, guint t, guint d );
 
@@ -95,10 +104,15 @@ void wave_synthesize( float* buf, guint samples,
 void wave_resynthesize(float* voice, float** dest, 
 					   fInstrument tr, guint samples );
 
+void wave_resynthesize2( gpointer obj, float* voice,
+						 guint samples );
+
 float* wave_harmonics( float* buf );
 
 float freq_refine( guint f );
 
 float freq_fromnote( fMusicalNote note, guint n );
 float freq_fromnote2( guint n );
+
+fMusicalNote note_fromfreq( guint freq );
 #endif

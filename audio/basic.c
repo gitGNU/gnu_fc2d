@@ -169,6 +169,52 @@ void wave_resynthesize(float* voice, float** dest,
 	
 }
 
+void wave_resynthesize2( gpointer obj, float* voice,
+						 guint samples ) 
+{
+	guint i=0, h=0;
+	guint j=0, m=0;
+	float old=0;
+	float eold=0;
+	float f=0, g, l, f2;
+	const guint w = WAVE_WINDOW_SIZE;
+	fResynthesizeEvent* evt;
+	
+	evt = g_malloc0( sizeof(evt) );
+
+	for( i = 0; i < samples; i+=j ) {
+		for( j = w; j+i < samples; j+= w) {
+			wave_normalize(&(voice[i+j]), w);
+			f2 = wave_frequency(&(voice[i+j]));
+			if( (f2-g)*(f2-g) < 100 )
+				f = freq_refine( g );
+			else {
+				f = freq_refine( f2 );
+				g = f2;
+			}
+			//f = f2;
+			if( f >= 1000 || f2 == 0 )
+				f = old;
+			
+			if( old != f )
+				break;
+			
+		}
+		
+		if( old != 0) {
+			evt->freq = old;
+			evt->dur = j;
+			evt->voice = voice;
+			evt->pos = i;
+			f_signal_emit_full( obj, "wave-resynthesize-event", evt );
+		}
+		
+		old = f;
+	}
+	
+	g_free(evt);
+}
+
 float* wave_harmonics( float* buf ) {
 	guint i, j;
 	float* ret;
@@ -227,4 +273,23 @@ float freq_fromnote2( guint n ) {
 	nt = n % 7;
 	
 	return freq_fromnote( nt, (n / 7)+1 );
+}
+
+fMusicalNote note_fromfreq( guint freq ) {
+	if( freq % FREQ_A == 0 )
+		return A;
+	if( freq % FREQ_B == 0 )
+		return B;
+	if( freq % FREQ_C == 0 )
+		return C;
+	if( freq % FREQ_D == 0 )
+		return D;
+	if( freq % FREQ_E == 0 )
+		return E;
+	if( freq % FREQ_F == 0 )
+		return F;
+	if( freq % FREQ_G == 0 )
+		return G;
+	
+	return NONE;
 }
