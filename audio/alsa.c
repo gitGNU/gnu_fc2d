@@ -213,10 +213,6 @@ void audio_mainloop() {
 
 void psamplei( guint16 sample, float balance ) {
 	
-	CFTHREAD = aud_fthread;
-	
-	if( aud_fthread == NULL )
-		return;
 }
 
 void audio_read( float* buf, unsigned int samples  ) {

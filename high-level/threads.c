@@ -48,7 +48,8 @@ void thsys_coming( FEventFunction* fun ) {
 			this );
 	}
 	
-	thsys_remove( this );
+	/*FIXME: Let the thread finalize*/
+	while(1) wait(1);
 	
 }
 
@@ -129,7 +130,6 @@ void thsys_removeleaving( fThread* th,
 
 inline void thsys_init() {
 	
-	/*This function has been called before?*/
 	if( thsys_mutex != NULL )
 		return;
 
@@ -167,6 +167,7 @@ void thsys_initvalues( fThread* fth ) {
 	fth->timer = g_timer_new();
 	fth->coming = NULL;
 	fth->leaving = NULL;
+	fth->removeme = FALSE;
 	
 	fth->p = g_hash_table_lookup ( thsys_hash, g_thread_self() );
 	
@@ -179,22 +180,15 @@ void thsys_initvalues( fThread* fth ) {
 }
 
 void thsys_deletevalues( fThread* fth ) {
-	
-	g_mutex_lock(fth->mutex_line);
 	/*Remove from lists*/
 	fth->parallel.next->parallel.prev = fth->parallel.prev;
 	fth->parallel.prev->parallel.next = fth->parallel.next;
 	fth->series.next->series.prev = fth->series.prev;
 	fth->series.prev->series.next = fth->series.next;
-	g_mutex_unlock(fth->mutex_line);
 	
-	g_mutex_lock( fth->mutex );
-	g_cond_signal( fth->cond );
-	g_mutex_unlock( fth->mutex );
-	
-	g_mutex_lock( fth->mutexp );
-	g_cond_signal( fth->condp );
-	g_mutex_unlock( fth->mutexp );
+	g_mutex_unlock(fth->mutex);
+	g_mutex_unlock(fth->mutexp);
+	g_mutex_unlock(fth->mutex_wait);
 	
 	if( fth->p == NULL )
 		g_free(fth->mutex_line);
@@ -274,7 +268,8 @@ fThread* thsys_add( FCallback function, gpointer data ) {
 	fth->leaving = this->child_leaving;
 	
 	list_insert( fth->p, fth, series )
-	fth->call_mode = fth->ltype = SERIES;
+	fth->ltype = SERIES;
+	fth->call_mode = SERIES;
 	g_mutex_lock( fth->mutexp );
 	
 	if( this->ps == NULL )
@@ -282,14 +277,12 @@ fThread* thsys_add( FCallback function, gpointer data ) {
 	else
 		fth->ps = this->ps;
 	
-	g_mutex_lock( fth->ps->mutex_data );
 	fth->ps->series_num++;
-	g_mutex_unlock( fth->ps->mutex_data );
 	
 	g_mutex_unlock( evtf->obj );
 	
 	g_cond_wait(this->cond, this->mutex);
-	
+
 	return fth;
 }
 
@@ -324,7 +317,8 @@ fThread* thsys_addp( FCallback function, gpointer data ) {
 	g_mutex_unlock( fth->pp->mutex_data );
 	
 	list_insert( fth->p, fth, parallel )
-	fth->call_mode = fth->ltype = PARALLEL;
+	fth->ltype = PARALLEL;
+	fth->call_mode = PARALLEL;
 	g_mutex_unlock( evtf->obj );
 	
 	return fth;
@@ -345,10 +339,13 @@ void wait( double value ) {
 	
 	/* Wait the `parallel` thread finish, 
 	   synchronize this point. */
-// 	if( this->ltype != this->call_mode )
-// 		synchronize(SERIES);
-// 	else
-// 		synchronize(PARALLEL);
+	if( this->parallel.next != this ) {
+		if(  this->ltype != this->call_mode 
+			&& this->pp != NULL )
+			synchronize(SERIES);
+		else
+			synchronize(PARALLEL);
+	}
 	
 	for( l = this->leaving; l != NULL; l = l->next ) {
 		FEVENTFUNCTION(l->data)->function(
@@ -364,37 +361,43 @@ void wait( double value ) {
 		this->remaining_frames = ((int)(value));
 	}
 	
+	
 	if( this->remaining_frames == 0 ) {
 		while(1) {
-			if( this->ltype != this->call_mode )
-			{
-				thsys_step(PARALLEL);
-			} else {
+			
+ 			if( this->ltype != this->call_mode &&
+ 				this->ps != NULL )
+ 				thsys_step(PARALLEL);
+ 			else
 				thsys_step(SERIES);
 			}
-		}
 	}
 	
-	while( this->remaining_frames > 0 ) {
-		
-		if( this->series.next == this) 
-			break;
-		
-		if( this->ltype != this->call_mode )
-		{
-			thsys_step(PARALLEL);
-		} else {
-			thsys_step(SERIES);
+	if( this->series.next != this ) {
+		while( this->remaining_frames > 0 ) {
+			
+			if( this->series.next == this) 
+				break;
+			
+			if( this->ltype != this->call_mode &&
+				this->ps != NULL )
+				thsys_step(PARALLEL);
+			else
+				thsys_step(SERIES);
+			
+			this->remaining_frames--;
 		}
-		this->remaining_frames--;
 	}
 	
 	/* Left 'parallel' thread runs,
 	 * synchronize this point. */
-//  	if( this->ltype != this->call_mode )
-// 		synchronize(SERIES);
-// 	else
-// 		synchronize(PARALLEL);
+	if( this->parallel.next != this ) {
+		if( this->pp != NULL &&
+			this->ltype != this->call_mode )
+			synchronize(SERIES);
+		else
+			synchronize(PARALLEL);
+	}
 	
 	for( l = this->coming; l != NULL; l = l->next ) {
 		FEVENTFUNCTION(l->data)->function(
@@ -403,6 +406,8 @@ void wait( double value ) {
 	}
 }
 
+/* FIXME: The list made ​​to run in series
+ * to operate in parallel */
 void waitp() {
 	
 	fThread* this;
@@ -544,23 +549,23 @@ void synchronize( ListType mode ) {
 				l = this->parallel.next;
 			else
 				l = this->series.next;
-			
+
 			while( l != this ) {
 				
-			if( mode == NONE || mode == PARALLEL ) {
-				l = l->parallel.next;
-				l->call_mode = PARALLEL;
-				g_mutex_lock(l->mutexp);
-				g_cond_signal(l->condp);
-				g_mutex_unlock(l->mutexp);
-			}
-			else {
-				l = l->series.next;
-				l->call_mode = PARALLEL;
-				g_mutex_lock(l->mutex);
-				g_cond_signal(l->cond);
-				g_mutex_unlock(l->mutex);
-			}
+				if( mode == NONE || mode == PARALLEL ) {
+					l->call_mode = PARALLEL;
+					g_mutex_lock(l->mutexp);
+					g_cond_signal(l->condp);
+					g_mutex_unlock(l->mutexp);
+					l = l->parallel.next;
+				}
+				else {
+					l->call_mode = PARALLEL;
+					g_mutex_lock(l->mutex);
+					g_cond_signal(l->cond);
+					g_mutex_unlock(l->mutex);
+					l = l->series.next;
+				}
 			}
 			
 		}
@@ -569,16 +574,39 @@ void synchronize( ListType mode ) {
 void thsys_step( ListType mode ) {
 	fThread* this;
 	fThread* next;
-	
+
 	this = thsyshash_get();
-	
+
 	if( mode == SERIES ) {
 		next = this->series.next;
 		next->call_mode = SERIES;
+
+		if( next->removeme == TRUE )
+			next->removeme = REMOVED;
+
 		g_mutex_lock( next->mutex );
 		g_cond_signal( next->cond );
 		g_mutex_unlock( next->mutex );
-		g_cond_wait( this->cond, this->mutex );
+
+		g_mutex_lock( next->mutex_data );
+		if( next->removeme == FALSE ) {
+			g_mutex_unlock( next->mutex_data );
+			if( this->removeme != REMOVED )
+				g_cond_wait( this->cond, this->mutex );
+		} else {
+			g_mutex_unlock( next->mutex_data );
+
+			thsys_remove( next );
+			next = this->series.next;
+
+			g_mutex_lock( next->mutex );
+			g_cond_signal( next->cond );
+			g_mutex_unlock( next->mutex );
+
+			if( this->removeme != REMOVED )
+				g_cond_wait( this->cond, this->mutex );
+
+		}
 	}
 	else {
 		next = this->parallel.next;

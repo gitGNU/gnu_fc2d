@@ -55,6 +55,13 @@ typedef enum {
 	NONE
 } ListType;
 
+typedef enum {
+	REMOVE = TRUE,
+	NOREMOVE = FALSE,
+	REMOVED = -6
+} RemoveState;
+
+
 struct fThread {
 	GThread* thread;
 	ListType ltype;
@@ -85,12 +92,14 @@ struct fThread {
 	unsigned int parallel_num;
 	unsigned int series_count;
 	unsigned int parallel_count;
+	RemoveState removeme;
 };
 
 extern GHashTable* thsys_hash;
 extern int FPS_MAX;
 
-#define CFTHREAD fThread* __current_fthread
+#define this_thread \
+	(thsyshash_get())
 
 /*!
  * \brief This macro set __current_thread

@@ -2,8 +2,8 @@
 @setfilename fdiamondengine.info
 @settitle FDiamondEngine user and developer manual
 
-@set UPDATED 18 May 2012
-@set UPDATED-MONTH May 2012
+@set UPDATED 02 June 2012
+@set UPDATED-MONTH June 2012
 @set EDITION SVN
 @set VERSION SVN
 
@@ -120,7 +120,7 @@ The latest features added to FDiamondEngine. Downloading it,
 you can get the very latest changes in FDiamondEngine.
 It is very likely that this version is highly unstable.
 As always here is the latest version, the version number
-is always @dfn{1.0.0}.
+is always @dfn{SVN}.
 
 @item Directory @file{tags}
 When the work is done or almost done. The work is copied
