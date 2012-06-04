@@ -40,7 +40,9 @@ fVideoFile* vf_open(const char* name) {
 	int i;
 	AVCodecContext* c;
 	
-	video = g_malloc( sizeof(fVideoFile) );
+	video = g_malloc0( sizeof(fVideoFile) );
+	
+	video->name = name;
 	
 	err = avformat_open_input( &(video->format_ctx), name, NULL, NULL );
 	if( err < 0 )
@@ -61,9 +63,44 @@ fVideoFile* vf_open(const char* name) {
 			video->video_codec = avcodec_find_decoder(c->codec_id);
 		}
 	}
+
+	if( video->video_codec )
+		avcodec_open2( video->video_stream, video->video_codec, NULL);
+	if( video->audio_codec )
+		avcodec_open2( video->audio_stream, video->audio_codec, NULL);
+
+	return video;
 	
-	avcodec_open2( video->video_stream, video->video_codec, NULL);
-	avcodec_open2( video->audio_stream, video->audio_codec, NULL);
+	error:
+	g_free(video);
+	return NULL;
+}
+#if 0
+fVideoFile* vf_audio_new( const char* name, CodecID cid, guint channels ) {
+	fVideoFile* video;
+	int err;
+	char buf[256];
+	int i;
+	AVCodecContext* c;
+	AVCodec* codec;
+
+	video = g_malloc0( sizeof(fVideoFile) );
+
+	if( cid == 0 )
+		cid = CODEC_ID_VORBIS;
+	
+	c = avcodec_find_encoder(cid);
+
+	codec = avcodec_alloc_context();
+	
+	codec->sample_rate = 44100;
+	codec->bit_rate = 64000;
+	codec->channels = channels;
+	video->name = name;
+	
+	err = avcodec_open(codec, c);
+	if( err < 0 )
+		goto error;
 	
 	return video;
 	
@@ -71,5 +108,18 @@ fVideoFile* vf_open(const char* name) {
 	g_free(video);
 	return NULL;
 }
+
+/* TODO:Some better that! */
+#if 0
+fVideoFIle* vf_video_new( const char* name, CodecID cid,
+						  guint width, guint height, guint fps ) {
+	
+}
+#endif
+
+void vf_audio_write( fVideoFIle* vf, float* data, guint samples ) {
+	
+}
+#endif
 
 #endif

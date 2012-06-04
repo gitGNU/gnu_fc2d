@@ -19,6 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __AUDIO_ALSA_H__
 #define __AUDIO_ALSA_H__ 1
 
+#include <config.h>
+
+#if HAVE_ALSA
+
 #include <alsa/asoundlib.h>
 #include <high-level/threads.h>
 #include <glib.h>
@@ -29,6 +33,12 @@ extern "C" {
 
 #define psamplef( sample, balance ) \
 	psamplei( ((float)(sample)) * 0xffff, balance )
+
+	
+typedef struct {
+	float* data;
+	guint samples;
+} AudioBuffer;
 
 typedef struct {
 	snd_pcm_t* handle;
@@ -42,10 +52,7 @@ typedef struct {
 
 typedef struct {
 	alsa_audio* alsa;
-	guint16 samples[65535];
-	guint16 read;
-	guint16 write;
-	gboolean readed;
+	GList** l;
 } audio_loop;
 
 extern audio_loop* audio_input_loop;
@@ -59,16 +66,17 @@ alsa_audio* get_audio_output();
 alsa_audio* get_audio_input();
 
 void audio_output_mainloop();
-void audio_input_mainloop();
 void audio_mainloop();
 
-void psamplei( guint16 sample, float balance );
+void psamplei( float sample, float balance );
 
 void audio_read( float* buf, unsigned int samples );
 void audio_write( float* buf, unsigned int frames );
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif

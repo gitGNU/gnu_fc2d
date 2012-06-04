@@ -2,6 +2,10 @@ noinst_LTLIBRARIES = libaudio.la
 
 AM_LIBS=$(GLIB_LIBS)
 AM_CFLAGS=$(GLIB_CFLAGS)
+
+AM_CFLAGS+= $(ALSA_CFLAGS)
+AM_LIBS+= $(ALSA_LIBS)
+
 AM_CXXFLAGS=$(AM_CFLAGS)
 
 audioincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/audio/

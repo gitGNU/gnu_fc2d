@@ -16,8 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <config.h>
+
+#if HAVE_ALSA
+
 #include <audio/alsa.h>
 #include <stdio.h>
+
+
 
 audio_loop* audio_input_loop = NULL;
 audio_loop* audio_output_loop = NULL;
@@ -140,7 +146,7 @@ alsa_audio* get_audio_input() {
 	audio->access = SND_PCM_ACCESS_RW_INTERLEAVED;
 	audio->channels = 1;
 	audio->format = SND_PCM_FORMAT_FLOAT_LE;
-	audio->out_name = "pulse";
+	audio->out_name = "default";
 	audio->rate = 44100;
 	
 	if( get_audio( audio ) < 0 ) {
@@ -152,67 +158,66 @@ alsa_audio* get_audio_input() {
 
 void audio_output_mainloop() {
 	alsa_audio* audio;
-	int rest;
-	guint16* buf;
-	int err;
-	
+	GList* l;
+	AudioBuffer* buf = NULL;
+
 	audio = get_audio_output();
-	
-	buf = audio_input_loop->samples;
+
+	audio_output_loop->l = &l; 
 	
 	while(1) {
-		
-		rest = ((int)(audio_output_loop->write) - audio_output_loop->read);
-		if( rest < 0 )
-			rest = (65536 - audio_output_loop->read) +
-			audio_output_loop->write;
-		
-		if( rest >= 1024 ) {
-			if ( (err = snd_pcm_writei(audio->handle, &(buf[audio_output_loop->read]), 512)) != 512) {
-				fprintf (stderr, "write to audio interface failed (%s)\n",
-					snd_strerror (err));
-				break;
-			}
-
-			audio_output_loop->read += 1024;
-			
-		} else if( rest > 0 ) {
-			if ( (err = snd_pcm_writei(audio->handle, &(buf[audio_output_loop->read]), rest/2)) != rest/2) {
-				fprintf (stderr, "write to audio interface failed (%s)\n",
-					snd_strerror (err));
-				break;
-			}
-
-			audio_output_loop->read += rest;
-			audio_output_loop->readed = TRUE;
+		waits(1);
+		if(  l != NULL ) {
+			buf = l->data;
+			l->data = NULL;
 		}
+		l = g_list_delete_link( g_list_first(l), l );
 		wait(1);
-	}
-}
-
-void audio_input_mainloop() {
-	alsa_audio* audio;
-	
-	audio = get_audio_input();
-	
-	while(1) {
+		if( buf != NULL )
+			audio_write( buf->data, buf->samples/2 );
+		
+		g_free( buf );
+		buf = NULL;
+		
 		wait(1);
 	}
 }
 
 void audio_mainloop() {
-	
+
 	aud_fthread = thsyshash_get();
-	
 	aud_mutex = g_mutex_new();
-	
-	/* The function does not return, to avoid the
-	 * automatic termination of the 'fThread' */
-	wait(0);
+
+	thsys_addp( audio_output_mainloop, NULL );
 }
 
-void psamplei( guint16 sample, float balance ) {
+void psamplei( float sample, float balance ) {
+	float s[2];
+	float b[2];
+	GList** l;
+	AudioBuffer* buf;
 	
+	buf = g_malloc( sizeof(buf) );
+	
+	if( balance >= 0 ) {
+		b[1] = balance;
+		b[0] = 1 - balance;
+	} else {
+		balance += 1.f;
+		b[0] = balance;
+		b[1] = 1 - balance;
+	}
+	
+	s[0] = sample * b[0];
+	s[1] = sample * b[1];
+	
+	waits(1);
+	l = audio_output_loop->l;
+	(*l)->data = buf;
+	buf->data = &(s[0]);
+	buf->samples = 2;
+	
+	wait(2);
 }
 
 void audio_read( float* buf, unsigned int samples  ) {
@@ -260,3 +265,5 @@ void audio_write( float* buf, unsigned int frames ) {
 					snd_strerror (err));
 	}
 }
+
+#endif

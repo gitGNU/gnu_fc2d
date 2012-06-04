@@ -129,7 +129,7 @@ void wave_synthesize( float* buf, guint samples,
 }
 
 void wave_resynthesize(float* voice, float** dest, 
-					   fInstrument tr, guint samples) 
+					   fInstrument tr, guint samples, float a) 
 {
 	guint i=0, h=0;
 	guint j=0, m=0;
@@ -138,9 +138,12 @@ void wave_resynthesize(float* voice, float** dest,
 	float f=0, g, l, f2;
 	const guint w = WAVE_WINDOW_SIZE;
 
+	if( voice == NULL )
+		return;
+
 	if( *dest == NULL )
 		*dest = g_malloc0( samples * sizeof(float) );
-
+	
 	for( i = 0; i < samples; i+=j ) {
 		for( j = w; j+i < samples; j+= w) {
 			wave_normalize(&(voice[i+j]), w);
@@ -161,7 +164,7 @@ void wave_resynthesize(float* voice, float** dest,
 		}
 		
 		if( old != 0)
-			wave_synthesize( &((*dest)[i]), j, old, tr, 1 );
+			wave_synthesize( &((*dest)[i]), j, old, tr, a );
 		
 		
 		old = f;
@@ -291,5 +294,5 @@ fMusicalNote note_fromfreq( guint freq ) {
 	if( freq % FREQ_G == 0 )
 		return G;
 	
-	return NONE;
+	return NONOTE;
 }

@@ -16,53 +16,69 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VIDEO_IMAGE_H__
-#define __VIDEO_IMAGE_H__ 1
+#ifndef __HIGH_LEVEL_ENTITY_H__
+#define __HIGH_LEVEL_ENTITY_H__ 1
 
-#include <glib.h>
+#include <high-level/threads.h>
+#include <utils/Vector3.h>
+#include <video/image.h>
+#include <utils/data-connect.h>
 
-#define pixel( image, x, y ) \
-	(image->data[(((fImageHeader*)(image))->width) * \
-	(y) * (((fImageHeader*)(image))->channels_num) + (x)])
+#define me \
+	((fEntity*)(f_data_get(g_thread_self(), "ME")))
 
+#define my me
 
-#define color(image, x, y) \
-	(&pixel(image, x, y))
+#define you \
+	(me->you)
 
+#define your you
 
-typedef struct {
+struct fEntity;
+typedef struct fEntity fEntity;
+
+struct fEntity {
 	union {
 		struct {
-			float r;
-			float g;
-			float b;
+			union {
+				struct {
+					float x;
+					float y;
+					float z;
+				};
+				fVector3 pos;
+			};
+			union {
+				struct {
+					float scale_x;
+					float scale_y;
+					float scale_z;
+				};
+				fVector3 scale;
+			};
+			union {
+				struct {
+					float pan;
+					float tilt;
+					float roll;
+				};
+				fVector3 rot;
+			};
 		};
+		fMesh mesh;
+	};
+	
+	union {
 		struct {
 			float red;
 			float green;
 			float blue;
 		};
-		float c[3];
+		fColor color;
 	};
-} fColor;
-
-typedef struct {
-	guint8 header_size;
-	guint32 width;
-	guint32 height;
-	guint16 emitter_len;
-	guint8 channels_num; /*!< Channels Number */
-	guint16 color_size;
-} fImageHeader; 
-
-typedef struct {
-	fImageHeader header;
-	char* emitter;
-	float* data;
-} fImage;
-
-fImage* image_new( guint32 width, guint32 height, gboolean alpha );
-fImage* image_load( const char* filename );
-gboolean image_save( const char* filename, fImage* img );
+	
+	float lightrange;
+	fEntity* you;
+};
 
 #endif

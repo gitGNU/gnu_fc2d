@@ -83,7 +83,6 @@ struct fThread {
 	FEventFunction* evtf;
 	GList* child_coming;
 	GList* child_leaving;
-	GHashTable* data;
 	fThread* p; /*!< The thread that created this */
 	fThread* pp; /*!< parent parallel */
 	fThread* ps;/*!< parent series */

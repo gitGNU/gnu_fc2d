@@ -35,11 +35,28 @@ typedef struct {
    AVStream* video_stream;
    AVCodec* audio_codec;
    AVCodec* video_codec;
+   char* name;
 } fVideoFile;
 
-inline void vf_init();
-fVideoFile* vf_open(const char* name);
+typedef struct fVideoFile fMediaFile;
 
+inline void vf_init();
+
+fVideoFile* vf_open( const char* name );
+
+#if 0
+fVideoFile* vf_audio_new( const char* name, CodecID cid, guint channels );
+void vf_write(fVideoFIle* vf, );
+
+/* TODO:Some better that! */
+#if 0
+fVideoFIle* vf_video_new( const char* name, CodecID cid,
+						  guint width, guint height, guint fps );
+#endif
+
+void vf_audio_write( fVideoFIle* vf, float* data, guint samples );
+
+#endif
 
 #else
 #error Before install LIBAVCODEC and LIBAVFORMAT\

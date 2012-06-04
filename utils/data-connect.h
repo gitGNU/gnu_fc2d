@@ -16,38 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VIDEO_MESH_H__
-#define __VIDEO_MESH_H__ 1
+#ifndef __UTILS_DATA_CONNECT__
+#define __UTILS_DATA_CONNECT__ 1
 
-#include <video/image.h>
-#include <utils/Vector3.h>
 #include <glib.h>
 
-extern GList* f_scene_meshes;
+void f_data_connect( gpointer obj, const char* name,
+					 gpointer data);
 
-typedef enum {
-	RENDER_NORMAL=0,
-	RENDER_CARTOON
-} fRenderMode;
+void f_data_disconnect( gpointer obj, const char* name );
 
-typedef struct {
-	fVector3 v1;
-	fVector3 v2;
-	fVector3 v3;
-	fVector3 v1_tex;
-	fVector3 v2_tex;
-	fVector3 v3_tex;
-} fTriangle;
-
-typedef struct {
-	fVector3 pos;
-	fVector3 scale;
-	fVector3 rot;
-	GList* tri;
-	fImage* tex;
-	float opacity;
-	float mirror;
-	fRenderMode r;
-} fMesh;
+gpointer f_data_get( gpointer obj, const char* name );
 
 #endif

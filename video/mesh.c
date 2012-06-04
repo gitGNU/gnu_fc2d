@@ -19,3 +19,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <video/mesh.h>
 #include <utils/utils.h>
 
+GList* f_scene_meshes = NULL;

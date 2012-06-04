@@ -6,13 +6,14 @@ AM_CXXFLAGS=$(AM_CFLAGS)
 
 noinst_LTLIBRARIES = libhigh-level.la
 
-highlevelinclude_HEADERS = high-level.h threads.h
+highlevelinclude_HEADERS = high-level.h threads.h entity.h
 
 highlevelincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/high-level/
 
 libhigh_level_la_SOURCES = \
 	high-level.cpp \
 	threads.c \
+	entity.c \
 	$(highlevelinclude_HEADERS)
 
 libhigh_level_la_LIBADD = \

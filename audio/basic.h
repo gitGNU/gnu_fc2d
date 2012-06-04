@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __AUDIO_BASIC_H__
 #define __AUDIO_BASIC_H__ 1
 
-#include <config.h>
 
 #include <glib.h>
 
@@ -55,7 +54,7 @@ typedef enum {
 } fInstrument;
 
 typedef enum { 
-	NONE,
+	NONOTE,
 	A, B, C, D, E, F,
 	G, DO=C, RE=D,
 	MI=E, FA=F, SOL=G,
@@ -100,9 +99,10 @@ void wave_synthesize( float* buf, guint samples,
  * \param dest The buffer to plot the samples
  * \param tr The musical instrument to synthesize
  * \param samples The total number of samples of your melody
+ * \param a Wave amplitude
  */
 void wave_resynthesize(float* voice, float** dest, 
-					   fInstrument tr, guint samples );
+					   fInstrument tr, guint samples, float a );
 
 void wave_resynthesize2( gpointer obj, float* voice,
 						 guint samples );
