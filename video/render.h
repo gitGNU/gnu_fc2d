@@ -24,8 +24,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <video/window.h>
 
+#if HAVE_3D
+
 void RenderScene( fWindow* w );
 void RenderGUI( fWindow* w );
 void Render( fWindow* w );
+
+#else 
+#error You need install GL and GLU to enable this include
+#endif
 
 #endif

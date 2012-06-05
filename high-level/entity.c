@@ -15,3 +15,28 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <high-level/entity.h>
+
+fEntity** entity_get() {
+	fEntity** ret;
+	fThread* th;
+	
+	ret = f_data_get( this_thread, "ME" );
+	
+	if( ret != NULL )
+		return ret;
+	
+	th = this_thread;
+	while( ret == NULL && th->p != NULL ) {
+		th = th->p;
+		ret = f_data_get( this_thread, "ME");
+	}
+	
+	if( ret != NULL ) {
+		f_data_connect( this_thread, "ME", ret );
+		return ret;
+	}
+	
+	return NULL;
+}

@@ -16,12 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <video/mesh>
 #include <video/render.h>
 #include <video/window.h>
 #include <high-level/threads.h>
 
+#if HAVE_3D
+
 void RenderScene( fWindow* w ) {
+	GList* l = f_scene_meshes;
+	fMesh* m;
 	
+	while( l != NULL ) {
+		m = l->data;
+		glTranslatef( m->pos.x, m->pos.y, m->pos.z );
+		glScalef( m->scale.x, m->scale.y, m->scale.z );
+		glRotatef( m->rot.x, 0, 0, 1 );
+		l = l->next;
+	}
 }
 
 void RenderGUI( fWindow* w ) {
@@ -55,3 +67,5 @@ void Render( fWindow* w ) {
 		wait(1);
 	}
 }
+
+#endif

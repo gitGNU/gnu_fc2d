@@ -22,17 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <high-level/threads.h>
 #include <utils/Vector3.h>
 #include <video/image.h>
+#include <video/mesh.h>
 #include <utils/data-connect.h>
-
-#define me \
-	((fEntity*)(f_data_get(g_thread_self(), "ME")))
-
-#define my me
-
-#define you \
-	(me->you)
-
-#define your you
 
 struct fEntity;
 typedef struct fEntity fEntity;
@@ -79,6 +70,19 @@ struct fEntity {
 	
 	float lightrange;
 	fEntity* you;
+	fThread* thread;
 };
+
+fEntity** entity_get();
+
+#define me \
+	((entity_get())[0])
+
+#define my (*me)
+
+#define you \
+	(my.you)
+
+#define your (*you)
 
 #endif
