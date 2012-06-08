@@ -82,6 +82,22 @@ PKG_CHECK_MODULES( LIBAVFORMAT, libavformat >= libavformat_required_version,
 				   AC_DEFINE(HAVE_LIBAVFORMAT, [1], [Check for LIBAVFORMAT]), 
 				   AC_DEFINE(HAVE_LIBAVFORMAT, [0], [Check for LIBAVFORMAT]) )
 
+
+printf "checking manually for lib3ds... "
+if test `lib3ds-config --version` \> 1.2
+	then
+		AC_DEFINE(HAVE_LIB3DS, [1], [Check for LIB3DS])
+		LIB3DS_CFLAGS=`lib3ds-config --cflags`
+		LIB3DS_LIBS=`lib3ds-config --libs`
+		echo "yes"
+	else
+		AC_DEFINE(HAVE_LIB3DS, [0], [Check for LIB3DS])
+		echo "no"
+fi
+
+AC_SUBST(LIB3DS_CFLAGS)
+AC_SUBST(LIB3DS_LIBS)
+
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CONFIG_HEADERS([auto-config.h])

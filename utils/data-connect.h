@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glib.h>
 
+extern GHashTable* f_dataconnect_hash;
+
 void f_data_connect( gpointer obj, const char* name,
 					 gpointer data);
 

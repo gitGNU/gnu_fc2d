@@ -19,35 +19,66 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VIDEO_MESH_H__
 #define __VIDEO_MESH_H__ 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <video/image.h>
 #include <utils/Vector3.h>
+#include <utils/Vector2.h>
+#include <video/render.h>
 #include <glib.h>
-
-extern GList* f_scene_meshes;
 
 typedef enum {
 	RENDER_NORMAL=0,
 	RENDER_CARTOON
 } fRenderMode;
 
+#define fMaterialPropStruct \
+	struct { \
+		float opacity;\
+		float mirror;\
+		float emission;\
+		fColor mat_color;\
+		fRenderMode render_mode;\
+		guint shade_model;\
+	}
+
+#define fVector3M(v) \
+	((v)->x), ((v)->y), ((v)->z)
+
 typedef struct {
 	fVector3 v1;
 	fVector3 v2;
 	fVector3 v3;
-	fVector3 v1_tex;
-	fVector3 v2_tex;
-	fVector3 v3_tex;
+	fVector2 v1_tex;
+	fVector2 v2_tex;
+	fVector2 v3_tex;
 } fTriangle;
 
 typedef struct {
 	fVector3 pos;
 	fVector3 scale;
 	fVector3 rot;
+	fMaterialPropStruct;
 	GList* tri;
 	fImage* tex;
-	float opacity;
-	float mirror;
-	fRenderMode r;
+	guint tex_id;
 } fMesh;
+
+/*!
+ * \brief texturize a mesh 
+ */
+void mesh_texture_set( fMesh* mesh, fImage* tex );
+
+/*!
+ * \brief Generate a triangle
+ */
+void mesh_triangle_new( fMesh** mesh, fImage* tex );
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

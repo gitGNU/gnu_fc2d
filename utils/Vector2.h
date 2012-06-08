@@ -16,24 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VIDEO_RENDER_H__
-#define __VIDEO_RENDER_H__ 1
+#ifndef __UTILS_VECTOR2_H__
+#define __UTILS_VECTOR2_H__ 1
 
-#define fColorM(c) \
-	(c)->r, (c)->g, (c)->b
+#define fVector2M(v) \
+	((v)->x), ((v)->y)
 
-#include <video/window.h>
-#include <utils/events.h>
+struct fVector2;
+typedef struct fVector2 fVector2;
 
-#if HAVE_3D
-
-void RenderScene( fWindow* w );
-void RenderGUI( fWindow* w );
-void Render( fWindow* w );
-void Reshape( fEvent* evt );
-
-#else 
-#error You need install GL and GLU to enable this include
-#endif
+struct fVector2 {
+	union {
+		struct {
+			float x;
+			float y;
+		};
+		float m[2];
+  };
+  
+};
 
 #endif

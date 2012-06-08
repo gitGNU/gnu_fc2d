@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <audio/alsa.h>
 #include <stdio.h>
-
+#include <glib.h>
 
 
 audio_loop* audio_input_loop = NULL;
@@ -30,6 +30,8 @@ audio_loop* audio_output_loop = NULL;
 
 GMutex* aud_mutex = NULL;
 fThread* aud_fthread = NULL;
+
+gboolean audio_output_loop_on = FALSE;
 
 int get_audio( alsa_audio* audio ) {
 
@@ -158,12 +160,17 @@ alsa_audio* get_audio_input() {
 
 void audio_output_mainloop() {
 	alsa_audio* audio;
-	GList* l;
+	GList* l = NULL;
 	AudioBuffer* buf = NULL;
 
+	if( audio_output_loop_on )
+		return;
+	
 	audio = get_audio_output();
 
 	audio_output_loop->l = &l; 
+	
+	audio_output_loop_on = TRUE;
 	
 	while(1) {
 		waits(1);

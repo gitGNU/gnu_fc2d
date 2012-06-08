@@ -113,7 +113,9 @@ typedef struct {
 } fEvent;
 
 gboolean fevent_process( fEvent* evt );
+#if HAVE_X11
 fEvent* fevent_windowstep( fWindow* w );
+#endif
 void fevent_windowloop( fWindow* w );
 
 #endif

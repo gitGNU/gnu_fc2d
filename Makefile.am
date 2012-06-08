@@ -63,7 +63,7 @@ pkgconfig_DATA = fdiamondengine.pc
 lib_LTLIBRARIES = libFDiamondEngine-SVN.la
 
 fdiamondengineinclude_HEADERS = fge.h config.h auto-config.h
-fdiamondengineincludedir = $(includedir)/fdiamondengine-@FGE_VERSION@/
+fdiamondengineincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/
 
 libFDiamondEngine_SVN_la_SOURCES = fge.cpp $(fdiamondengineinclude_HEADERS)
 

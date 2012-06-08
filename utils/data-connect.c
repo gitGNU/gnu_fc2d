@@ -66,6 +66,5 @@ gpointer f_data_get( gpointer obj, const char* name ) {
 	if( h == NULL )
 		return NULL;
 	
-	
 	return g_hash_table_lookup ( h, name );
 }

@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <glib.h>
 #include <high-level/threads.h>
 #include <utils/event-basis.h>
+#include <utils/data-connect.h>
 #include <SDL.h>
 
 GHashTable* thsys_hash = NULL;
@@ -48,7 +49,7 @@ void thsys_coming( FEventFunction* fun ) {
 			this );
 	}
 	
-	/*FIXME: Let the thread finalize*/
+	/*FIXME: Let thread finalize*/
 	while(1) wait(1);
 	
 }
@@ -266,10 +267,11 @@ fThread* thsys_add( FCallback function, gpointer data ) {
 	fth->evtf = evtf;
 	fth->coming = this->child_coming;
 	fth->leaving = this->child_leaving;
-	
+	g_mutex_lock( fth->mutex_line );
 	list_insert( fth->p, fth, series )
 	fth->ltype = SERIES;
 	fth->call_mode = SERIES;
+	g_mutex_unlock( fth->mutex_line );
 	g_mutex_lock( fth->mutexp );
 	
 	if( this->ps == NULL )
@@ -316,9 +318,11 @@ fThread* thsys_addp( FCallback function, gpointer data ) {
 	fth->pp->parallel_num++;
 	g_mutex_unlock( fth->pp->mutex_data );
 	
+	g_mutex_lock( fth->mutex_line );
 	list_insert( fth->p, fth, parallel )
 	fth->ltype = PARALLEL;
 	fth->call_mode = PARALLEL;
+	g_mutex_unlock( fth->mutex_line );
 	g_mutex_unlock( evtf->obj );
 	
 	return fth;
@@ -492,6 +496,7 @@ void synchronize( ListType mode ) {
 	this = thsyshash_get();
 	
 	if( mode == NONE || mode == PARALLEL ) {
+		g_mutex_lock( this->mutex_line );
 		master = this->pp;
 		tcond = this->condp;
 		tmutex = this->mutexp;
@@ -504,8 +509,10 @@ void synchronize( ListType mode ) {
 			count = &(this->parallel_count);
 			num = &(this->parallel_num);
 		}
+		g_mutex_unlock( this->mutex_line );
 	}
 	else {
+		g_mutex_lock( this->mutex_line );
 		master = this->ps;
 		tcond = this->cond;
 		tmutex = this->mutex;
@@ -518,26 +525,30 @@ void synchronize( ListType mode ) {
 			count = &(this->series_count);
 			num = &(this->series_num);
 		}
+		g_mutex_unlock( this->mutex_line );
 	}
 	
 		if( master != NULL ) {
+			g_mutex_lock( this->mutex_line );
 			g_mutex_lock( master->mutex_data );
 			(*count)++;
 			g_mutex_unlock( master->mutex_data );
 			g_mutex_lock(mutex);
 			g_cond_signal(cond);
 			g_mutex_unlock(mutex);
+			g_mutex_unlock( this->mutex_line );
 			g_cond_wait( tcond, tmutex );
 		} else {
 
 			while( 1 ) {
+				g_mutex_lock( this->mutex_line );
 				g_mutex_lock( this->mutex_data );
 				if( (*count) >= (*num) ) {
 					g_mutex_unlock( this->mutex_data );
 					break;
 				}
 				g_mutex_unlock( this->mutex_data );
-				
+				g_mutex_unlock( this->mutex_line );
 				g_cond_wait( tcond, tmutex );
 			}
 
@@ -545,26 +556,35 @@ void synchronize( ListType mode ) {
 			(*count) = 0;
 			g_mutex_unlock( this->mutex_data );
 			
+			g_mutex_unlock( this->mutex_line );
+			g_mutex_lock( this->mutex_line );
+			
 			if( mode == NONE || mode == PARALLEL )
 				l = this->parallel.next;
 			else
 				l = this->series.next;
 
+			g_mutex_unlock( this->mutex_line );
+			
 			while( l != this ) {
 				
 				if( mode == NONE || mode == PARALLEL ) {
+					g_mutex_lock( this->mutex_line );
 					l->call_mode = PARALLEL;
 					g_mutex_lock(l->mutexp);
 					g_cond_signal(l->condp);
 					g_mutex_unlock(l->mutexp);
 					l = l->parallel.next;
+					g_mutex_unlock( this->mutex_line );
 				}
 				else {
+					g_mutex_lock( this->mutex_line );
 					l->call_mode = PARALLEL;
 					g_mutex_lock(l->mutex);
 					g_cond_signal(l->cond);
 					g_mutex_unlock(l->mutex);
 					l = l->series.next;
+					g_mutex_unlock( this->mutex_line );
 				}
 			}
 			
@@ -578,6 +598,7 @@ void thsys_step( ListType mode ) {
 	this = thsyshash_get();
 
 	if( mode == SERIES ) {
+		g_mutex_lock( this->mutex_line );
 		next = this->series.next;
 		next->call_mode = SERIES;
 
@@ -589,6 +610,7 @@ void thsys_step( ListType mode ) {
 		g_mutex_unlock( next->mutex );
 
 		g_mutex_lock( next->mutex_data );
+		g_mutex_unlock( this->mutex_line );
 		if( next->removeme == FALSE ) {
 			g_mutex_unlock( next->mutex_data );
 			if( this->removeme != REMOVED )
@@ -597,23 +619,73 @@ void thsys_step( ListType mode ) {
 			g_mutex_unlock( next->mutex_data );
 
 			thsys_remove( next );
+			g_mutex_lock( this->mutex_line );
 			next = this->series.next;
 
 			g_mutex_lock( next->mutex );
 			g_cond_signal( next->cond );
 			g_mutex_unlock( next->mutex );
-
+			g_mutex_unlock( this->mutex_line );
 			if( this->removeme != REMOVED )
 				g_cond_wait( this->cond, this->mutex );
 
 		}
 	}
 	else {
+		g_mutex_lock( this->mutex_line );
 		next = this->parallel.next;
 		next->call_mode = SERIES;
 		g_mutex_lock( next->mutexp );
 		g_cond_signal( next->condp );
 		g_mutex_unlock( next->mutexp );
+		g_mutex_unlock( this->mutex_line );
 		g_cond_wait( this->condp, this->mutexp );
 	}
+}
+
+fThread* series_insert( fThread* th, fThread* it ) {
+	GList* l;
+	g_mutex_lock( th->mutex_line );
+	l = f_data_get( it, "SERIES" );
+	l = g_list_prepend( l, &(it->series) );
+	f_data_connect( it, "SERIES", l );
+	it->series.next->series.prev = it->series.prev;
+	it->series.prev->series.next = it->series.next;
+	list_insert( th, it, series )
+	g_mutex_unlock( th->mutex_line );
+}
+fThread* parallel_insert( fThread* th, fThread* it ) {
+	GList* l;
+	g_mutex_lock( th->mutex_line );
+	l = f_data_get( it, "PARALLEL" );
+	l = g_list_prepend( l, &(it->parallel) );
+	f_data_connect( it, "PARALLEL", l );
+	it->parallel.next->parallel.prev = it->parallel.prev;
+	it->parallel.prev->parallel.next = it->parallel.next;
+	list_insert( th, it, parallel )
+	g_mutex_unlock( th->mutex_line );
+}
+
+void series_restore( fThread* th ) {
+	GList* l;
+	g_mutex_lock( th->mutex_line );
+	l = f_data_get( th, "SERIES" );
+	th->series.next->series.prev = th->series.prev;
+	th->series.prev->series.next = th->series.next;
+	g_memmove(&(th->series), l->data, sizeof(th->series) );
+	l = g_list_delete_link( l, l );
+	f_data_connect( th, "SERIES", l );
+	g_mutex_unlock( th->mutex_line );
+}
+
+void parallel_restore( fThread* th ) {
+	GList* l;
+	g_mutex_lock( th->mutex_line );
+	l = f_data_get( th, "PARALLEL" );
+	th->parallel.next->parallel.prev = th->parallel.prev;
+	th->parallel.prev->parallel.next = th->parallel.next;
+	g_memmove(&(th->parallel), l->data, sizeof(th->parallel) );
+	l = g_list_delete_link( l, l );
+	f_data_connect( th, "PARALLEL", l );
+	g_mutex_unlock( th->mutex_line );
 }

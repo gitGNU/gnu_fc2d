@@ -19,4 +19,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <video/mesh.h>
 #include <utils/utils.h>
 
-GList* f_scene_meshes = NULL;
+void mesh_texture_set( fMesh* mesh, fImage* tex ) {
+	static guint tex_id = 0;
+
+	if( mesh->tex_id > 0 ) {
+		glDeleteTextures( 1, &(mesh->tex_id) );
+		tex_id--;
+	}
+
+	mesh->tex_id = (tex_id++);
+	mesh->tex = tex;
+	
+	glBindTexture( GL_TEXTURE_2D, mesh->tex_id );
+	
+	glGenTextures( 1, &(mesh->tex_id) );
+
+	gluBuild2DMipmaps( GL_TEXTURE_2D, 3, tex->header.width,
+					   tex->header.height, GL_RGBA, GL_FLOAT,
+					tex->data );
+	
+}
+
+void mesh_triangle_new( fMesh** mesh, fImage* tex ) {
+	fTriangle* tri;
+	
+	if( *mesh == NULL )
+		*mesh = g_malloc0(sizeof(fMesh));
+	
+	tri = g_malloc0(sizeof(fTriangle));
+	tri->v1.x = -1;
+	tri->v1.y = -1;
+	tri->v1.z = -1;
+	
+	tri->v2_tex.x = 1;
+	tri->v2_tex.y = 0;
+	tri->v2.x = 1;
+	tri->v2.y = -1;
+	tri->v2.z = -1;
+	
+	tri->v2_tex.x = 0;
+	tri->v2_tex.y = 1;
+	tri->v3.x = -1;
+	tri->v3.y = 1;
+	tri->v3.z = -1;
+	
+	(*mesh)->tri = g_list_prepend( (*mesh)->tri, tri );
+}

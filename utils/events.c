@@ -29,6 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include<X11/Xlib.h>
 #endif
 
+#if HAVE_ALSA
+#include <audio/alsa.h>
+#endif
+
 gboolean fevent_process( fEvent* evt ) {
 	fWidget* widget;
 	fWidget* widget2;
@@ -61,21 +65,25 @@ gboolean fevent_process( fEvent* evt ) {
 	return FALSE;
 }
 
+#if HAVE_X11
+
 fEvent* fevent_windowstep( fWindow* w ) {
 //TODO: Support to no X11 events
 	static fEvent* fevt = NULL;
+	XEvent evt;
+	gboolean check;
 	
 	if( fevt == NULL )
 		fevt = g_malloc0( sizeof(fEvent) );
 	
 	fevt->obj = w;
+
+	check = XCheckWindowEvent( w->display, w->window, KeyPressMask |
+	KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
+	PointerMotionMask | ButtonMotionMask| ExposureMask, &evt);
 	
-#if HAVE_X11
-	XEvent evt;
-	
-	XWindowEvent( w->display, w->window, KeyPressMask | KeyReleaseMask |
-		ButtonPressMask | ButtonReleaseMask | PointerMotionMask | 
-		ButtonMotionMask| ExposureMask, &evt);
+	if( check == FALSE )
+		return NULL;
 	
 	if( evt.type == Expose ) {
 		fevt->id = FEXPOSE_EVENT;
@@ -149,21 +157,20 @@ fEvent* fevent_windowstep( fWindow* w ) {
 		f_signal_emit_full(w, "mouse-button-event", fevt);
 		fevent_process( w );
 	}
-	
-#else
-#warning Without X11 no have events yet.
-#endif
-	
+		
+		
 	return fevt;
 }
+
+#endif
 
 void fevent_windowloop( fWindow* w ) {
 	fEvent* e;
 	
-	thsys_addp( Render, w );
-	
+	thsys_add( Render, w );
+		
 	while(1) {
-		e = fevent_windowstep(w);
+		fevent_windowstep(w);
 		wait(1);
 	}
 }

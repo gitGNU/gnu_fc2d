@@ -100,28 +100,6 @@ extern int FPS_MAX;
 #define this_thread \
 	(thsyshash_get())
 
-/*!
- * \brief This macro set __current_thread
- *        corresponding to the calling thread. 
- */
-#define FAST_CUR_THREAD \
-	static GThread* __current_thread = NULL;\
-	static gboolean __current_thread_added = FALSE;\
-	\
-	if( __current_thread_added == FALSE ) {\
-		__current_thread = g_thread_self(); \
-		__current_thread_added = TRUE; \
-	}
-
-
-#define FAST_CUR_FTHREAD\
-	static fThread* __current_fthread = NULL; \
-	\
-	if( __current_fthread == NULL ) \
-		__current_fthread = fth_tree_search( \
-		container_of(current_threads, fThread, rb1), \
-		__current_thread);
-
 #define THSYS_LOCK \
     if ( thsys_mutex == NULL )\
         thsys_init();\
@@ -254,7 +232,27 @@ void waits( double value );
  */
 void synchronize( ListType mode );
 
+/*!
+ * \brief Run one step of another threads 
+ */
 void thsys_step( ListType mode );
+
+/*!
+ *\brief Put a thread into series list 
+ \param th The place to insert thread
+ \param it The thread to be placed
+ */
+fThread* series_insert( fThread* th, fThread* it );
+
+/*!
+ *\brief Put a thread into parallel list 
+ \param th The place to insert thread
+ \param it The thread to be placed
+ */
+fThread* parallel_insert( fThread* th, fThread* it );
+
+void series_restore( fThread* th );
+void parallel_restore( fThread* th );
 
 #ifdef __cplusplus
 }

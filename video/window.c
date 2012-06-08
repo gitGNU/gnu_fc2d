@@ -100,6 +100,7 @@ void window_set( fWindow* w ) {
 }
 
 void window_draw( fWindow* w ) {
+	glFinish();
 	glXSwapBuffers(w->display, w->window);
 }
 
@@ -149,7 +150,7 @@ fWindow* window_new_full( int x, int y, int bits,
 	XMapWindow(w->display, w->window);
 #else
 	//TODO: Support to work without GL and GLU
-#warning Work without GL and GLU is not supported yet. \
+#error Work without GL and GLU is not supported yet. \
 	Install GL and GLU and recompile FDiamondEngine
 #endif
 	
@@ -157,23 +158,15 @@ fWindow* window_new_full( int x, int y, int bits,
 		
 #if HAVE_X11
 	//TODO: We avoid calling this function all the time?
-	XAllowEvents( w->display, GrabModeAsync, CurrentTime );
+	XAllowEvents( w->display, AsyncBoth, CurrentTime );
 #endif
 	G_UNLOCK(window_new);
 	
+    f_data_connect(0, "default-window", w);
+    
 #if HAVE_X11
-	
-#if HAVE_3D
-	this = thsyshash_get();
-	//thsys_addleaving( this, window_draw, w );
-#endif
-	this->child_coming = NULL;
-	this->child_leaving = NULL;
-	
 	thsys_add( fevent_windowloop, w );
-
-#endif
-	
+#endif    
 	return w;
 }
 

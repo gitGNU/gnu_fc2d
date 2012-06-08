@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <utils/Vector3.h>
 #include <video/image.h>
 #include <video/mesh.h>
+#include <video/render.h>
 #include <utils/data-connect.h>
 
 struct fEntity;
@@ -55,6 +56,7 @@ struct fEntity {
 				};
 				fVector3 rot;
 			};
+			fMaterialPropStruct;
 		};
 		fMesh mesh;
 	};
@@ -73,8 +75,6 @@ struct fEntity {
 	fThread* thread;
 };
 
-fEntity** entity_get();
-
 #define me \
 	((entity_get())[0])
 
@@ -85,4 +85,20 @@ fEntity** entity_get();
 
 #define your (*you)
 
+fEntity** entity_get();
+
+/*!
+ * \brief Load a 3ds model from file
+ * \param name Name of file to open
+ * \param pos The initial position of model
+ * \param fun The function name to represents
+ *            loaded entity
+ */
+fEntity* ent_new( const char* name, fVector3 pos,
+                  FCallback fun);
+
+/*!
+ * \brief Load a complete scene
+ */
+void scene_load( const char* name );
 #endif

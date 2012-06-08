@@ -17,6 +17,7 @@ utilsinclude_HEADERS = \
 	utils.h \
 	red-black.h \
 	event-basis.h \
+	Vector2.h\
 	Vector3.h \
 	events.h \
 	data-connect.h
@@ -27,6 +28,7 @@ libutils_la_SOURCES = \
 	utils.cpp \
 	event-basis.c \
 	red-black.c \
+	Vector2.c \
 	Vector3.cpp \
 	events.c \
 	data-connect.c\
