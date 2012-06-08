@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <high-level/entity.h>
+#include <high-level/threads.h>
 #include <video/window.h>
 #if HAVE_LIB3DS
 #include <lib3ds/file.h>
@@ -43,11 +44,15 @@ fEntity** entity_get() {
 		return ret;
 	}
 	
-	return NULL;
+	ret = g_malloc0(sizeof(fEntity*));
+    
+	f_data_connect( this_thread, "ME", ret);
+	
+	return ret;
 }
 
 fEntity* ent_new( const char* name, fVector3 pos,
-                  FCallback fun) 
+                  FCallback fun, gpointer data)
 {
 #if HAVE_LIB3DS
     Lib3dsFile* file = lib3ds_file_load(name);
@@ -59,6 +64,9 @@ fEntity* ent_new( const char* name, fVector3 pos,
     guint i, j;
     fWindow* w;
     GList* l;
+    fThread* thread;
+    fEntity** p;
+    fEntity* tmp;
     
     if( file == NULL )
         return NULL;
@@ -97,6 +105,20 @@ fEntity* ent_new( const char* name, fVector3 pos,
     l = g_list_prepend( l, mesh );
     
     f_data_connect( w, "MESHES", l );
+    
+    thread = thsys_add( fun, data );
+    
+    p = g_malloc0( sizeof(fEntity*) );
+    *p = mesh;
+    f_data_connect( thread, "ME", p );
+    
+    if( me != NULL ) {
+        tmp = me;
+        me = mesh;
+        you = tmp;
+        me = tmp;
+    }
+        
     
     return mesh;
 #else

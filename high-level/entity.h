@@ -95,7 +95,7 @@ fEntity** entity_get();
  *            loaded entity
  */
 fEntity* ent_new( const char* name, fVector3 pos,
-                  FCallback fun);
+                  FCallback fun, gpointer data);
 
 /*!
  * \brief Load a complete scene
