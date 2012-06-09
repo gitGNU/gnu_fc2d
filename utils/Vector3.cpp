@@ -160,6 +160,17 @@ float fVector3::magnitude() {
 
 #endif
 
+fVector3* vector3( float x, float y, float z ) {
+    float* ret;
+    ret = (float*)g_malloc0(sizeof(fVector3));
+    
+    ret[0] = x;
+    ret[1] = y;
+    ret[2] = z;
+    
+    return (fVector3*)ret;
+}
+
 void vec_set( float* v1, float* v2 ) {
 	v1[0] = v2[0];
 	v1[1] = v2[1];

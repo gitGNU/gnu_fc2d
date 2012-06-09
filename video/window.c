@@ -100,7 +100,7 @@ void window_set( fWindow* w ) {
 }
 
 void window_draw( fWindow* w ) {
-	glFinish();
+	glFlush();
 	glXSwapBuffers(w->display, w->window);
 }
 

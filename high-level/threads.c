@@ -40,7 +40,7 @@ void thsys_coming( FEventFunction* fun ) {
 	}
 	
 	g_mutex_unlock( fun->obj );
-	
+    wait(1);
 	fun->function( fun->data, NULL );
 	
 	for( l = this->leaving; l != NULL; l = l->next ) {

@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __UTILS_FVECTOR3__
 #define __UTILS_FVECTOR3__ 1
 
+#include <glib.h>
+
 #if 0
 
 #ifdef __cplusplus
@@ -115,9 +117,12 @@ struct fVector3 {
   
 };
 
+fVector3* vector3( float x, float y, float z );
 void vec_set( float* v1, float* v2 );
 void vec_add( float* v1, float* v2 );
 void vec_sub( float* v1, float* v2 );
 void vec_scale( float* v1, float* v2 );
+
+fVector3* nullvector;
 
 #endif

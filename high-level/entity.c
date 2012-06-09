@@ -51,7 +51,7 @@ fEntity** entity_get() {
 	return ret;
 }
 
-fEntity* ent_new( const char* name, fVector3 pos,
+fEntity* ent_new( const char* name, fVector3* pos,
                   FCallback fun, gpointer data)
 {
 #if HAVE_LIB3DS
@@ -112,14 +112,16 @@ fEntity* ent_new( const char* name, fVector3 pos,
     *p = mesh;
     f_data_connect( thread, "ME", p );
     
-    if( me != NULL ) {
-        tmp = me;
-        me = mesh;
-        you = tmp;
-        me = tmp;
-    }
-        
+    tmp = me;
+    me = mesh;
+    g_memmove( &my.x, pos, sizeof(fVector3) );
+    my.scale_x = 1;
+    my.scale_y = 1;
+    my.scale_z = 1;
+    you = tmp;
+    me = tmp;
     
+
     return mesh;
 #else
     fprintf(stderr, "Without lib3ds, I can`t

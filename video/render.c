@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <high-level/threads.h>
 #include <utils/Vector2.h>
 #include <utils/data-connect.h>
+#include <high-level/camera.h>
 
 #if HAVE_ALSA
 #include <audio/alsa.h>
@@ -30,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #if HAVE_3D
 
 #include <GL/gl.h>
+#include <GL/glu.h>
 
 const char* cartoon = 
 "";
@@ -42,35 +44,67 @@ void RenderScene( fWindow* w ) {
 	fMesh* m;
 	GList* p;
 	fTriangle* tri;
+    fCamera* cam;
+    
+    cam = ((fCamera**)f_data_get(w, "camera"))[0];
 	
 	while( l != NULL ) {
 		m = l->data;
 		
 		glBindTexture( GL_TEXTURE_2D, m->tex_id );
 		
-		glRotatef( m->rot.x, 0, 0, 1 );
-		glRotatef( m->rot.y, 0, 1, 0 );
-		glRotatef( m->rot.z, 1, 0, 0 );
-		glScalef( m->scale.x, m->scale.y, m->scale.z );
-		glTranslatef( m->pos.x, m->pos.y, m->pos.z );
-		
+        /*Camera tranformations*/
+        glTranslatef( -cam->x, -cam->z, -cam->y );
+        glRotatef( -cam->rot.x, 0, 0, 1 );
+        glRotatef( -cam->rot.z, 0, 1, 0 );
+        glRotatef( -cam->rot.y, 1, 0, 0 );
+        
+ 		glRotatef( m->rot.x, 0, 0, 1 );
+ 		glRotatef( m->rot.z, 0, 1, 0 );
+ 		glRotatef( m->rot.y, 1, 0, 0 );
+        glTranslatef( m->pos.x / 1000, m->pos.z / 1000,
+                      m->pos.y  / 1000 );
+        
 		if( m->render_mode == RENDER_NORMAL )
 			glUseProgram(0);
 		else if( m->render_mode == RENDER_CARTOON )
 			glUseProgram(1);
-		
+        
+        glBegin(GL_TRIANGLES);
+        glColor3f( m->mat_color.r, m->mat_color.g, m->mat_color.b);
 		for( p = m->tri; p != NULL; p = p->next ) {
 			tri = p->data;
-			glBegin(GL_TRIANGLES);
 			glTexCoord2f(fVector2M(&(tri->v1_tex)));
-			glVertex3f(fVector3M(&(tri->v1)));
+            glVertex3f(tri->v1.x * m->scale.x, 
+                       tri->v1.z * m->scale.z,
+                       tri->v1.y * m->scale.y
+                      );
 			glTexCoord2f(fVector2M(&(tri->v2_tex)));
-			glVertex3f(fVector3M(&(tri->v2)));
+            glVertex3f(tri->v2.x * m->scale.x, 
+                       tri->v2.z * m->scale.z,
+                       tri->v2.y * m->scale.y
+            );
 			glTexCoord2f(fVector2M(&(tri->v3_tex)));
-			glVertex3f(fVector3M(&(tri->v3)));
-			glEnd();
+            glVertex3f(tri->v3.x * m->scale.x, 
+                       tri->v3.z * m->scale.z,
+                       tri->v3.y * m->scale.y
+            );
+			
 		}
-		
+		glEnd();
+        
+        glTranslatef( -m->pos.x  / 1000, -m->pos.z  / 1000,
+                      -m->pos.y  / 1000 );
+        glRotatef( -m->rot.x, 0, 0, 1 );
+        glRotatef( -m->rot.z, 0, 1, 0 );
+        glRotatef( -m->rot.y, 1, 0, 0 );
+        
+        /*Camera tranformations*/
+        glTranslatef( cam->x, cam->z, cam->y );
+        glRotatef( cam->rot.x, 0, 0, 1 );
+        glRotatef( cam->rot.z, 0, 1, 0 );
+        glRotatef( cam->rot.y, 1, 0, 0 );
+        
 		l = l->next;
 	}
 }
@@ -90,6 +124,8 @@ void Reshape( fEvent* evt ) {
 
 void Render( fWindow* w ) {
 	
+    fCamera** cam;
+    
 #if HAVE_ALSA
 	//thsys_addp( audio_output_mainloop, NULL );
 	g_thread_create( audio_output_mainloop, NULL, TRUE, NULL );
@@ -99,9 +135,18 @@ void Render( fWindow* w ) {
 	
 	f_data_connect( w, "RENDER_THREAD", this_thread);
 	
+    cam = g_malloc0(sizeof(fCamera*));
+    *cam = g_malloc0(sizeof(fCamera));
+    
+    f_data_connect(w, "camera", cam);
+    
 	window_set(w);
 	glClearColor( 0.0f, 0.0f, 0.3f, 1.0f );
 	
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glViewport( 0, 0,  w->width, w->height );
+    
 	glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource( 0, 1, &normal, NULL);
 	glShaderSource( 1, 1, &cartoon, NULL);
@@ -121,10 +166,12 @@ void Render( fWindow* w ) {
 	glEnable( GL_TEXTURE_2D );
 	glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 	
+    
 	while(1) {
- 		glViewport( 0, 0,  w->width, w->height );
-		glClear( GL_COLOR_BUFFER_BIT );
- 	 	
+        glClear( GL_COLOR_BUFFER_BIT );
+        
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
 		RenderScene(w);
 		RenderGUI(w);
 		window_draw(w);

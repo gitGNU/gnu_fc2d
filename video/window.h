@@ -106,6 +106,12 @@ fWindow* window_get( const char* name );
 fWindow* window_new_full( int x, int y, int bits, gboolean fullscreen, const char* display, const char* wname );
 void window_free( fWindow* w );
 
+/*!
+ * \brief Set default window
+ */
+#define window_default( w ) \
+    (f_data_connect( 0, "default-window", (w) ))
+
 #ifdef __cplusplus
 }
 #endif

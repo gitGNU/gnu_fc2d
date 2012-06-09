@@ -94,7 +94,7 @@ fEntity** entity_get();
  * \param fun The function name to represents
  *            loaded entity
  */
-fEntity* ent_new( const char* name, fVector3 pos,
+fEntity* ent_new( const char* name, fVector3* pos,
                   FCallback fun, gpointer data);
 
 /*!
