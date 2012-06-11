@@ -341,6 +341,9 @@ void wait( double value ) {
 	
 	this = thsyshash_get();
 	
+    if( value < 0 )
+        g_timer_start( this->timer );
+    
 	/* Wait the `parallel` thread finish, 
 	   synchronize this point. */
 	if( this->parallel.next != this ) {
@@ -365,10 +368,8 @@ void wait( double value ) {
 		this->remaining_frames = ((int)(value));
 	}
 	
-	
 	if( this->remaining_frames == 0 ) {
 		while(1) {
-			
  			if( this->ltype != this->call_mode &&
  				this->ps != NULL )
  				thsys_step(PARALLEL);
@@ -377,21 +378,38 @@ void wait( double value ) {
 			}
 	}
 	
-	if( this->series.next != this ) {
-		while( this->remaining_frames > 0 ) {
-			
-			if( this->series.next == this) 
-				break;
-			
-			if( this->ltype != this->call_mode &&
-				this->ps != NULL )
-				thsys_step(PARALLEL);
-			else
-				thsys_step(SERIES);
-			
-			this->remaining_frames--;
-		}
-	}
+    while( this->remaining_frames > 0 ) {
+        
+        if( this->series.next == this) 
+            break;
+        
+        if( this->ltype != this->call_mode &&
+            this->ps != NULL )
+            thsys_step(PARALLEL);
+        else
+            thsys_step(SERIES);
+        
+        this->remaining_frames--;
+    }
+    
+    while( this->remaining_time > 0 ) {
+        
+        if( this->series.next == this) 
+            break;
+        
+        if( this->ltype != this->call_mode &&
+            this->ps != NULL )
+            thsys_step(PARALLEL);
+        else
+            thsys_step(SERIES);
+        
+        g_timer_stop( this->timer );
+        this->remaining_time -= g_timer_elapsed(this->timer, NULL);
+        g_timer_start( this->timer );
+    }
+	
+	if( this->remaining_time > 0 )
+        g_timer_stop( this->timer );
 	
 	/* Left 'parallel' thread runs,
 	 * synchronize this point. */

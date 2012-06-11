@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <glib.h>
 #include <video/window.h>
 #include <utils/events.h>
+#include <high-level/camera.h>
 
 #if HAVE_DISPLAY
 
@@ -153,9 +154,8 @@ fWindow* window_new_full( int x, int y, int bits,
 #error Work without GL and GLU is not supported yet. \
 	Install GL and GLU and recompile FDiamondEngine
 #endif
-	
+
 #endif
-		
 #if HAVE_X11
 	//TODO: We avoid calling this function all the time?
 	XAllowEvents( w->display, AsyncBoth, CurrentTime );
@@ -163,6 +163,7 @@ fWindow* window_new_full( int x, int y, int bits,
 	G_UNLOCK(window_new);
 	
     f_data_connect(0, "default-window", w);
+    current_camera = g_malloc0(sizeof(fCamera));
     
 #if HAVE_X11
 	thsys_add( fevent_windowloop, w );

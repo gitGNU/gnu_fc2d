@@ -54,6 +54,6 @@ fCamera** f_get_camera();
     ((f_get_camera())[0])
     
 #define camera \
-    (*view)
+    (*current_camera)
 
 #endif

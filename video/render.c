@@ -33,6 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+gboolean f_render_reshape=FALSE;
+
 const char* cartoon = 
 "";
 
@@ -46,7 +48,7 @@ void RenderScene( fWindow* w ) {
 	fTriangle* tri;
     fCamera* cam;
     
-    cam = ((fCamera**)f_data_get(w, "camera"))[0];
+    cam = current_camera;
 	
 	while( l != NULL ) {
 		m = l->data;
@@ -62,8 +64,8 @@ void RenderScene( fWindow* w ) {
  		glRotatef( m->rot.x, 0, 0, 1 );
  		glRotatef( m->rot.z, 0, 1, 0 );
  		glRotatef( m->rot.y, 1, 0, 0 );
-        glTranslatef( m->pos.x / 1000, m->pos.z / 1000,
-                      m->pos.y  / 1000 );
+        glTranslatef( m->pos.x / 500, m->pos.z / 500,
+                      m->pos.y  / 500 );
         
 		if( m->render_mode == RENDER_NORMAL )
 			glUseProgram(0);
@@ -93,8 +95,8 @@ void RenderScene( fWindow* w ) {
 		}
 		glEnd();
         
-        glTranslatef( -m->pos.x  / 1000, -m->pos.z  / 1000,
-                      -m->pos.y  / 1000 );
+        glTranslatef( -m->pos.x  / 500, -m->pos.z  / 500,
+                      -m->pos.y  / 500 );
         glRotatef( -m->rot.x, 0, 0, 1 );
         glRotatef( -m->rot.z, 0, 1, 0 );
         glRotatef( -m->rot.y, 1, 0, 0 );
@@ -120,11 +122,12 @@ void Reshape( fEvent* evt ) {
 	
 	w->width = e->width;
 	w->height = e->height;
+    
+    f_render_reshape = TRUE;
+
 }
 
 void Render( fWindow* w ) {
-	
-    fCamera** cam;
     
 #if HAVE_ALSA
 	//thsys_addp( audio_output_mainloop, NULL );
@@ -134,18 +137,9 @@ void Render( fWindow* w ) {
 	w->glc = glXCreateContext(w->display, w->vi, NULL, GL_TRUE);
 	
 	f_data_connect( w, "RENDER_THREAD", this_thread);
-	
-    cam = g_malloc0(sizeof(fCamera*));
-    *cam = g_malloc0(sizeof(fCamera));
-    
-    f_data_connect(w, "camera", cam);
-    
+
 	window_set(w);
 	glClearColor( 0.0f, 0.0f, 0.3f, 1.0f );
-	
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glViewport( 0, 0,  w->width, w->height );
     
 	glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource( 0, 1, &normal, NULL);
@@ -165,16 +159,36 @@ void Render( fWindow* w ) {
 	
 	glEnable( GL_TEXTURE_2D );
 	glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-	
     
 	while(1) {
         glClear( GL_COLOR_BUFFER_BIT );
+                
+        if( f_render_reshape == TRUE ) {
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            gluPerspective(60, w->width / w->height, 0, 20);
+            glViewport( 0, 0,  w->width, w->height );
+        }
         
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 		RenderScene(w);
+        f_signal_emit_full( w, "render3D", NULL );
+        
+        if( f_render_reshape == TRUE ) {
+            //glMatrixMode(GL_PROJECTION);
+            //glLoadIdentity();
+            gluOrtho2D(-1, 1, -1, 1);
+            glViewport( 0, 0,  w->width, w->height );
+            f_render_reshape = FALSE;
+        }
+        
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
 		RenderGUI(w);
+        f_signal_emit_full( w, "render2D", NULL );        
 		window_draw(w);
+        
 		wait(1);
 	}
 }

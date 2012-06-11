@@ -24,6 +24,9 @@ fCamera** f_get_camera() {
     fWindow* w = f_data_get( 0, "default-window" );
     fCamera** ret;
     
+    if( w == NULL )
+        exit(0);
+    
     ret = f_data_get(w, "camera");
     
     if( ret == NULL ) {
