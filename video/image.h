@@ -21,14 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glib.h>
 
-#define pixel( image, x, y ) \
-	(image->data[(((fImageHeader*)(image))->width) * \
-	(y) * (((fImageHeader*)(image))->channels_num) + (x)])
+#define color(image, x, y, c) \
+    ((float*)(((gulong)((image)->data)) + \
+    (gulong)((((((fImageHeader*)(image))->width) *\
+    (y) * (((fImageHeader*)(image))->channels_num)) + \
+    ((x) * (((fImageHeader*)(image))->channels_num)) + \
+    c) * sizeof(float))))\
 
-
-#define color(image, x, y) \
-	(&pixel(image, x, y))
-
+#define pixel( image, x, y, c ) \
+    (color(image, x, y, c)[0])
 
 typedef struct {
 	union {

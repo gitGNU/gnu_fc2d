@@ -254,6 +254,18 @@ fThread* parallel_insert( fThread* th, fThread* it );
 void series_restore( fThread* th );
 void parallel_restore( fThread* th );
 
+/*! 
+ * \brief Synchronizes this thread
+ *        in series with each other.
+ * \details The synchronism takes
+ *          only one cycle. After
+ *          the first call to "wait"
+ *          will be as before.
+ * \param th The thread that will 
+ *           run in series with this
+ */
+void wait_for( fThread* th );
+
 #ifdef __cplusplus
 }
 #endif

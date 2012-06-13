@@ -173,20 +173,10 @@ void Render( fWindow* w ) {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 		RenderScene(w);
-        f_signal_emit_full( w, "render3D", NULL );
+        f_signal_emit_full( w, "render3D", w );
         
-        if( f_render_reshape == TRUE ) {
-            //glMatrixMode(GL_PROJECTION);
-            //glLoadIdentity();
-            gluOrtho2D(-1, 1, -1, 1);
-            glViewport( 0, 0,  w->width, w->height );
-            f_render_reshape = FALSE;
-        }
-        
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
 		RenderGUI(w);
-        f_signal_emit_full( w, "render2D", NULL );        
+        f_signal_emit_full( w, "render2D", w );        
 		window_draw(w);
         
 		wait(1);

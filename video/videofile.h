@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
+#include <video/image.h>
 #include <glib.h>
 
 extern gboolean videofilesystem_INITED;
@@ -35,8 +36,18 @@ typedef struct {
    AVStream* video_stream;
    AVCodec* audio_codec;
    AVCodec* video_codec;
+   AVCodecContext* video_ctx;
+   AVCodecContext* audio_ctx;
+   int audio_index;
+   int video_index;
    char* name;
 } fVideoFile;
+
+typedef struct {
+    float* audio;
+    guint samples;
+    fImage* video;
+} fVideoAudio;
 
 typedef struct fVideoFile fMediaFile;
 
@@ -44,19 +55,22 @@ inline void vf_init();
 
 fVideoFile* vf_open( const char* name );
 
-#if 0
-fVideoFile* vf_audio_new( const char* name, CodecID cid, guint channels );
-void vf_write(fVideoFIle* vf, );
+fVideoFile* vf_audio_new( const char* name, int cid,
+                          guint channels );
 
-/* TODO:Some better that! */
-#if 0
-fVideoFIle* vf_video_new( const char* name, CodecID cid,
-						  guint width, guint height, guint fps );
-#endif
+fVideoFile* vf_video_new( const char* name, int cid,
+						  guint width, guint height,
+                          guint fps );
 
-void vf_audio_write( fVideoFIle* vf, float* data, guint samples );
+float* vf_audio_read( fVideoFile* vf, guint samples );
 
-#endif
+void vf_audio_write( fVideoFile* vf, float* data,
+                     guint samples );
+
+fImage* vf_video_read( fVideoFile* vf );
+
+void vf_video_write(fVideoFile* vf, fImage* img);
+
 
 #else
 #error Before install LIBAVCODEC and LIBAVFORMAT\

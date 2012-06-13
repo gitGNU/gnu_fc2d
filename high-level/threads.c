@@ -340,7 +340,7 @@ void wait( double value ) {
 	GList* l;
 	
 	this = thsyshash_get();
-	
+
     if( value < 0 )
         g_timer_start( this->timer );
     
@@ -393,7 +393,6 @@ void wait( double value ) {
     }
     
     while( this->remaining_time > 0 ) {
-        
         if( this->series.next == this) 
             break;
         
@@ -436,7 +435,7 @@ void waitp() {
 	GList* l;
 	
 	this = thsyshash_get();
-	
+    
 	for( l = this->leaving; l != NULL; l = l->next ) {
 		FEVENTFUNCTION(l->data)->function(
 		FEVENTFUNCTION(l->data)->data,
@@ -461,6 +460,9 @@ void waits( double value ) {
 	
 	this = thsyshash_get();
 	
+    if( value < 0 )
+        g_timer_start( this->timer );
+    
 	for( l = this->leaving; l != NULL; l = l->next ) {
 		FEVENTFUNCTION(l->data)->function(
 			FEVENTFUNCTION(l->data)->data,
@@ -492,6 +494,17 @@ void waits( double value ) {
 		this->remaining_frames--;
 	}
 	
+	while( this->remaining_time > 0 ) {
+        if( this->series.next == this) 
+            break;
+        
+            thsys_step(PARALLEL);
+            thsys_step(SERIES);
+        
+        g_timer_stop( this->timer );
+        this->remaining_time -= g_timer_elapsed(this->timer, NULL);
+        g_timer_start( this->timer );
+    }
 	
 	for( l = this->coming; l != NULL; l = l->next ) {
 		FEVENTFUNCTION(l->data)->function(
@@ -502,7 +515,7 @@ void waits( double value ) {
 
 void synchronize( ListType mode ) {
 	fThread* this;
-	fThread* l;
+	fThread *l, *l2;
 	fThread* master;
 	GMutex* mutex;
 	GCond* cond;
@@ -546,67 +559,85 @@ void synchronize( ListType mode ) {
 		g_mutex_unlock( this->mutex_line );
 	}
 	
-		if( master != NULL ) {
-			g_mutex_lock( this->mutex_line );
-			g_mutex_lock( master->mutex_data );
-			(*count)++;
-			g_mutex_unlock( master->mutex_data );
-			g_mutex_lock(mutex);
-			g_cond_signal(cond);
-			g_mutex_unlock(mutex);
-			g_mutex_unlock( this->mutex_line );
-			g_cond_wait( tcond, tmutex );
-		} else {
+    if( master != NULL ) {
+        g_mutex_lock( this->mutex_line );
+        g_mutex_lock( master->mutex_data );
+        (*count)++;
+        g_mutex_unlock( master->mutex_data );
+        g_mutex_lock(mutex);
+        g_cond_signal(cond);
+        g_mutex_unlock(mutex);
+        g_mutex_unlock( this->mutex_line );
+        g_cond_wait( tcond, tmutex );
+    } else {
+        
+        /*It awakens all the threads to ensure that
+         * when they get to this point are all active.
+         * If not we will be waiting for them when
+         * they expect never finished.*/
+        g_mutex_lock( this->mutex_line );
+        if( mode == SERIES )
+            l2 = this->series.next;
+        else 
+            l2 = this;
+        g_mutex_unlock( this->mutex_line );
+        
+        while( l2 != this ) {
+            g_cond_signal( l2->cond );
+            l2 = this->series.next;
+         }
+        
+        /* Only continue when all the
+         * threads reach this point. */
+        while( 1 ) {
+            g_mutex_lock( this->mutex_line );
+            g_mutex_lock( this->mutex_data );
+            if( (*count) >= (*num) ) {
+                g_mutex_unlock( this->mutex_data );
+                break;
+            }
+            g_mutex_unlock( this->mutex_data );
+            g_mutex_unlock( this->mutex_line );
+            g_cond_wait( tcond, tmutex );
+        }
 
-			while( 1 ) {
-				g_mutex_lock( this->mutex_line );
-				g_mutex_lock( this->mutex_data );
-				if( (*count) >= (*num) ) {
-					g_mutex_unlock( this->mutex_data );
-					break;
-				}
-				g_mutex_unlock( this->mutex_data );
-				g_mutex_unlock( this->mutex_line );
-				g_cond_wait( tcond, tmutex );
-			}
+        g_mutex_lock( this->mutex_data );
+        (*count) = 0;
+        g_mutex_unlock( this->mutex_data );
+        
+        g_mutex_unlock( this->mutex_line );
+        g_mutex_lock( this->mutex_line );
+        
+        if( mode == NONE || mode == PARALLEL )
+            l = this->parallel.next;
+        else
+            l = this->series.next;
 
-			g_mutex_lock( this->mutex_data );
-			(*count) = 0;
-			g_mutex_unlock( this->mutex_data );
-			
-			g_mutex_unlock( this->mutex_line );
-			g_mutex_lock( this->mutex_line );
-			
-			if( mode == NONE || mode == PARALLEL )
-				l = this->parallel.next;
-			else
-				l = this->series.next;
-
-			g_mutex_unlock( this->mutex_line );
-			
-			while( l != this ) {
-				
-				if( mode == NONE || mode == PARALLEL ) {
-					g_mutex_lock( this->mutex_line );
-					l->call_mode = PARALLEL;
-					g_mutex_lock(l->mutexp);
-					g_cond_signal(l->condp);
-					g_mutex_unlock(l->mutexp);
-					l = l->parallel.next;
-					g_mutex_unlock( this->mutex_line );
-				}
-				else {
-					g_mutex_lock( this->mutex_line );
-					l->call_mode = PARALLEL;
-					g_mutex_lock(l->mutex);
-					g_cond_signal(l->cond);
-					g_mutex_unlock(l->mutex);
-					l = l->series.next;
-					g_mutex_unlock( this->mutex_line );
-				}
-			}
-			
-		}
+        g_mutex_unlock( this->mutex_line );
+        
+        while( l != this ) {
+            
+            if( mode == NONE || mode == PARALLEL ) {
+                g_mutex_lock( this->mutex_line );
+                l->call_mode = PARALLEL;
+                g_mutex_lock(l->mutexp);
+                g_cond_signal(l->condp);
+                g_mutex_unlock(l->mutexp);
+                l = l->parallel.next;
+                g_mutex_unlock( this->mutex_line );
+            }
+            else {
+                g_mutex_lock( this->mutex_line );
+                l->call_mode = PARALLEL;
+                g_mutex_lock(l->mutex);
+                g_cond_signal(l->cond);
+                g_mutex_unlock(l->mutex);
+                l = l->series.next;
+                g_mutex_unlock( this->mutex_line );
+            }
+        }
+        
+    }
 }
 
 void thsys_step( ListType mode ) {
@@ -669,9 +700,15 @@ fThread* series_insert( fThread* th, fThread* it ) {
 	f_data_connect( it, "SERIES", l );
 	it->series.next->series.prev = it->series.prev;
 	it->series.prev->series.next = it->series.next;
+    g_mutex_lock( it->series.next->mutex );
+    g_cond_signal( it->series.next->cond );
+    g_mutex_unlock( it->series.next->mutex );
 	list_insert( th, it, series )
 	g_mutex_unlock( th->mutex_line );
 }
+
+/*FIXME: Reactivate threads in parallel,
+ * as well as in series.  */
 fThread* parallel_insert( fThread* th, fThread* it ) {
 	GList* l;
 	g_mutex_lock( th->mutex_line );
@@ -688,11 +725,15 @@ void series_restore( fThread* th ) {
 	GList* l;
 	g_mutex_lock( th->mutex_line );
 	l = f_data_get( th, "SERIES" );
-	th->series.next->series.prev = th->series.prev;
-	th->series.prev->series.next = th->series.next;
-	g_memmove(&(th->series), l->data, sizeof(th->series) );
-	l = g_list_delete_link( l, l );
-	f_data_connect( th, "SERIES", l );
+    if( l != NULL ) {
+        th->series.next->series.prev = th->series.prev;
+        th->series.prev->series.next = th->series.next;
+        g_memmove(&(th->series), l->data, sizeof(th->series) );
+        th->series.next->series.prev = th;
+        th->series.prev->series.next = th;
+        l = g_list_delete_link( l, l );
+        f_data_connect( th, "SERIES", l );
+    }
 	g_mutex_unlock( th->mutex_line );
 }
 
@@ -700,10 +741,20 @@ void parallel_restore( fThread* th ) {
 	GList* l;
 	g_mutex_lock( th->mutex_line );
 	l = f_data_get( th, "PARALLEL" );
-	th->parallel.next->parallel.prev = th->parallel.prev;
-	th->parallel.prev->parallel.next = th->parallel.next;
-	g_memmove(&(th->parallel), l->data, sizeof(th->parallel) );
-	l = g_list_delete_link( l, l );
-	f_data_connect( th, "PARALLEL", l );
+    if( l != NULL ) {
+        th->parallel.next->parallel.prev = th->parallel.prev;
+        th->parallel.prev->parallel.next = th->parallel.next;
+        g_memmove(&(th->parallel), l->data, sizeof(th->parallel) );
+        th->parallel.next->parallel.prev = th;
+        th->parallel.prev->parallel.next = th;
+        l = g_list_delete_link( l, l );
+        f_data_connect( th, "PARALLEL", l );
+    }
 	g_mutex_unlock( th->mutex_line );
+}
+
+void wait_for( fThread* th ) {
+    series_insert( th, this_thread );
+    wait(1);
+    series_restore(th);
 }
