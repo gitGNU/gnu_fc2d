@@ -46,7 +46,6 @@ fImage* image_new( guint32 width, guint32 height, gboolean alpha ) {
 	img->header.height );
 	
 	return img;
-	
 }
 
 fImage* image_load( const char* filename ) {

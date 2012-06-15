@@ -79,11 +79,33 @@ fVideoFile* vf_open(const char* name) {
 		avcodec_open2( video->video_ctx,
                        video->video_codec, NULL);
     }
-    if( video->audio_codec ) 
+    if( video->audio_codec ) {
 		avcodec_open2(
 		video->audio_ctx,
         video->audio_codec, NULL);
-
+    }
+    
+    if( video->video_ctx ) {
+        video->sws_ctx = sws_getCachedContext( NULL, 
+                                            video->video_ctx->width,
+                                            video->video_ctx->height,
+                                            video->video_ctx->pix_fmt,
+                                            video->video_ctx->width, 
+                                            video->video_ctx->height,
+                                            PIX_FMT_RGB24,
+                                            SWS_BICUBIC, NULL, NULL, NULL);
+        
+        avpicture_alloc( &(video->pict), PIX_FMT_RGB24,
+                        video->video_ctx->width,
+                        video->video_ctx->height );
+        
+        video->img = image_new( video->video_ctx->width,
+                                video->video_ctx->height,
+                                FALSE );
+    }
+    
+    video->frame = avcodec_alloc_frame();
+    
 	return video;
 	
 	error:
@@ -159,45 +181,58 @@ void vf_video_write(fVideoFile* vf, fImage* img)
 fVideoAudio* vf_read( fVideoFile* vf ) {
     fVideoAudio* ret;
     AVPacket packet;
-    AVFrame* frame;
     int i=0;
     guint x, y;
     float* f;
-    guint32* f2;
+    guint8* f2;
+    gboolean readed_audio = FALSE;
+    gboolean readed_video = FALSE;
+    int plane_size;
+    int got_frame;
     
-    ret = g_malloc( sizeof(fVideoAudio) );
-    frame = avcodec_alloc_frame();
+    ret = &(vf->fva);
     
-    
-    while(av_read_frame( vf->format_ctx, &packet) >= 0) {
+    while(av_read_frame( vf->format_ctx, &packet) >= 0 && 
+        ((!readed_audio && vf->audio_ctx != NULL) || (!readed_video &&
+        vf->video_ctx != NULL) ) ) 
+    {
         
-        if( packet.stream_index == vf->video_index ) {
-            avcodec_decode_video2( vf->video_ctx, frame, &i,
+        if( packet.stream_index == vf->video_index 
+            && !readed_video && vf->video_ctx != NULL ) {
+            avcodec_decode_video2( vf->video_ctx, vf->frame, &i,
                                 &packet);
             
             if( i != 0 ) {
-                ret->video = image_new(vf->video_ctx->width,
-                                      vf->video_ctx->height,
-                                      FALSE );
+                ret->video = vf->img;
+                sws_scale( vf->sws_ctx, vf->frame->data, 
+                          vf->frame->linesize, 0, 
+                          vf->video_ctx->height, 
+                          vf->pict.data, vf->pict.linesize);
                 
-                for( y = 0; y < vf->video_ctx->height; y++ )
-                    for( x = 0; x < vf->video_ctx->width; x++ ) {
+                for( x = 0; x < vf->video_ctx->width; x++ ) {
+                    for( y = 0; y < vf->video_ctx->height; y++ ) {
                         for( i = 0; i < 3; i++ ) {
                             f = color(ret->video, x, y, i);
-                            f2 = ((guint32*)((gulong)frame->data[0] +
-                            y*frame->linesize[0] + (x*3)+i));
-                            /*Set the first 8 bits to 0*/
-                            *f2 = (*f2) << 8;
-                            *f2 = (*f2) >> 8;
-                            *f = (float)(*f2) / 16777215; 
+                            f2 = ((guint32*)((gulong)vf->pict.data[0] +
+                            (y*vf->pict.linesize[0]) + (x*3) + i));
+                            *f = (float)(*f2) / 255; 
                         }
-                            
                     }
+                }
                     
-                    break;
+                readed_video = TRUE;
             }
-        } else if( packet.stream_index == vf->audio_index ) {
+        } else if( packet.stream_index == vf->audio_index &&
+            !readed_audio && vf->audio_ctx != NULL ) 
+        {
+            avcodec_decode_audio4( vf->audio_ctx, vf->frame, &got_frame, &packet);
+            av_samples_get_buffer_size( &plane_size, vf->audio_ctx->channels, 
+                                        vf->frame->nb_samples,
+                                        vf->audio_ctx->sample_fmt, 1);
             
+            fwrite( vf->frame->extended_data[0], 1, plane_size, stdout );
+            
+            readed_audio = TRUE;
         }
     }
     

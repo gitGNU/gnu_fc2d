@@ -39,8 +39,19 @@ typedef void (*FCallback2)(void* data, void* data2);
 typedef int (*FCallbackCompare)( void* a, void* b );
 
 typedef struct {
+    void* data;
+    guint len;
+} fData;
+
+typedef struct {
 	FCallback function;
-	void* data;
+    union {
+        struct {
+            void* data;
+            guint len;
+        };
+        fData data_info;
+    };
 } Function;
 
 #define custom_list(type) \

@@ -24,9 +24,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define color(image, x, y, c) \
     ((float*)(((gulong)((image)->data)) + \
     (gulong)((((((fImageHeader*)(image))->width) *\
-    (y) * (((fImageHeader*)(image))->channels_num)) + \
+    ((((fImageHeader*)(image))->height-1) - (y)) * \
+    (((fImageHeader*)(image))->channels_num)) + \
     ((x) * (((fImageHeader*)(image))->channels_num)) + \
-    c) * sizeof(float))))\
+    (c)) * sizeof(float))))\
 
 #define pixel( image, x, y, c ) \
     (color(image, x, y, c)[0])

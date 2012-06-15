@@ -4,10 +4,10 @@ libdir=@libdir@
 includedir=@includedir@
 datarootdir=@datarootdir@
 
-Name: FGameEngine
-Description: Complete tool kit for 3D games development.
+Name: FDiamondEngine
+Description: Complete engine for 3D games development.
 Version: @FGE_REAL_VERSION@
-Libs: -L${libdir} -lfgameengine-@FGE_VERSION@ \
+Libs: -L${libdir} -l@PACKAGE_NAME@-@FGE_VERSION@ \
 	@GLIB_LIBS@ \
 	@GTHREAD_LIBS@ \
 	@PYTHON_LIBS@ \
@@ -17,9 +17,11 @@ Libs: -L${libdir} -lfgameengine-@FGE_VERSION@ \
 	@X11_LIBS@ \
 	@LIBAVCODEC_LIBS@ \
 	@LIBAVFORMAT_LIBS@ \
-	@ALSA_LIBS@
+	@LIBSWSCALE_LIBS@ \
+	@ALSA_LIBS@ \
+	@LIB3DS_LIBS@
 
-Cflags: -I${includedir}/fgameengine-@FGE_VERSION@ \
+Cflags: -I${includedir}/@PACKAGE_NAME@-@FGE_VERSION@ \
 	@GLIB_CFLAGS@ \
 	@GTHREAD_CFLAGS@ \
 	@PYTHON_CFLAGS@ \
@@ -29,4 +31,6 @@ Cflags: -I${includedir}/fgameengine-@FGE_VERSION@ \
 	@X11_CFLAGS@ \
 	@LIBAVCODEC_CFLAGS@ \
 	@LIBAVFORMAT_CFLAGS@ \
-	@ALSA_CFLAGS@
+	@LIBSWSCALE_CFLAGS@ \
+	@ALSA_CFLAGS@ \
+	@LIB3DS_CFLAGS@

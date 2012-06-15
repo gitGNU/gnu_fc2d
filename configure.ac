@@ -84,7 +84,7 @@ PKG_CHECK_MODULES( LIBAVFORMAT, libavformat >= libavformat_required_version,
 
 PKG_CHECK_MODULES( LIBSWSCALE, libswscale >= libswscale_required_version, 
                    AC_DEFINE(HAVE_LIBSWSCALE, [1], [Check for LIBSWSCALE]), 
-                   AC_DEFINE(HAVE_LIBLIBSWSCALE, [0], [Check for LIBSWSCALE]) )
+                   AC_DEFINE(HAVE_LIBSWSCALE, [0], [Check for LIBSWSCALE]) )
 
 printf "checking manually for lib3ds... "
 if test `lib3ds-config --version` \> 1.2

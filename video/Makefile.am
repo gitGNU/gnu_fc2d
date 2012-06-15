@@ -18,7 +18,8 @@ videoinclude_HEADERS = \
 	widgets.h \
 	image.h \
 	mesh.h \
-	videofile.h
+	videofile.h \
+	basic.h
 
 videoincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/video/
 
@@ -28,7 +29,8 @@ libvideo_la_SOURCES = \
 	render.c\
 	image.c \
 	mesh.c \
-	videofile.c
+	videofile.c \
+	basic.c
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

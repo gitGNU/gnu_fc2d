@@ -16,6 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*!
+ * \file video/videofile.h
+ * \details This file allows you to read
+ *          and write images, videos and
+ *          audio from a practical, easy
+ *          and quick way.
+ */
+
 #ifndef __VIDEO_VIDEOFILE_H__
 #define __VIDEO_VIDEOFILE_H__ 1
 
@@ -24,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #if HAVE_VIDEO
 
 #include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 #include <libavcodec/avcodec.h>
 #include <video/image.h>
 #include <glib.h>
@@ -31,7 +40,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern gboolean videofilesystem_INITED;
 
 typedef struct {
-   AVFormatContext *format_ctx;
+    float* audio;
+    guint samples;
+    fImage* video;
+} fVideoAudio;
+
+typedef struct {
+   struct SwsContext* sws_ctx;
+   AVFormatContext* format_ctx;
    AVStream* audio_stream;
    AVStream* video_stream;
    AVCodec* audio_codec;
@@ -40,19 +56,21 @@ typedef struct {
    AVCodecContext* audio_ctx;
    int audio_index;
    int video_index;
+   AVPicture pict;
    char* name;
+   fImage* img;
+   fVideoAudio fva;
+   AVFrame* frame;
 } fVideoFile;
-
-typedef struct {
-    float* audio;
-    guint samples;
-    fImage* video;
-} fVideoAudio;
 
 typedef struct fVideoFile fMediaFile;
 
 inline void vf_init();
 
+/*!
+ * \brief Opens a file of image,
+ *        video and/or audio 
+ */
 fVideoFile* vf_open( const char* name );
 
 fVideoFile* vf_audio_new( const char* name, int cid,
@@ -71,6 +89,17 @@ fImage* vf_video_read( fVideoFile* vf );
 
 void vf_video_write(fVideoFile* vf, fImage* img);
 
+
+/*! 
+ * \brief Reads the next frame of video,
+ *        and/or audio and returns it.
+ *        It can be used to read image
+ *        files(like JPEG).
+ * 
+ * \warning The file can only be read by
+ *          one thread at a time.
+ */
+fVideoAudio* vf_read( fVideoFile* vf );
 
 #else
 #error Before install LIBAVCODEC and LIBAVFORMAT\
