@@ -23,16 +23,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif
 
+#include <config.h>
 #include <video/image.h>
 #include <utils/Vector3.h>
 #include <utils/Vector2.h>
 #include <video/render.h>
 #include <glib.h>
 
-typedef enum {
-	RENDER_NORMAL=0,
-	RENDER_CARTOON
-} fRenderMode;
+#define RENDER_NORMAL FGE_DATA"shaders/normal.glsl"
+#define RENDER_CARTOON FGE_DATA"shaders/cartoon1.glsl"
+
+typedef char* fRenderMode;
+
+typedef fRenderMode fShader;
 
 #define fMaterialPropStruct \
 	struct { \

@@ -53,6 +53,11 @@ typedef enum {
 	FBUTTON_RIGHT
 } fButton;
 
+typedef enum {
+    FMOUSE_CLICK,
+    FMOUSE_MOVE
+} fMouseEventType;
+
 typedef struct {
 	int x;
 	int y;
@@ -61,6 +66,7 @@ typedef struct {
 	
 	fButton button;
 	fButtonState state;
+    fMouseEventType type;
 } fMouseEvent;
 
 typedef struct {
@@ -79,10 +85,37 @@ typedef struct {
 	int height;
 } fExposeEvent;
 
+typedef struct {
+    int x;
+    int y;
+    int begin_x;
+    int begin_y;
+    union {
+        struct {
+            int end_x;
+            int end_y;
+        };
+        struct {
+            int drop_x;
+            int drop_y;
+        };
+    };
+    
+    /*widget initial positions*/
+    int widget_x;
+    int widget_y;
+} fDropEvent;
+
+typedef fDropEvent fDragEvent;
+
 typedef enum {
 	FKEY_EVENT,
 	FMOUSE_EVENT,
-	FEXPOSE_EVENT
+	FEXPOSE_EVENT,
+    FDRAG_EVENT,
+    FDRAG_BEGIN_EVENT,
+    FDRAG_END_EVENT,
+    FDROP_EVENT = FDRAG_END_EVENT
 } fEventId;
 
 typedef enum {
@@ -100,6 +133,7 @@ typedef struct {
 		fKeyEvent key;
 		fMouseEvent mouse;
 		fExposeEvent expose;
+        fDropEvent drag_drop;
 	};
 	
 	fEventId id;
@@ -117,5 +151,7 @@ gboolean fevent_process( fEvent* evt );
 fEvent* fevent_windowstep( fWindow* w );
 #endif
 void fevent_windowloop( fWindow* w );
+
+
 
 #endif

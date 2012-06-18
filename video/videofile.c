@@ -239,4 +239,12 @@ fVideoAudio* vf_read( fVideoFile* vf ) {
     return ret;
 }
 
+void vf_free( fVideoFile* vf ) {
+    g_free(vf->format_ctx);
+    g_free(vf->video_codec);
+    g_free(vf->audio_codec);
+    g_free( vf->frame );
+    g_free(vf);
+}
+
 #endif

@@ -34,6 +34,14 @@ extern "C" {
 #define FCALLBACK2(x) \
 	((FCallback2)(x))
 
+
+#define inside( x, y, width, height, ax, ay ) \
+    (((ax) >= (x) && \
+     (ay) >= (y) && \
+     (ax) < (width) && \
+     (ay) < (height) ) ? \
+     TRUE : FALSE)
+
 typedef void (*FCallback)(void* data);
 typedef void (*FCallback2)(void* data, void* data2);
 typedef int (*FCallbackCompare)( void* a, void* b );
@@ -83,8 +91,7 @@ typedef struct {
 	this->list.prev = previ;\
 	previ->list.next = this;\
 	previ->list.next->list.prev = this;
-
-
+    
 #ifdef __cplusplus
 }
 #endif

@@ -104,7 +104,7 @@ struct fWindow {
 
 fWindow* window_get( const char* name );
 fWindow* window_new_full( int x, int y, int bits, gboolean fullscreen, const char* display, const char* wname );
-void window_free( fWindow* w );
+void window_free( fWindow* window );
 
 /*!
  * \brief Set default window

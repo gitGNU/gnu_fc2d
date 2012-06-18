@@ -55,11 +55,11 @@ gboolean fevent_process( fEvent* evt ) {
 					evt->y <= widget2->y
 				) 
 					f_signal_emit_full( widget2, evt->name, evt);
+                    fevent_process( widget2 );
 			}
 			
 			return TRUE;
 		}
-		
 	}
 	
 	return FALSE;
@@ -101,6 +101,7 @@ fEvent* fevent_windowstep( fWindow* w ) {
 		FMOUSEEVENT(fevt)->x_root = evt.xmotion.x_root;
 		FMOUSEEVENT(fevt)->y_root = evt.xmotion.y_root;
 		FMOUSEEVENT(fevt)->button = FBUTTON_NONE;
+        FMOUSEEVENT(fevt)->type = FMOUSE_MOVE;
 		fevt->name = "mouse-motion-event";
 		f_signal_emit_full(w, "mouse-motion-event", fevt);
 		fevent_process( w );
@@ -129,7 +130,7 @@ fEvent* fevent_windowstep( fWindow* w ) {
 		FMOUSEEVENT(fevt)->x_root = evt.xbutton.x_root;
 		FMOUSEEVENT(fevt)->y_root = evt.xbutton.y_root;
 		FMOUSEEVENT(fevt)->state = FBUTTON_DOWN;
-		
+		FMOUSEEVENT(fevt)->type = FMOUSE_CLICK;
 		if( evt.xbutton.button == 0 )
 			FMOUSEEVENT(fevt)->button = FBUTTON_LEFT;
 		else if( evt.xbutton.button == 1 )
@@ -146,7 +147,8 @@ fEvent* fevent_windowstep( fWindow* w ) {
 		FMOUSEEVENT(fevt)->x_root = evt.xbutton.x_root;
 		FMOUSEEVENT(fevt)->y_root = evt.xbutton.y_root;
 		FMOUSEEVENT(fevt)->state = FBUTTON_UP;
-		
+		FMOUSEEVENT(fevt)->type = FMOUSE_CLICK;
+
 		if( evt.xbutton.button == 0 )
 			FMOUSEEVENT(fevt)->button = FBUTTON_LEFT;
 		else if( evt.xbutton.button == 1 )
@@ -166,9 +168,13 @@ fEvent* fevent_windowstep( fWindow* w ) {
 
 void fevent_windowloop( fWindow* w ) {
 	fEvent* e;
-	
+	GList* l;
+    
 	thsys_add( Render, w );
-		
+    wait(1);
+    
+    widget_setup_events( w );
+    
 	while(1) {
 		fevent_windowstep(w);
 		wait(1);

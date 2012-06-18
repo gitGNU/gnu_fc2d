@@ -31,6 +31,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define pixel( image, x, y, c ) \
     (color(image, x, y, c)[0])
+    
+#define image_size(image) \
+    ((((fImageHeader*)(image))->width)*\
+    (((fImageHeader*)(image))->height)*\
+    (((fImageHeader*)(image))->channels_num)*\
+    sizeof(float))
+    
 
 typedef struct {
 	union {
@@ -38,13 +45,15 @@ typedef struct {
 			float r;
 			float g;
 			float b;
+            float a;
 		};
 		struct {
 			float red;
 			float green;
 			float blue;
+            float alpha;
 		};
-		float c[3];
+		float c[4];
 	};
 } fColor;
 

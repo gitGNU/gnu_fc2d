@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <video/image.h>
+#include <video/videofile.h>
 #include <stdio.h>
 #include <config.h>
 
@@ -51,30 +52,66 @@ fImage* image_new( guint32 width, guint32 height, gboolean alpha ) {
 fImage* image_load( const char* filename ) {
 	FILE* fp;
 	fImage* img;
-	
-	fp = fopen( filename, "r" );
-	
-	if( fp == NULL )
-		return NULL;
-	
-	img = g_malloc( sizeof(fImage) );
-	
-	fread( img, 1, sizeof( fImageHeader ), fp );
-	
-	if( img->header.header_size != sizeof( fImageHeader ) ||
-		img->header.color_size != sizeof(float)
-	) {
-		fprintf( stderr, "Incompatible version of\n"
-		"fif (FDiamondEngine image format or F Image Format).\n" );
-		return NULL;
-	}
-	
-	fread( img->emitter, 1, img->header.emitter_len, fp );
-	fread( img->data, 1, img->header.color_size *
-	img->header.channels_num * img->header.width * 
-	img->header.height, fp );
-	
-	fclose(fp);
+	char* fn;
+#if HAVE_VIDEO
+    fVideoFile* vf;
+    fVideoAudio* va;
+#endif
+    
+    fn = filename + (strlen(filename)-4);
+    if( g_strcmp0(fn, ".fif") == 0 ) {
+        fp = fopen( filename, "r" );
+        
+        if( fp == NULL )
+            return NULL;
+        
+        img = g_malloc( sizeof(fImage) );
+        
+        fread( img, 1, sizeof( fImageHeader ), fp );
+        
+        if( img->header.header_size != sizeof( fImageHeader ) ||
+            img->header.color_size != sizeof(float)
+        ) {
+            fprintf( stderr, "Incompatible version of\n"
+            "fif (FDiamondEngine image format or F Image Format).\n" );
+            return NULL;
+        }
+        
+        fread( img->emitter, 1, img->header.emitter_len, fp );
+        fread( img->data, 1, img->header.color_size *
+        img->header.channels_num * img->header.width * 
+        img->header.height, fp );
+        
+        fclose(fp);
+    } else {
+#if HAVE_VIDEO
+    vf = vf_open(filename);
+    
+    if( vf == NULL )
+        fprintf( stderr, "I could not open \"%s\"\n", filename );
+    
+    va = vf_read( vf );
+
+    g_free(va->audio);
+    
+    if( !(va->video) )
+        fprintf(stderr, "I could not find video/image in \"%s\"\n", filename);
+    
+    img = image_new( va->video->header.width,
+                     va->video->header.height, 
+                     FALSE );
+    
+    g_memmove(img->data, va->video->data, image_size(img) );
+    
+    g_free( va->video );
+    vf_free( vf );
+#else
+    fprintf(stderr, "For load non fif(FDiamondEngine Image Format),"
+        "you need install:\n"
+        "   libavcodec libavformat and libswscale"
+        " and recompile FDiamondEngine\n\n" );
+#endif
+    }
 	
 	return img;
 }

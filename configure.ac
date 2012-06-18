@@ -125,6 +125,7 @@ data/images/logos/Makefile
 data/audio/music/Makefile
 data/audio/Makefile
 data/audio/sound/Makefile
+data/shaders/Makefile
 high-level/Makefile
 highest-level/Makefile
 physics/Makefile

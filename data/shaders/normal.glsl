@@ -16,25 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VIDEO_RENDER_H__
-#define __VIDEO_RENDER_H__ 1
+attribute float opacity;
+attribute float mirror;
 
-#define fColorM(c) \
-	(c)->r, (c)->g, (c)->b
-
-#include <video/window.h>
-#include <utils/events.h>
-
-#if HAVE_3D
-
-void RenderScene( fWindow* w );
-void RenderGUI( fWindow* w );
-void RenderWidget( fWidget* w, guint x, guint y );
-void Render( fWindow* w );
-void Reshape( fEvent* evt );
-
-#else 
-#error You need install GL and GLU to enable this include
-#endif
-
-#endif
+void main() {
+//     vec3 color = (0, 1, 0);
+//     
+//     gl_Color = color;
+} 

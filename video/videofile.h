@@ -101,6 +101,8 @@ void vf_video_write(fVideoFile* vf, fImage* img);
  */
 fVideoAudio* vf_read( fVideoFile* vf );
 
+void vf_free( fVideoFile* vf );
+
 #else
 #error Before install LIBAVCODEC and LIBAVFORMAT\
 	you can NOT use this file.
