@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <config.h>
 #include <glib.h>
 #include <video/image.h>
+#include <utils/events.h>
+#include <utils/utils.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,12 +32,12 @@ extern "C" {
 #define FWIDGET(x) \
 	((fWidget*)(x))
 
-#define inside_widget( widget, x, y ) \
+#define inside_widget( widget, ax, ay ) \
     inside( ((fWidget*)(widget))->x, \
             ((fWidget*)(widget))->y, \
             ((fWidget*)(widget))->width, \
             ((fWidget*)(widget))->height, \
-            (x), (y) )
+            (ax), (ay) )
 
 struct _fWidget;
 typedef struct _fWidget fWidget;

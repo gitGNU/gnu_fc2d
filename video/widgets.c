@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <video/widgets.h>
 #include <utils/data-connect.h>
 #include <utils/Vector2.h>
+#include <utils/events.h>
 
 void widget_drag_event( fEvent* evt ) {
     fWidget* w = evt->obj;
@@ -60,9 +61,9 @@ void widget_drag_event( fEvent* evt ) {
                     act->obj_type = TYPE_FWIDGET;
                     act->id = FDRAG_END_EVENT;
                     act->name = "grab-event";
-                    f_signal_emit( w, act->name, act);
+                    f_signal_emit_full( w, act->name, act);
                     act->name = "grab-end-event";
-                    f_signal_emit( w, act->name, act);
+                    f_signal_emit_full( w, act->name, act);
                 }
             }
         } else if( evt->id == FMOUSE_EVENT ) {
@@ -75,9 +76,9 @@ void widget_drag_event( fEvent* evt ) {
                     act->obj_type = TYPE_FWIDGET;
                     act->id = FDRAG_BEGIN_EVENT;
                     act->name = "grab-event";
-                    f_signal_emit( w, act->name, act );
+                    f_signal_emit_full( w, act->name, act );
                     act->name = "grab-begin-event";
-                    f_signal_emit( w, act->name, act );
+                    f_signal_emit_full( w, act->name, act );
                     f_data_connect(w, "grabed", TRUE);
                     drag_pos->widget_x = w->x;
                     drag_pos->widget_y = w->y;
@@ -90,7 +91,7 @@ void widget_drag_event( fEvent* evt ) {
                 act->name = "grab-event";
                 act->x = evt->x;
                 act->y = evt->y;
-                f_signal_emit( w, act->name, act );
+                f_signal_emit_full( w, act->name, act );
             }
         }
     }
@@ -148,7 +149,7 @@ fWidget* widget_new( fWidget* parent ) {
    
    ret = g_malloc0(sizeof(fWidget));
    
-   widget_setup_events(w);
+   widget_setup_events(ret);
    parent->childs = g_list_append( parent->childs,
                                    ret  );
    

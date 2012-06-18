@@ -67,9 +67,10 @@ gboolean fevent_process( fEvent* evt ) {
 
 #if HAVE_X11
 
-fEvent* fevent_windowstep( fWindow* w ) {
+fEvent* fevent_windowstep( gpointer win ) {
 //TODO: Support to no X11 events
 	static fEvent* fevt = NULL;
+    fWindow* w = win;
 	XEvent evt;
 	gboolean check;
 	
@@ -166,9 +167,10 @@ fEvent* fevent_windowstep( fWindow* w ) {
 
 #endif
 
-void fevent_windowloop( fWindow* w ) {
+void fevent_windowloop( gpointer win ) {
 	fEvent* e;
 	GList* l;
+    fWindow* w = win;
     
 	thsys_add( Render, w );
     wait(1);

@@ -20,8 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define __UTILS_FEVENTS_H__ 1
 
 #include <glib.h>
-#include <video/window.h>
-#include <video/widgets.h>
 
 /*Macros for casting*/
 #define FEVENT(x) \
@@ -148,9 +146,9 @@ typedef struct {
 
 gboolean fevent_process( fEvent* evt );
 #if HAVE_X11
-fEvent* fevent_windowstep( fWindow* w );
+fEvent* fevent_windowstep( gpointer win );
 #endif
-void fevent_windowloop( fWindow* w );
+void fevent_windowloop( gpointer win );
 
 
 
