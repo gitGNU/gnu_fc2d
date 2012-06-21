@@ -124,7 +124,7 @@ fEntity* ent_new( const char* name, fVector3* pos,
 
     return mesh;
 #else
-    fprintf(stderr, "Without lib3ds, I can`t
+    fprintf(stderr, "Without lib3ds, I can`t"
                     "load anything(%s:%d)\n",
                     __FILE__, __LINE__);
     return NULL;

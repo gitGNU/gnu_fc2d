@@ -87,7 +87,7 @@ PKG_CHECK_MODULES( LIBSWSCALE, libswscale >= libswscale_required_version,
                    AC_DEFINE(HAVE_LIBSWSCALE, [0], [Check for LIBSWSCALE]) )
 
 printf "checking manually for lib3ds... "
-if test `lib3ds-config --version` \> 1.2
+if lib3ds-config --version && test `lib3ds-config --version` \> 1.2
 	then
 		AC_DEFINE(HAVE_LIB3DS, [1], [Check for LIB3DS])
 		LIB3DS_CFLAGS=`lib3ds-config --cflags`
@@ -97,6 +97,8 @@ if test `lib3ds-config --version` \> 1.2
 		AC_DEFINE(HAVE_LIB3DS, [0], [Check for LIB3DS])
 		echo "no"
 fi
+
+AC_HEADER_TIME
 
 AC_SUBST(LIB3DS_CFLAGS)
 AC_SUBST(LIB3DS_LIBS)

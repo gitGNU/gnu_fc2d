@@ -23,6 +23,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern GHashTable* f_dataconnect_hash;
 
+#define f_data_get_pp( obj, name, type ) \
+    (((type**)(f_data_get_pointer((obj), (name),\
+    sizeof(type))))[0])
+    
+#define f_data_get_p( obj, name, type ) \
+    (*f_data_get_pp( obj, name, type ))
+
 void f_data_connect( gpointer obj, const char* name,
 					 gpointer data);
 
@@ -30,4 +37,7 @@ void f_data_disconnect( gpointer obj, const char* name );
 
 gpointer f_data_get( gpointer obj, const char* name );
 
+gpointer* f_data_get_pointer( gpointer obj,
+                             const char* type_name, 
+                              gsize len );
 #endif

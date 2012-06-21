@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <video/widgets.h>
 #include <glib.h>
 #include <high-level/threads.h>
+#include <utils/data-connect.h>
 
 #if HAVE_X11
 #include<X11/X.h>
@@ -37,25 +38,32 @@ gboolean fevent_process( fEvent* evt ) {
 	fWidget* widget;
 	fWidget* widget2;
 	GList* l;
-	
+
+    g_assert( evt != NULL );
+       
 	if( evt->obj_type == TYPE_FWIDGET ) {
 		widget = evt->obj;
-		
-		if( evt->x > widget->x &&
-			evt->x <= widget->x &&
-			evt->y > widget->y &&
-			evt->y <= widget->y
+        
+        if( widget == NULL )
+            return FALSE;
+        
+		if( evt->x >= widget->x &&
+			evt->x < widget->x + widget->width &&
+			evt->y >= widget->y &&
+			evt->y < widget->y + widget->height
 		) {
 			for( l = widget->childs; l != NULL; l = l->next ) {
 				widget2 = l->data;
 				
-				if( evt->x > widget2->x &&
-					evt->x <= widget2->x &&
-					evt->y > widget2->y &&
-					evt->y <= widget2->y
-				) 
+				if( evt->x >= widget2->x &&
+					evt->x < widget2->x + widget2->width &&
+					evt->y >= widget2->y &&
+					evt->y < widget2->y + widget2->height
+				) {
 					f_signal_emit_full( widget2, evt->name, evt);
-                    fevent_process( widget2 );
+                    evt->obj = widget2;
+                    fevent_process( evt );
+                }
 			}
 			
 			return TRUE;
@@ -69,23 +77,34 @@ gboolean fevent_process( fEvent* evt ) {
 
 fEvent* fevent_windowstep( gpointer win ) {
 //TODO: Support to no X11 events
-	static fEvent* fevt = NULL;
-    fWindow* w = win;
+	fEvent* fevt = NULL;
+	fWindow* w = win;
 	XEvent evt;
 	gboolean check;
 	
-	if( fevt == NULL )
+    g_assert( win != NULL );
+    
+    fevt = f_data_get( win, "FEVENTS" );
+	if( fevt == NULL ) {
 		fevt = g_malloc0( sizeof(fEvent) );
+        f_data_connect( win, "FEVENTS", fevt );
+    }
+    
+  	check = XCheckMaskEvent( w->display, 
+                               KeyPressMask | 
+                               KeyReleaseMask |
+                               ButtonPressMask |
+                               ButtonReleaseMask | 
+                               PointerMotionMask |
+                               ButtonMotionMask|
+                               ExposureMask, &evt);
 	
-	fevt->obj = w;
-
-	check = XCheckWindowEvent( w->display, w->window, KeyPressMask |
-	KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
-	PointerMotionMask | ButtonMotionMask| ExposureMask, &evt);
-	
-	if( check == FALSE )
+    
+    if( check == FALSE )
 		return NULL;
 	
+    fevt->obj = win;
+    
 	if( evt.type == Expose ) {
 		fevt->id = FEXPOSE_EVENT;
 		FEXPOSEEVENT(fevt)->x = evt.xexpose.x;
@@ -93,9 +112,9 @@ fEvent* fevent_windowstep( gpointer win ) {
 		FEXPOSEEVENT(fevt)->width = evt.xexpose.width;
 		FEXPOSEEVENT(fevt)->height = evt.xexpose.height;
 		fevt->name = "expose-event";
-		f_signal_emit_full(w, "expose-event", fevt);
-		fevent_process( w );
-	} if( evt.type == MotionNotify ) {
+		f_signal_emit_full(w, fevt->name, fevt);
+		fevent_process( fevt );
+	} else if( evt.type == MotionNotify ) {
 		fevt->id = FMOUSE_EVENT;
 		FMOUSEEVENT(fevt)->x = evt.xmotion.x;
 		FMOUSEEVENT(fevt)->y = evt.xmotion.y;
@@ -104,8 +123,8 @@ fEvent* fevent_windowstep( gpointer win ) {
 		FMOUSEEVENT(fevt)->button = FBUTTON_NONE;
         FMOUSEEVENT(fevt)->type = FMOUSE_MOVE;
 		fevt->name = "mouse-motion-event";
-		f_signal_emit_full(w, "mouse-motion-event", fevt);
-		fevent_process( w );
+		f_signal_emit_full(w, fevt->name, fevt);
+		fevent_process( fevt );
 	} else if( evt.type == KeyPress ) {
 		fevt->id = FKEY_EVENT;
 		FKEYEVENT(fevt)->state = FKEY_DOWN;
@@ -113,8 +132,8 @@ fEvent* fevent_windowstep( gpointer win ) {
 		FKEYEVENT(fevt)->x = evt.xkey.x;
 		FKEYEVENT(fevt)->y = evt.xkey.y;
 		fevt->name = "key-event";
-		f_signal_emit_full(w, "key-event", fevt);
-		fevent_process( w );
+		f_signal_emit_full(w, fevt->name, fevt);
+		fevent_process( fevt );
 	} else if( evt.type == KeyRelease ) {
 		fevt->id = FKEY_EVENT;
 		FKEYEVENT(fevt)->state = FKEY_UP;
@@ -122,8 +141,8 @@ fEvent* fevent_windowstep( gpointer win ) {
 		FKEYEVENT(fevt)->x = evt.xkey.x;
 		FKEYEVENT(fevt)->y = evt.xkey.y;
 		fevt->name = "key-event";
-		f_signal_emit_full(w, "key-event", fevt);
-		fevent_process( w );
+		f_signal_emit_full(w, fevt->name, fevt);
+		fevent_process( fevt );
 	} else if( evt.type == ButtonPress ) {
 		fevt->id = FMOUSE_EVENT;
 		FMOUSEEVENT(fevt)->x = evt.xbutton.x;
@@ -139,8 +158,8 @@ fEvent* fevent_windowstep( gpointer win ) {
 		else if( evt.xbutton.button == 2 )
 			FMOUSEEVENT(fevt)->button = FBUTTON_RIGHT;
 		fevt->name = "mouse-button-event";
-		f_signal_emit_full(w, "mouse-button-event", fevt);
-		fevent_process( w );
+		f_signal_emit_full(w, fevt->name, fevt);
+		fevent_process( fevt );
 	} else if( evt.type == ButtonRelease ) {
 		fevt->id = FMOUSE_EVENT;
 		FMOUSEEVENT(fevt)->x = evt.xbutton.x;
@@ -157,8 +176,8 @@ fEvent* fevent_windowstep( gpointer win ) {
 		else if( evt.xbutton.button == 2 )
 			FMOUSEEVENT(fevt)->button = FBUTTON_RIGHT;
 		fevt->name = "mouse-button-event";
-		f_signal_emit_full(w, "mouse-button-event", fevt);
-		fevent_process( w );
+		f_signal_emit_full(w, fevt->name, fevt);
+		fevent_process( fevt );
 	}
 		
 		
@@ -171,11 +190,14 @@ void fevent_windowloop( gpointer win ) {
 	fEvent* e;
 	GList* l;
     fWindow* w = win;
+    int tmp;
     
 	thsys_add( Render, w );
     wait(1);
     
-    widget_setup_events( w );
+     XSelectInput( w->display, w->window, KeyPressMask |
+     KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
+     PointerMotionMask | ButtonMotionMask| ExposureMask);
     
 	while(1) {
 		fevent_windowstep(w);

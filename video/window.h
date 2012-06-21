@@ -71,10 +71,10 @@ struct fWindow {
 	union {
 		fWidget widget;
 		struct {
-			unsigned int x;
-			unsigned int y;
-			unsigned int width;
-			unsigned int height;
+			int x;
+			int y;
+			int width;
+			int height;
 		};
 	};
 #if HAVE_SDL

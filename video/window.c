@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glib.h>
 #include <video/window.h>
+#include <video/image.h>
 #include <utils/events.h>
 #include <high-level/camera.h>
 
@@ -118,6 +119,7 @@ fWindow* window_new_full( int x, int y, int bits,
 	int flags;
 	GThread* th;
 	fThread* this;
+    fWidget* widget;
 	
 	G_LOCK(window_new);
 #if !HAVE_X11
@@ -158,7 +160,7 @@ fWindow* window_new_full( int x, int y, int bits,
 #endif
 #if HAVE_X11
 	//TODO: We avoid calling this function all the time?
-	XAllowEvents( w->display, AsyncBoth, CurrentTime );
+	//XAllowEvents( w->display, AsyncBoth, CurrentTime );
 #endif
 	G_UNLOCK(window_new);
 	
@@ -167,7 +169,13 @@ fWindow* window_new_full( int x, int y, int bits,
     
 #if HAVE_X11
 	thsys_add( fevent_windowloop, w );
-#endif    
+#endif
+    
+    widget = w;
+    
+    widget->pixels = image_new( w->width, w->height,
+                                  FALSE );
+    
 	return w;
 }
 
@@ -176,7 +184,7 @@ void window_free( fWindow* w ) {
 #if !HAVE_X11
 	SDL_Quit();
 #else
-	/* TODO: Check for error and remove this 
+	/* FIXME: Check for error and remove this 
 	 * text if no one
 	 */
 #if HAVE_3D

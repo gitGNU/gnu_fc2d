@@ -43,39 +43,84 @@ struct _fWidget;
 typedef struct _fWidget fWidget;
 
 struct _fWidget {
-	unsigned int x;
-	unsigned int y;
-	unsigned int width;
-	unsigned int height;
+	int x;
+	int y;
+	int width;
+	int height;
 	
     fWidget* p;
     GList* childs;
-
-    fImage* pixels;
+    GList* childs_hide;
     
-    /*! 
-     * \brief FDiamondEngine can change the size
-     *        if the user move the extremes? 
+    /*!
+     * \brief This widget is visible? 
+     * 
+     * \details This is automatically modified
+     *          by boolean functions which show
+     *          and hide the widget.
+     * 
+     * \warning This variable is only informative, modify
+     *          it, will not hide or show the widget. 
+     *          Modify it will disrupt the operation,
+     *          therefore, the functions will not know
+     *          more when the widget is visible and when
+     *          not. When called multiple times, one may
+     *          try to hide hidden widget or show a visible
+     *          widget (in this case it does not work)
+     */
+    gboolean visible;
+
+    /* I am very indecisive when I
+     * have so many options.
+     */
+    union {
+        fImage* pixels;
+        fImage* img;
+    };
+    
+    /*!
+     * \brief This widget is resizable?
+     * 
+     * \warning This variable is only
+     *          informative
      */
     gboolean resizable;
     
     /*!
-     * \brief If you are at the top should be moved
-     *        trying to through to drag inside?
+     * \brief This widget is movable?
+     * 
+     * \warning This variable is only
+     *          informative
      */
     gboolean movable;
     
-    //0 for no border
+    /*!
+     * \brief The border size in pixels
+     * 
+     * \note If you not want for border
+     *       set this variable to 0.
+     *       This variable is not only
+     *       informative, you change
+     *       border size changing
+     *       the value of it.
+     */
     guint border_size;
-    //transparency
+    
+    /*!
+     * \brief The transparency level for
+     *        this widget
+     * 
+     * \details Use a number from 0 to 1
+     */
     float transp;
 };
 
 /*! 
  * \brief This function is called whenever the
  *        mouse is moved or clicked. It enables
- *        events to drag and drop.*/
-void widget_drag_event( fEvent* evt );
+ *        events to drag and drop.
+ */
+void widget_drag_event( fEvent* evt, fWidget* w );
 
 void widget_resize_event( fEvent* evt );
 void widget_move_event( fEvent* evt );
@@ -91,6 +136,38 @@ fWidget* widget_new( fWidget* parent );
  *        widget
  */
 void widget_setup_events( fWidget* w );
+
+/*!
+ * \brief Allow a widget will be drawn
+ */
+void widget_show( fWidget* w );
+
+/*!
+ * \brief Not allow a widget will be drawn
+ * 
+ * \details No event for this widget will
+ *          be processed( possibly saves CPU,
+ *          and/or maybe GPU).
+ */
+void widget_hide( fWidget* w );
+
+/*! 
+ * \brief FDiamondEngine can change the size
+ * of it your widget if the user move the
+ * extremes?
+ */
+void widget_resizable( fWidget* w, gboolean b );
+
+/*!
+ * \brief Your allow user to move your widget
+ */
+void widget_movable( fWidget* w, gboolean b );
+
+/*!
+ * \brief What is the border size you want
+ *        for your widget?(0 for no border)
+ */
+void widget_border_set( fWidget* w, guint value );
 
 #ifdef __cplusplus
 }

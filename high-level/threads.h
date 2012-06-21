@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <glib.h>
 #include <utils/utils.h>
 #include <utils/event-basis.h>
+#include <utils/data-connect.h>
 
 #ifndef G_THREADS_ENABLED
 #error FDiamondEngine THSYS need glib with thread support to works
@@ -95,11 +96,43 @@ struct fThread {
 };
 
 extern GHashTable* thsys_hash;
-extern int FPS_MAX;
 
 #define this_thread \
 	(thsyshash_get())
 
+#define current_master \
+    (parent_for(this_thread))
+
+#define FPS_MAX \
+    (f_data_get_p( current_master, \
+                    "FPS_MAX", \
+                    double))
+
+#define fps_max FPS_MAX
+/*
+ * The duration of the last cycle. This
+ * macro (or variable) is a 20 frames
+ * per second */
+#define TIME_STEP \
+    (f_data_get_p( this_thread, \
+                    "TIME_STEP", \
+                    double))
+
+#define time_step TIME_STEP
+
+#define TIME_VELOCITY \
+    (f_data_get_p( current_master, \
+                    "TIME_VELOCITY", \
+                    double))
+
+#define time_vel TIME_VELOCITY
+
+#define FPS (f_data_get_p( current_master, \
+                    "FPS", \
+                    double))
+
+#define fps FPS
+    
 #define THSYS_LOCK \
     if ( thsys_mutex == NULL )\
         thsys_init();\
@@ -265,6 +298,28 @@ void parallel_restore( fThread* th );
  *           run in series with this
  */
 void wait_for( fThread* th );
+
+/*!
+ * \brief Lock anything by it's pointer
+ */
+void f_lock( gpointer obj );
+
+/*!
+ * \brief Unlock anything by it's pointer 
+ */
+void f_unlock( gpointer obj );
+
+fThread* parent_for( fThread* th );
+
+/*!
+ * \brief Wait for time requested by FPS_MAX
+ *        and sets TIME_STEP
+ * 
+ * \warning Call this function outside the proper
+ *          context can prevent the variables to
+ *          be adjusted correctly
+ */
+void thsys_fps();
 
 #ifdef __cplusplus
 }

@@ -25,6 +25,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif
 
+
+#define str(x) str2(x)
+#define str2(x) #x
+
 #define mod(x) \
 	(x > 0? x : (-x))
 

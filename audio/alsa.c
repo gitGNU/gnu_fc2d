@@ -195,7 +195,7 @@ void audio_mainloop() {
 	aud_fthread = thsyshash_get();
 	aud_mutex = g_mutex_new();
 
-	thsys_addp( audio_output_mainloop, NULL );
+	//thsys_addp( audio_output_mainloop, NULL );
 }
 
 void psamplei( float sample, float balance ) {

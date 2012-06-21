@@ -105,19 +105,23 @@ void RenderScene( fWindow* w ) {
 	}
 }
 
-void RenderWidget( fWidget* w, guint x, guint y ) {
+void RenderWidget( fWidget* w, int x, int y ) {
     GList* m;
     fColor *px1, *px2;
-    guint k, l, i, k2, l2;
+    int k, l, i, k2, l2;
     fImageHeader *img1, *img2;
     float alpha=1;
     
     for( m = w->childs; m != NULL; m = m->next ) {
-        FWIDGET(m->data)->p = w;
-        RenderWidget( m->data, x + w->x, y + w->y );
+        RenderWidget( m->data, w->x,
+                      w->y );
     }
     
-    glTranslate2i( x, y );
+    x = x + w->x;
+    y = y + w->y;
+    
+    glScalef( w->width, w->height, 0 );
+    glTranslatef( x, y, 0 );
     
     if( w->pixels ) {
         //Put some data in "fImage"
@@ -127,44 +131,44 @@ void RenderWidget( fWidget* w, guint x, guint y ) {
         if( w->p && w->p->pixels ) {
             img1 = w->p->pixels;
             
-            for( k = 0; k < img2->width; k++ ) {
-                for( l = 0; l < img2->height; l++ ) {
-                    px2 = color((fImage*)img2, k, l, 0);
+            k=0;
+             if( x < 0 ) {
+                 k += (-x);
+             }
+
+            
+            for( ; k < w->width && k + x < w->p->width; k++ ) {
+                l=0;
+                if( y < 0 ) {
+                    l += (-y);
+                }
+                for( ; l < w->height && l + y < w->p->height; l++ ) {
+                                        
+                    px1 = color((fImage*)img1, x + k, y + l, 0);
                     
-                    k2 = x + ( ((float)k/img2->width) *
-                         w->width);
-                    l2 = y + ( ((float)l/img2->height) *
-                         w->height);
-                    
-                    if( k2 < img1->width && l2 < img1->height ) {
-                        px1 = color((fImage*)img1, k2, l2, 0);
-                        if( img2->channels_num == 4 ) {
-                            alpha = px2->alpha * 
-                                   (1. - w->transp);
-                        } else {
-                            alpha = 1. - w->transp;
-                        }
-                        
-                        px1->r = (px1->r*(1. - alpha)) + 
-                               (px2->r*alpha);
-                        px1->g = (px1->g*(1. - alpha)) + 
-                               (px2->g*alpha);
-                        px1->b = (px1->b*(1. - alpha)) + 
-                               (px2->b*alpha);
+                    k2 = ( ((float)k/w->width) *
+                        img2->width);
+                    l2 = ( ((float)l/w->height) *
+                        img2->height);
+
+                    px2 = color((fImage*)img2, k2, l2, 0);
+
+                    if( img2->channels_num == 4 ) {
+                        alpha = px2->alpha * 
+                            (1. - w->transp);
+                    } else {
+                        alpha = 1. - w->transp;
                     }
+                    
+                    px1->r = (px1->r*(1. - alpha)) + 
+                        (px2->r*alpha);
+                    px1->g = (px1->g*(1. - alpha)) + 
+                        (px2->g*alpha);
+                    px1->b = (px1->b*(1. - alpha)) + 
+                        (px2->b*alpha);
                 }
             }
             
-        } else if( !(w->p) ) {
-            if( img2->channels_num == 4 ) {
-                glDrawPixels( img2->width, img2->height,
-                    GL_RGBA, GL_FLOAT,
-                    w->pixels->data );
-            } else {
-                glDrawPixels( img2->width, img2->height,
-                    GL_RGB, GL_FLOAT,
-                    w->pixels->data );
-            }
         }
     } else {
         //Ask for someone to load anything
@@ -173,13 +177,28 @@ void RenderWidget( fWidget* w, guint x, guint y ) {
     
     f_signal_emit_full( w, "render2D", w );
     
-    glTranslate2f( -x, -y );
+    glTranslatef( -x, -y, 0 );
+    glScalef( 1. / w->width, 1. / w->height, 0 );
 }
 
 void RenderGUI( fWindow* window ) {
     fWidget* w = window;
+    fImageHeader* img2 = w->pixels;
     
-    RenderWidget( w, w->x, w->y );
+    if( w->childs != NULL ) {
+        glReadPixels( 0, 0, window->width, 
+                    window->height, GL_RGB, 
+                    GL_FLOAT,
+                    w->pixels->data );
+        
+        RenderWidget( w, 0, 0 );
+        
+        if( img2 ) {
+                glDrawPixels( img2->width, img2->height,
+                    GL_RGB, GL_FLOAT,
+                    w->pixels->data );
+        }
+    }
 }
 
 void Reshape( fEvent* evt ) {
@@ -187,8 +206,8 @@ void Reshape( fEvent* evt ) {
 	fExposeEvent* e = evt;
 	fThread* th;
 	
-	w->width = e->width;
-	w->height = e->height;
+// 	w->width = e->width;
+// 	w->height = e->height;
     
     f_render_reshape = TRUE;
 
@@ -198,7 +217,7 @@ void Render( fWindow* w ) {
     
 #if HAVE_ALSA
 	//thsys_addp( audio_output_mainloop, NULL );
-	g_thread_create( audio_output_mainloop, NULL, TRUE, NULL );
+	//g_thread_create( audio_output_mainloop, NULL, TRUE, NULL );
 #endif
 	
 	w->glc = glXCreateContext(w->display, w->vi, NULL, GL_TRUE);
@@ -228,12 +247,12 @@ void Render( fWindow* w ) {
 		RenderScene(w);
         f_signal_emit_full( w, "render3D", w );
         
-        glScale2f( 1. / w->width, 1. / w->height );
-        glTranslate2f( -1, -1 );
+        glTranslatef( -1, -1, 0 );
+        glScalef( 1. / w->width, 1. / w->height, 0 );
 		RenderGUI(w);
         f_signal_emit_full( w, "render2D", w );
-        glTranslate2f( 1, 1 );
-        glScale2f( w->width, w->height );
+        glScalef( w->width, w->height, 0 );
+        glTranslatef( 1, 1, 0 );
 		window_draw(w);
         
 		wait(1);

@@ -1,7 +1,7 @@
 noinst_LTLIBRARIES = libutils.la
 
 AM_LIBS=$(GLIB_LIBS)
-AM_CFLAGS=$(GLIB_CFLAGS)
+AM_CFLAGS= $(GLIB_CFLAGS)
 
 AM_LIBS+= $(SDL_LIBS)
 AM_CFLAGS+= $(SDL_CFLAGS)
@@ -20,7 +20,8 @@ utilsinclude_HEADERS = \
 	Vector2.h\
 	Vector3.h \
 	events.h \
-	data-connect.h
+	data-connect.h \
+	low-level.h
 
 utilsincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/utils/
 
@@ -31,7 +32,8 @@ libutils_la_SOURCES = \
 	Vector2.c \
 	Vector3.cpp \
 	events.c \
-	data-connect.c\
+	data-connect.c \
+	low-level.c \
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

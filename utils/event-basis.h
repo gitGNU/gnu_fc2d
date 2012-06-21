@@ -26,17 +26,16 @@ extern GHashTable* f_connect_hash;
 
 #define FEVENTFUNCTION(x) \
 	((FEventFunction*)(x))
-
+	
 #define f_signal_connect(name,function) \
-	f_signal_connect_full((gpointer)0, name, function, NULL)
+    f_signal_connect_full((gpointer)0, name, function, NULL)
 
-	
 #define f_signal_disconnect(name,function) \
-	f_signal_disconnect_full((gpointer)0, name, function)
-	
+    f_signal_disconnect_full((gpointer)0, name, function)
+
 #define f_signal_emit(name, data) \
-	f_signal_emit_full((gpointer)0, name, data)
-	
+    f_signal_emit_full((gpointer)0, name, data) 
+
 typedef struct {
 	FCallback2 function;
 	gpointer data;

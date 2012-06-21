@@ -92,16 +92,16 @@ fVideoFile* vf_open(const char* name) {
                                             video->video_ctx->pix_fmt,
                                             video->video_ctx->width, 
                                             video->video_ctx->height,
-                                            PIX_FMT_RGB24,
+                                            PIX_FMT_RGBA,
                                             SWS_BICUBIC, NULL, NULL, NULL);
         
-        avpicture_alloc( &(video->pict), PIX_FMT_RGB24,
+        avpicture_alloc( &(video->pict), PIX_FMT_RGBA,
                         video->video_ctx->width,
                         video->video_ctx->height );
         
         video->img = image_new( video->video_ctx->width,
                                 video->video_ctx->height,
-                                FALSE );
+                                TRUE );
     }
     
     video->frame = avcodec_alloc_frame();
@@ -211,10 +211,10 @@ fVideoAudio* vf_read( fVideoFile* vf ) {
                 
                 for( x = 0; x < vf->video_ctx->width; x++ ) {
                     for( y = 0; y < vf->video_ctx->height; y++ ) {
-                        for( i = 0; i < 3; i++ ) {
+                        for( i = 0; i < 4; i++ ) {
                             f = color(ret->video, x, y, i);
                             f2 = ((guint32*)((gulong)vf->pict.data[0] +
-                            (y*vf->pict.linesize[0]) + (x*3) + i));
+                            (y*vf->pict.linesize[0]) + (x*4) + i));
                             *f = (float)(*f2) / 255; 
                         }
                     }
@@ -241,8 +241,6 @@ fVideoAudio* vf_read( fVideoFile* vf ) {
 
 void vf_free( fVideoFile* vf ) {
     g_free(vf->format_ctx);
-    g_free(vf->video_codec);
-    g_free(vf->audio_codec);
     g_free( vf->frame );
     g_free(vf);
 }

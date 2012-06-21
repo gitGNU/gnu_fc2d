@@ -16,25 +16,35 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VIDEO_RENDER_H__
-#define __VIDEO_RENDER_H__ 1
+#include <utils/low-level.h>
 
-#define fColorM(c) \
-	(c)->r, (c)->g, (c)->b
+void f_swap( gpointer a, gpointer b, gsize len ) {
+    char *x = a, *y = b;
+    char z;
+    gsize i;
+    
+    for( i = 0; i < len; i++ ) {
+        z = x[i];
+        x[i] = y[i];
+        y[i] = z;
+    }
+}
 
-#include <video/window.h>
-#include <utils/events.h>
-
-#if HAVE_3D
-
-void RenderScene( fWindow* w );
-void RenderGUI( fWindow* w );
-void RenderWidget( fWidget* w, int x, int y );
-void Render( fWindow* w );
-void Reshape( fEvent* evt );
-
-#else 
-#error You need install GL and GLU to enable this include
-#endif
-
-#endif
+void _f_remove_of( char* c_begin, char* c_end,
+                  char* p_end )
+{
+    char* c;
+    
+    f_data_connect( c_begin, 
+                    "backup", 
+                    g_memdup(c_begin, 
+                             c_end - c_begin) );
+       
+    for( c = c_begin; c < c_end && 
+        ((gsize)c_end + c) - c_begin < p_end; c++ )
+    {
+        *c = *((char*)(((gsize)c_end+c) - c_begin));
+    }
+    
+    
+}

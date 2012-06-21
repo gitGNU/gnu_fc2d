@@ -99,7 +99,7 @@ fImage* image_load( const char* filename ) {
     
     img = image_new( va->video->header.width,
                      va->video->header.height, 
-                     FALSE );
+                     TRUE );
     
     g_memmove(img->data, va->video->data, image_size(img) );
     

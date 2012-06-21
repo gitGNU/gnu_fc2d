@@ -16,15 +16,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <config.h>
 #include <glib.h>
 #include <high-level/threads.h>
 #include <utils/event-basis.h>
 #include <utils/data-connect.h>
+
+#if TIME_WITH_SYS_TIME
+#include <time.h>
+#elif HAVE_SDL
 #include <SDL.h>
+#endif
+
 
 GHashTable* thsys_hash = NULL;
 GMutex* thsys_mutex = NULL;
-int FPS_MAX = 0;
 
 void thsys_coming( FEventFunction* fun ) {
 	
@@ -136,7 +142,7 @@ inline void thsys_init() {
 
     g_thread_init(NULL);
     thsys_mutex = g_mutex_new();
-
+    
 }
 
 fThread* thsyshash_try_get() {
@@ -170,7 +176,8 @@ void thsys_initvalues( fThread* fth ) {
 	fth->leaving = NULL;
 	fth->removeme = FALSE;
 	
-	fth->p = g_hash_table_lookup ( thsys_hash, g_thread_self() );
+	fth->p = g_hash_table_lookup ( thsys_hash, 
+                                   g_thread_self() );
 	
 	if( fth->p != NULL )
 		fth->mutex_line = fth->p->mutex_line;
@@ -338,6 +345,8 @@ void wait( double value ) {
 	
 	fThread* this;
 	GList* l;
+    GTimer* master_timer;
+    gdouble time;
 	
 	this = thsyshash_get();
 
@@ -376,6 +385,7 @@ void wait( double value ) {
  			else
 				thsys_step(SERIES);
 			}
+			thsys_fps();
 	}
 	
     while( this->remaining_frames > 0 ) {
@@ -388,6 +398,8 @@ void wait( double value ) {
             thsys_step(PARALLEL);
         else
             thsys_step(SERIES);
+        
+        thsys_fps();
         
         this->remaining_frames--;
     }
@@ -403,8 +415,10 @@ void wait( double value ) {
             thsys_step(SERIES);
         
         g_timer_stop( this->timer );
-        this->remaining_time -= g_timer_elapsed(this->timer, NULL);
+        this->remaining_time -= 
+            (g_timer_elapsed(this->timer, NULL) * mod(time_vel));
         g_timer_start( this->timer );
+        thsys_fps();
     }
 	
 	if( this->remaining_time > 0 )
@@ -425,12 +439,14 @@ void wait( double value ) {
 			FEVENTFUNCTION(l->data)->data,
 			this );
 	}
+	
 }
 
 /* FIXME: The list made ​​to run in series
  * to operate in parallel */
 void waitp() {
-	
+    GTimer* master_timer;
+    gdouble time;
 	fThread* this;
 	GList* l;
 	
@@ -452,9 +468,14 @@ void waitp() {
 			FEVENTFUNCTION(l->data)->data,
 			this );
 	}
+	
+	thsys_fps();
+	
 }
 
 void waits( double value ) {
+    GTimer* master_timer;
+    gdouble time;
 	fThread* this;
 	GList* l;
 	
@@ -511,6 +532,39 @@ void waits( double value ) {
 			FEVENTFUNCTION(l->data)->data,
 			this );
 	}
+
+    /* Limits the number of cycles
+    * per second FPS_MAX */
+    master_timer = f_data_get(this, "MAX_TIMER");
+    
+    if( !master_timer ) {
+        master_timer = g_timer_new();
+        f_data_connect( this, "MAX_TIMER",
+                        master_timer );
+        g_timer_start( master_timer );
+        
+        time_step = 1;
+        if( time_vel == 0 )
+            time_vel = 1;
+    } else {
+        g_timer_stop( master_timer );
+        time = g_timer_elapsed( master_timer, 
+                            NULL );
+        
+        time_step = (time * 20) * time_vel;
+
+        if( FPS_MAX > 0 ) {
+            time = (1. / FPS_MAX) - time;
+
+            if( time > 0 ) {
+                SDL_Delay( time * 1000 );
+                time_step += (time*20*time_vel);
+            }
+        }
+
+        g_timer_start( master_timer );
+    }
+    thsys_fps();
 }
 
 void synchronize( ListType mode ) {
@@ -643,7 +697,7 @@ void synchronize( ListType mode ) {
 void thsys_step( ListType mode ) {
 	fThread* this;
 	fThread* next;
-
+        
 	this = thsyshash_get();
 
 	if( mode == SERIES ) {
@@ -690,7 +744,13 @@ void thsys_step( ListType mode ) {
 		g_mutex_unlock( this->mutex_line );
 		g_cond_wait( this->condp, this->mutexp );
 	}
+
+// #if HAVE_SDL
+
+// #endif
+
 }
+
 
 fThread* series_insert( fThread* th, fThread* it ) {
 	GList* l;
@@ -757,4 +817,99 @@ void wait_for( fThread* th ) {
     series_insert( th, this_thread );
     wait(1);
     series_restore(th);
+}
+
+void f_lock( gpointer obj ) {
+    GMutex* m;
+    
+    thsys_init();
+    
+    if( !(m = f_data_get(obj, "MUTEX")) ) {
+        m = g_mutex_new();
+        f_data_connect( obj, "MUTEX", m );
+    }
+    
+    g_mutex_lock(m);
+}
+
+void f_unlock( gpointer obj ) {
+    GMutex* m;
+    
+    if( !(m = f_data_get(obj, "MUTEX")) ) {
+        m = g_mutex_new();
+        f_data_connect( obj, "MUTEX", m );
+    }
+    
+    g_mutex_unlock(m);
+}
+
+fThread* parent_for( fThread* th ) {
+    if( th->ps != NULL )
+        return th->ps;
+    
+    return th;
+}
+
+void thsys_fps() {
+    fThread* this = this_thread;
+    GTimer* master_timer;
+    double time;
+    gulong time2;
+#if TIME_WITH_SYS_TIME
+    struct timespec t, t2;
+#endif
+
+    master_timer = f_data_get(this, "MAX_TIMER");
+    
+    if( !master_timer ) {
+        master_timer = g_timer_new();
+        f_data_connect( this, "MAX_TIMER",
+                        master_timer );
+        g_timer_start( master_timer );
+        
+        time_step = 1;
+        if( time_vel == 0 )
+            time_vel = 1;
+    } else {
+        g_timer_stop( master_timer );
+        time = g_timer_elapsed( master_timer, 
+                            NULL );
+              
+        time_step = (time * 20) * time_vel;
+        
+        FPS = time;
+        
+        if( FPS_MAX > 0 ) {
+            time = (1. / FPS_MAX) - time;
+            
+            if( time > 0 )
+                FPS += time;
+            
+            while( time > 0 ) {
+#if TIME_WITH_SYS_TIME
+                time2 = time * 1000000000;
+                    
+                if( time2 >= 1000000000 )
+                    time2 = 100000000;
+                
+                t.tv_nsec = time2;
+                t.tv_sec = 0;
+                t2.tv_sec = 0;
+                t2.tv_nsec = 0;
+                nanosleep(&t, &t2);
+                time -= ((double)(time2 - t2.tv_nsec)
+                / 100000000);
+#else
+#if HAVE_SDL
+                SDL_Delay( time * 1000 );
+#endif
+                time = 0;
+#endif
+            }
+        }
+        
+        FPS = 1. / FPS;
+
+        g_timer_start( master_timer );
+    }
 }

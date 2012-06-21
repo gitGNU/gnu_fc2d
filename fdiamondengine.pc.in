@@ -33,4 +33,5 @@ Cflags: -I${includedir}/@PACKAGE_NAME@-@FGE_VERSION@ \
 	@LIBAVFORMAT_CFLAGS@ \
 	@LIBSWSCALE_CFLAGS@ \
 	@ALSA_CFLAGS@ \
-	@LIB3DS_CFLAGS@
+	@LIB3DS_CFLAGS@ \
+	-masm=intel
