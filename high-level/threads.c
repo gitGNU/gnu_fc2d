@@ -384,8 +384,8 @@ void wait( double value ) {
  				thsys_step(PARALLEL);
  			else
 				thsys_step(SERIES);
-			}
-			thsys_fps();
+            thsys_fps2();
+		}
 	}
 	
     while( this->remaining_frames > 0 ) {
@@ -399,9 +399,8 @@ void wait( double value ) {
         else
             thsys_step(SERIES);
         
-        thsys_fps();
-        
         this->remaining_frames--;
+        thsys_fps2();
     }
     
     while( this->remaining_time > 0 ) {
@@ -417,8 +416,9 @@ void wait( double value ) {
         g_timer_stop( this->timer );
         this->remaining_time -= 
             (g_timer_elapsed(this->timer, NULL) * mod(time_vel));
+            
         g_timer_start( this->timer );
-        thsys_fps();
+        thsys_fps2();
     }
 	
 	if( this->remaining_time > 0 )
@@ -439,6 +439,8 @@ void wait( double value ) {
 			FEVENTFUNCTION(l->data)->data,
 			this );
 	}
+	
+	thsys_fps();
 	
 }
 
@@ -502,6 +504,7 @@ void waits( double value ) {
 		while(1) {
 			thsys_step(PARALLEL);
 			thsys_step(SERIES);	
+            thsys_fps2();
 		}
 	}
 	
@@ -513,6 +516,7 @@ void waits( double value ) {
 		thsys_step(PARALLEL);
 		thsys_step(SERIES);
 		this->remaining_frames--;
+        thsys_fps2();
 	}
 	
 	while( this->remaining_time > 0 ) {
@@ -525,6 +529,7 @@ void waits( double value ) {
         g_timer_stop( this->timer );
         this->remaining_time -= g_timer_elapsed(this->timer, NULL);
         g_timer_start( this->timer );
+        thsys_fps2();
     }
 	
 	for( l = this->coming; l != NULL; l = l->next ) {
@@ -533,37 +538,6 @@ void waits( double value ) {
 			this );
 	}
 
-    /* Limits the number of cycles
-    * per second FPS_MAX */
-    master_timer = f_data_get(this, "MAX_TIMER");
-    
-    if( !master_timer ) {
-        master_timer = g_timer_new();
-        f_data_connect( this, "MAX_TIMER",
-                        master_timer );
-        g_timer_start( master_timer );
-        
-        time_step = 1;
-        if( time_vel == 0 )
-            time_vel = 1;
-    } else {
-        g_timer_stop( master_timer );
-        time = g_timer_elapsed( master_timer, 
-                            NULL );
-        
-        time_step = (time * 20) * time_vel;
-
-        if( FPS_MAX > 0 ) {
-            time = (1. / FPS_MAX) - time;
-
-            if( time > 0 ) {
-                SDL_Delay( time * 1000 );
-                time_step += (time*20*time_vel);
-            }
-        }
-
-        g_timer_start( master_timer );
-    }
     thsys_fps();
 }
 
@@ -875,18 +849,72 @@ void thsys_fps() {
         time = g_timer_elapsed( master_timer, 
                             NULL );
               
-        time_step = (time * 20) * time_vel;
-        
+        time_step = time;
         FPS = time;
         
         if( FPS_MAX > 0 ) {
             time = (1. / FPS_MAX) - time;
             
-            if( time > 0 )
+            if( time > 0 ) {
                 FPS += time;
-            
-            while( time > 0 ) {
+                time_step += time;
+
+                while( time > 0 ) {
 #if TIME_WITH_SYS_TIME
+                    time2 = time * 1000000000;
+                        
+                    if( time2 >= 1000000000 )
+                        time2 = 100000000;
+                    
+                    t.tv_nsec = time2;
+                    t.tv_sec = 0;
+                    t2.tv_sec = 0;
+                    t2.tv_nsec = 0;
+                    nanosleep(&t, &t2);
+                    time -= ((double)(time2 - t2.tv_nsec)
+                    / 100000000);
+#else
+#if HAVE_SDL
+                    SDL_Delay( time * 1000 );
+#endif
+                    time = 0;
+#endif
+                }
+            }
+        }
+        
+        FPS = 1. / FPS;
+        time_step = time_step * 20 * time_vel;
+
+        g_timer_start( master_timer );
+    }
+}
+
+void thsys_fps2() {
+    fThread* this = this_thread;
+    GTimer* master_timer;
+    double time;
+    gulong time2;
+#if TIME_WITH_SYS_TIME
+    struct timespec t, t2;
+#endif
+
+    if( FPS_MAX > 0 ) {
+        master_timer = f_data_get(this, "MAX_TIMER2");
+        if( !master_timer ) {
+            master_timer = g_timer_new();
+            f_data_connect( this, "MAX_TIMER2",
+                            master_timer );
+            g_timer_start( master_timer );
+            return;
+        }
+        
+        g_timer_stop( master_timer );
+        time = g_timer_elapsed( master_timer, NULL );
+        time = (1. / FPS_MAX) - time;
+        if( time > 0 ) {
+#if TIME_WITH_SYS_TIME
+            while( time > 0 ) {
                 time2 = time * 1000000000;
                     
                 if( time2 >= 1000000000 )
@@ -899,17 +927,12 @@ void thsys_fps() {
                 nanosleep(&t, &t2);
                 time -= ((double)(time2 - t2.tv_nsec)
                 / 100000000);
-#else
-#if HAVE_SDL
-                SDL_Delay( time * 1000 );
-#endif
-                time = 0;
-#endif
             }
+#elif HAVE_SDL
+            SDL_Delay( time * 1000 );
+#endif
         }
         
-        FPS = 1. / FPS;
-
         g_timer_start( master_timer );
     }
 }

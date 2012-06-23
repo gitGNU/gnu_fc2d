@@ -42,6 +42,15 @@ extern "C" {
 struct _fWidget;
 typedef struct _fWidget fWidget;
 
+typedef struct {
+    char* text;
+    char* font_file;
+    guint size;
+    int x;
+    int y;
+    fColor* color;
+} fText;
+
 struct _fWidget {
 	int x;
 	int y;

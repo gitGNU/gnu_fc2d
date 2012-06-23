@@ -31,12 +31,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *        which can increase speed. But,
  *        more caution may be necessary to
  *        program.
+ * 
+ * \warning The compiler optimization can damage the
+ *          program, so it does not compile, or do
+ *          what really needs to do. It should be
+ *          programmed with care to resist the
+ *          optimization.
  */
 
 #define f_asm_prefix(name) "f_asm_" str(name) "_"
 #define f_begin_prefix(name) f_asm_prefix(name) "begin"
 #define f_end_prefix(name) f_asm_prefix(name) "end"
 #define f_goto_prefix(name) f_asm_ ##name## _goto
+#define f_goto_prefix_str(name) \
+    "f_asm_" str(name) "_goto"
+
+/*!
+ * \brief Go to a tagged part of code
+ * 
+ * \details Use f_goto_section macro,
+ *          to tag a part of code
+ */
+#define f_goto(name) \
+    asm("call " f_goto_prefix_str(name)  )
 
 /*!
  * \brief Defines a name for exactly this point
@@ -45,6 +62,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #define function_subdivide(name) \
     asm(name ":")
+
+/*!
+ * \brief Tag a section of code to f_goto
+ *        and f_goto_pointer
+ */
+#define f_goto_section(name) \
+    function_subdivide(f_goto_prefix_str(name))
 
 /*!
  * \brief Returns the position in which
@@ -58,11 +82,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         __f_funpos__;\
 })
 
+/*! 
+ * \brief Easy way to get a pointer to
+ *         a goto section
+ *  
+ * \details Use f_goto_section to "tag"
+ *          some part of code and get
+ *          a pointer to exactly it
+ */
+#define f_goto_pointer(name) \
+    f_pointer_of( f_goto_prefix_str(name) )
+
 /*!
  * \brief defines begin of a block
  */
 #define f_begin(name) \
-    f_block_register(name); \
     function_subdivide( \
     f_begin_prefix(name) \
     )
@@ -74,7 +108,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define f_end(name) \
     function_subdivide(\
     f_end_prefix(name)\
-    );
+    )
 /*!
  * \brief Get the begin of block that anywhere
  *        in the program, provided it has been
@@ -102,20 +136,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (gsize)(f_block_end(name) - f_block_begin(name))
 
 /*!
- * \brief Swap information of two
- *        pointers For all these
- *        points
- * 
- * \example
- * 
- * c[x] = a[x];
- * a[x] = b[x];
- * b[x] = c[x];
- * 
- */
-void f_swap( gpointer a, gpointer b, gsize len );
-
-/*!
  * \brief Define a named block, allowing
  *        to get the beginning and end of
  *        the block.
@@ -129,17 +149,21 @@ void f_swap( gpointer a, gpointer b, gsize len );
  *          tries to get its data.
  * 
  * \param block Name of new block
+ * 
+ * \param exec_block Execute the block(TRUE) or
+ *                   only register it(FALSE)?
  *
  * \param content The block centent
- * 
- * \return A pointer to new block
  */
-#define f_block_new(name, content) \
+#define f_block_new(name, exec_block, content) \
 ({\
+        f_block_register(name);\
+        if( !(exec_block) )\
+            f_goto(name);\
         f_begin(name);\
         content;\
         f_end(name);\
-        f_block_begin( name ); \
+        f_goto_section(name);\
 })
 
 #define f_goto_begin(name) \
@@ -164,6 +188,20 @@ void f_swap( gpointer a, gpointer b, gsize len );
 #define f_block_dup(name) \
     (g_memdup(f_block_begin(name), \
     f_block_size(name)))
+
+/*!
+ * \brief Swap information of two
+ *        pointers For all these
+ *        points
+ * 
+ * \example
+ * 
+ * c[x] = a[x];
+ * a[x] = b[x];
+ * b[x] = c[x];
+ * 
+ */
+void f_swap( gpointer a, gpointer b, gsize len );
 
 void _f_remove_of( char* c_begin, char* c_end,
                   char* p_end );

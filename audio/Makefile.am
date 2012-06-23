@@ -13,12 +13,14 @@ audioincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/audio/
 audioinclude_HEADERS = \
 	audio.h \
 	alsa.h \
-	basic.h
+	basic.h \
+	midi.h
 
 libaudio_la_SOURCES = \
 	audio.cpp \
 	alsa.c \
 	basic.c \
+	midi.c\
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

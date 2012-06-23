@@ -103,16 +103,36 @@ extern GHashTable* thsys_hash;
 #define current_master \
     (parent_for(this_thread))
 
+/*!
+ * \brief The fthreads system prevents that the
+ *        number of frames per second, exceeds
+ *        the specified value, doing the
+ *        "wait" functions waiting the free time.
+ * 
+ * \details If you want to keep the number of frames
+ *          per second stable independently on the
+ *          speed of the machine and save processor,
+ *          then set this variable to a value greater
+ *          than zero and call wait* function whenever
+ *          you want to correct the speed.
+ */
 #define FPS_MAX \
     (f_data_get_p( current_master, \
                     "FPS_MAX", \
                     double))
 
 #define fps_max FPS_MAX
-/*
- * The duration of the last cycle. This
- * macro (or variable) is a 20 frames
- * per second */
+
+/*!
+ * \brief Duration of the last frame
+ * 
+ * \details If you want to keep the number of frames
+ *          per second, stable without leaving the
+ *          processor idle, simply by multiply this
+ *          variable. This variable has the value
+ *          1 when 20 frame per second, 2 when 10
+ *          frames per second, etc
+ */
 #define TIME_STEP \
     (f_data_get_p( this_thread, \
                     "TIME_STEP", \
@@ -120,6 +140,13 @@ extern GHashTable* thsys_hash;
 
 #define time_step TIME_STEP
 
+/*!
+ * \brief Use it to speed up and slow down 
+ *        the program. This variable changes
+ *        the time that the "wait" function wait
+ *        (work in seconds only), and also modifies
+ *        the value of the time_step variable.
+ */
 #define TIME_VELOCITY \
     (f_data_get_p( current_master, \
                     "TIME_VELOCITY", \
@@ -127,6 +154,10 @@ extern GHashTable* thsys_hash;
 
 #define time_vel TIME_VELOCITY
 
+/*!
+ * \brief The number of times per second that
+ *        this thread is awake
+ */
 #define FPS (f_data_get_p( current_master, \
                     "FPS", \
                     double))
@@ -314,12 +345,31 @@ fThread* parent_for( fThread* th );
 /*!
  * \brief Wait for time requested by FPS_MAX
  *        and sets TIME_STEP
- * 
+ *
  * \warning Call this function outside the proper
  *          context can prevent the variables to
  *          be adjusted correctly
+ * 
+ * \note If well used this function can be used
+ *       to save CPU time.
  */
 void thsys_fps();
+
+/*!
+ * \brief Wait for time requested by FPS_MAX
+ * 
+ * \details Similar to thsys_fps, but just wait
+ *          does not change global values. You
+ *          can use this function to wait for
+ *          the appropriate time to maintain a
+ *          specified fps_max. If you used a
+ *          long time between calls to this
+ *          function, it returns without waiting.
+ * 
+ * \note If well used this function can be used
+ *       to save CPU time.
+ */
+void thsys_fps2();
 
 #ifdef __cplusplus
 }

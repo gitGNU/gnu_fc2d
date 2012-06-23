@@ -30,9 +30,6 @@ void widget_drag_event( fEvent* evt, fWidget* w ) {
     gboolean pressed;
     static int i = 0;
     
-    printf(".");
-    fflush(stdout);
-
     if( !f_data_get( w, "drag-drop" ) ) {
         f_data_connect( w, "drag-drop", 
                         g_malloc0(sizeof(fEvent)));
@@ -112,13 +109,7 @@ void widget_move_event( fEvent* evt ) {
     
     w->x = drag->widget_x + (drag->x - drag->begin_x);
     w->y = drag->widget_y + (drag->y - drag->begin_y);
-    
-    printf("%d:%d:%d:%d\n", drag->begin_x,
-           drag->begin_y,
-           drag->end_x,
-           drag->end_y);
-    fflush(stdout);
-   
+       
 }
 
 void widget_resizable( fWidget* w, gboolean b ) {

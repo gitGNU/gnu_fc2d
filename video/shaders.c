@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <video/window.h>
 #include <video/mesh.h>
 #include <glib.h>
+#include <stdio.h>
 
 guint32 shader_load( const char* name ) {
     fWindow* w;
@@ -69,10 +70,6 @@ guint32 shader_load( const char* name ) {
     *file = g_realloc( *file, (lenght+1) * sizeof(char) );
     (*file)[lenght] = 0;
     
-    printf("\n==========SHADER BEGIN=======\n"
-           "%s\n"
-           "\n==========SHADER END=======\n", *file
-    );
     
 //     shader_count = f_data_get(w, "SHADERS_COUNT");
 //     shader_count++;
