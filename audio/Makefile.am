@@ -20,7 +20,7 @@ libaudio_la_SOURCES = \
 	audio.cpp \
 	alsa.c \
 	basic.c \
-	midi.c\
+	midi.c \
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

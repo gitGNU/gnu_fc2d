@@ -62,6 +62,12 @@ typedef struct {
     fMidiHeader h;
     FILE* fp;
     gboolean finalized;
+	gboolean process;
+    char* name;
+    gsize len;
+    gsize b_len;
+    gsize e_len;
+    guchar line_size;
 } fMidi;
 
 /*!
@@ -108,8 +114,16 @@ void midi_tone( fMidi* midi,
 void midi_time( fMidi* midi, float dur);
 
 /*!
- * \brief Write LilyPond file end
+ * \brief Write LilyPond file end(if not)
  */
 void midi_finalize( fMidi* midi );
+
+/*!
+ * \brief Remove LilyPond file end(if any)
+ */
+void midi_unfinalize( fMidi* midi );
+
+void midi_note( fMidi* midi, float* dur,
+                fMusicalNote note );
 
 #endif

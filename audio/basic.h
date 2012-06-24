@@ -54,7 +54,7 @@ typedef enum {
 } fInstrument;
 
 typedef enum { 
-	NONOTE,
+	NONOTE=0,
 	A, B, C, D, E, F,
 	G, DO=C, RE=D,
 	MI=E, FA=F, SOL=G,
