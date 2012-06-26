@@ -36,29 +36,9 @@ DISTCLEANFILES = \
     Makefile.in \
     autom4te.cache/*
 
-DIST_SUBDIRS = \
-	high-level\
-	net \
-	video\
-	audio \
-	data \
-	highest-level \
-	physics \
-	utils \
-	bin \
-	doc
-
-SUBDIRS = $(DIST_SUBDIRS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = fdiamondengine.pc
-
-#FDiamondEngine - Library
-#======================
-
-#AM_CFLAGS=`cs-config --cflags`
-#AM_CXXFLAGS=`cs-config --cflags`
-#AM_LDFLAGS=`cs-config --libs`
 
 lib_LTLIBRARIES = libFDiamondEngine-SVN.la
 
@@ -74,7 +54,20 @@ $(libaudio) \
 $(libvideo) \
 $(libphysics) \
 $(libutils)
-	
+
+DIST_SUBDIRS = \
+	high-level\
+	net \
+	video\
+	audio \
+	data \
+	highest-level \
+	physics \
+	utils \
+	doc \
+	bin
+
+SUBDIRS = $(DIST_SUBDIRS)
 
 libFDiamondEngine_SVN_la_DEPENDENCIES = $(libFDiamondEngine_SVN_la_LIBADD)
 

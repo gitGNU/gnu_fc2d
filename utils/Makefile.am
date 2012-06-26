@@ -21,7 +21,8 @@ utilsinclude_HEADERS = \
 	Vector3.h \
 	events.h \
 	data-connect.h \
-	low-level.h
+	low-level.h \
+	arguments.h
 
 utilsincludedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/utils/
 
@@ -34,6 +35,7 @@ libutils_la_SOURCES = \
 	events.c \
 	data-connect.c \
 	low-level.c \
+	arguments.c\
 	$(audioinclude_HEADERS)
 
 INCLUDES= \

@@ -19,16 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __UTILS_ARGUMENTS_H__
 #define __UTILS_ARGUMENTS_H__ 1
 
+#include <glib.h>
+
 /*!
  * \brief Obtain parameters from
  *        command line
  */
 void f_arg_process( int argc, char* argv[],
-                 const char* full_name,
-                 const char* copyright,
-                 const* description,
-                 const char* syntax
-                  );
+                    const char* full_name,
+                    const char* copyright,
+                    const char* description,
+                    const char* syntax );
 
 /*!
  * \brief Return argument value
@@ -53,7 +54,8 @@ guint f_args_len();
  *            this argument
  */
 void f_arg_add( const char* arg, char cut,
-                 const char* d, gboolean required );
+                 const char* d, gboolean required,
+                 gboolean with_value );
 
 /*!
  * \brief Tests if this parameter was placed

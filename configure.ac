@@ -57,9 +57,6 @@ PKG_CHECK_MODULES( ALSA, alsa >= alsa_required_version,
 
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version )
-PKG_CHECK_MODULES( PYTHON, python >= python_required_version, 
-				   AC_DEFINE(HAVE_PYTHON, [1], [Check for PYTHON]), 
-				   AC_DEFINE(HAVE_PYTHON, [0], [Check for PYTHON]) )
 
 PKG_CHECK_MODULES( GL, gl >= gl_required_version, 
 				   AC_DEFINE(HAVE_GL, [1], [Check for GL]),
@@ -115,7 +112,6 @@ AC_PROG_INSTALL
 
 AC_CONFIG_FILES([
 Makefile
-bin/Makefile
 doc/Makefile
 net/Makefile
 bin/fde-run
@@ -135,6 +131,7 @@ utils/Makefile
 video/Makefile
 fdiamondengine.pc
 config.h
+bin/Makefile
 ])
 
 LT_INIT

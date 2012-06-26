@@ -10,7 +10,6 @@ Version: @FGE_REAL_VERSION@
 Libs: -L${libdir} -l@PACKAGE_NAME@-@FGE_VERSION@ \
 	@GLIB_LIBS@ \
 	@GTHREAD_LIBS@ \
-	@PYTHON_LIBS@ \
 	@GL_LIBS@ \
 	@GLU_LIBS@ \
 	@SDL_LIBS@ \
@@ -24,7 +23,6 @@ Libs: -L${libdir} -l@PACKAGE_NAME@-@FGE_VERSION@ \
 Cflags: -I${includedir}/@PACKAGE_NAME@-@FGE_VERSION@ \
 	@GLIB_CFLAGS@ \
 	@GTHREAD_CFLAGS@ \
-	@PYTHON_CFLAGS@ \
 	@GL_CFLAGS@ \
 	@GLU_CFLAGS@ \
 	@SDL_CFLAGS@ \
