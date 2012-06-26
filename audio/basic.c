@@ -183,7 +183,7 @@ void wave_resynthesize2( gpointer obj, float* voice,
 	const guint w = WAVE_WINDOW_SIZE;
 	fResynthesizeEvent* evt;
 	
-	evt = g_malloc0( sizeof(evt) );
+	evt = g_malloc0( sizeof(fResynthesizeEvent) );
 
 	for( i = 0; i < samples; i+=j ) {
 		for( j = w; j+i < samples; j+= w) {

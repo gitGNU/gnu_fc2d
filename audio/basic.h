@@ -79,7 +79,7 @@ float wave_frequency( float* buf );
 /*! \brief Try to synthesizes the sound of a
            musical instrument
     \param buf For the result
-    \param sample Number of samplesof this sound
+    \param sample Number of samples of this sound
     \param freq Frequence of sound(Hz)
     \param tr The musical instrument to synthesize
     \param a Wave amplitude
