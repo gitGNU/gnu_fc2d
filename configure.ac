@@ -19,22 +19,12 @@ m4_define([fge_real_version],
 m4_define([fge_version], 
           [SVN])
 
-AC_INIT([FDiamondEngine], fge_real_version, [https://sourceforge.net/p/fgc/tickets/new/], [FDiamondEngine], [http://fgc.sf.net])
+AC_INIT([fc2d], fge_real_version, [https://sourceforge.net/p/fgc/tickets/new/], [fc2d], [http://fgc.sf.net])
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 no-define])
 
 m4_define([glib_required_version], [2.16.1])
-m4_define([python_required_version], [0.25.0])
-m4_define([gtk_required_version], [0.25.0])
-m4_define([openal_required_version], [0.25.0])
-m4_define([gl_required_version], [0.25.0])
-m4_define([glu_required_version], [0.25.0])
-m4_define([sdl_required_version], [0.25.0])
-m4_define([gthread_required_version], [0.25.0])
-m4_define([x11_required_version], [0.25.0])
-m4_define([libvcodec_required_version], [0.25.0])
-m4_define([libvformat_required_version], [0.25.0])
-m4_define([alsa_required_version], [0.25.0])
+m4_define([gthread_required_version], [2.30.0])
 
 FGE_VERSION=fge_version
 FGE_REAL_VERSION=fge_real_version
@@ -50,55 +40,12 @@ AC_SUBST(FGE_MICRO_VERSION)
 
 #check for libraries
 
-PKG_CHECK_MODULES( ALSA, alsa >= alsa_required_version, 
-				   AC_DEFINE(HAVE_ALSA, [1], [Check for ALSA]),
-				   AC_DEFINE(HAVE_ALSA, [0], [Check for ALSA])
-)
-
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
-PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version )
-
-PKG_CHECK_MODULES( GL, gl >= gl_required_version, 
-				   AC_DEFINE(HAVE_GL, [1], [Check for GL]),
-				   AC_DEFINE(HAVE_GL, [0], [Check for GL])
-)
-PKG_CHECK_MODULES( GLU, glu >= glu_required_version, AC_DEFINE(HAVE_GLU, [1], [Check for GLU]),
-	AC_DEFINE(HAVE_GLU, [0], [Check for GLU])
-)
-PKG_CHECK_MODULES( SDL, sdl >= sdl_required_version, AC_DEFINE(HAVE_SDL, [1], [Check for SDL]),
-	AC_DEFINE(HAVE_SDL, [0], [Check for SDL])
-)
-PKG_CHECK_MODULES( X11, x11 >= x11_required_version, AC_DEFINE(HAVE_X11, [1], [Check for X11]),
-	AC_DEFINE(HAVE_X11, [0], [Check for X11])
-)
-PKG_CHECK_MODULES( LIBAVCODEC, libavcodec >= libavcodec_required_version, 
-				   AC_DEFINE(HAVE_LIBAVCODEC, [1], [Check for LIBAVCODEC]), 
-				   AC_DEFINE(HAVE_LIBAVCODEC, [0], [Check for LIBAVCODEC]) )
-
-PKG_CHECK_MODULES( LIBAVFORMAT, libavformat >= libavformat_required_version, 
-				   AC_DEFINE(HAVE_LIBAVFORMAT, [1], [Check for LIBAVFORMAT]), 
-				   AC_DEFINE(HAVE_LIBAVFORMAT, [0], [Check for LIBAVFORMAT]) )
-
-PKG_CHECK_MODULES( LIBSWSCALE, libswscale >= libswscale_required_version, 
-                   AC_DEFINE(HAVE_LIBSWSCALE, [1], [Check for LIBSWSCALE]), 
-                   AC_DEFINE(HAVE_LIBSWSCALE, [0], [Check for LIBSWSCALE]) )
-
-printf "checking manually for lib3ds... "
-if lib3ds-config --version && test `lib3ds-config --version` \> 1.2
-	then
-		AC_DEFINE(HAVE_LIB3DS, [1], [Check for LIB3DS])
-		LIB3DS_CFLAGS=`lib3ds-config --cflags`
-		LIB3DS_LIBS=`lib3ds-config --libs`
-		echo "yes"
-	else
-		AC_DEFINE(HAVE_LIB3DS, [0], [Check for LIB3DS])
-		echo "no"
-fi
+PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version,
+                   AC_DEFINE(HAVE_THREAD, [1], [Is if have thread support 0 otherwise]), 
+                   AC_DEFINE(HAVE_THREAD, [0], [Is if have thread support 0 otherwise] )
 
 AC_HEADER_TIME
-
-AC_SUBST(LIB3DS_CFLAGS)
-AC_SUBST(LIB3DS_LIBS)
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -113,23 +60,10 @@ AC_PROG_INSTALL
 AC_CONFIG_FILES([
 Makefile
 doc/Makefile
-net/Makefile
-bin/fde-run
-bin/fde-config
-audio/Makefile
-data/Makefile
-data/images/Makefile
-data/images/logos/Makefile
-data/audio/music/Makefile
-data/audio/Makefile
-data/audio/sound/Makefile
-data/shaders/Makefile
-high-level/Makefile
-highest-level/Makefile
-physics/Makefile
-utils/Makefile
-video/Makefile
-fdiamondengine.pc
+bin/fc2d-run
+bin/fc2d-config
+data/modules
+fc2d.pc
 config.h
 bin/Makefile
 ])

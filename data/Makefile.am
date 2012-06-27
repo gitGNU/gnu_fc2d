@@ -1,6 +1,4 @@
 DIST_SUBDIRS = \
-	images \
-	audio \
-	shaders
+	modules
 
 SUBDIRS = $(DIST_SUBDIRS)

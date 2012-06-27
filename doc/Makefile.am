@@ -1,2 +1,2 @@
-info_TEXINFOS = fdiamondengine.texi
-fdiamondengine_TEXINFOS = fdl.texi
+info_TEXINFOS = fc2d.texi
+fc2d_TEXINFOS = fdl.texi

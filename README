@@ -1,76 +1,44 @@
-Introduction
-=========================
-FDiamondEngine is a free library, developed for fun,
-which is distributed under the GNU GPL license.
-Its original focus is the creation of games, but
-covers many other utilities, for example creating
-3D simulations, that can be interactive or not.
-FDiamondEngine, allows the creation of non-graphic
-applications too. FDiamondEngine was licensed with
-a strong copyleft, and read COPYING LICENSE
-for more information.
+This is GNU FC2D, a two temporal dimensional(2D time)
+scripting language( C like ). If you found any BUG,
+report to Actual GNU FC2D Maintainer. 
 
-About it`s versions
-=========================
-FDiamondEngine began as a library
-for use together with CrystalSpace. From version 
-0.1, this changed, recent versions of FDiamondEngine,
-are not intended to be used along with CrystalSpace.
-In terms of source code source, are very different
-versions. Recent versions of FDiamondEngine, try supply
-the characteristics of the older versions (before 0.1)
-with improvements, but are very different things.
+This project provides: 
+    a interpreter and a library, to embed GNU FC2D
+    scripting language in your applications
+
+Dependencies
+============
+
+* GLib <http://www.gtk.org/download/>
+* GLib thread <http://www.gtk.org/download/>
 
 Installation
-=========================
-If you are installing from a distribution, use:
+============
+
+You can install using one of three ways,
+read INSTALL for more details:
+
 ./configure && make && sudo make install
+(or)
+sh ./configure && make && sudo make install
+(or)
+./configure --prefix=/usr/ && make && sudo make install
 
-If you are installing from SVN:
-sh autogen.sh && make && sudo make install
-
-Read INSTALL for more details 
-
-Directories
-=========================
-Source Code of FDiamondEngine:
-high-level
-highest-level
-utils
-physics
-video
-net
-
-Useful scripts and binary executables:
-bin
-
-Audio, images, etc that FDiamondEngine needs:
-data
-
-See also
-=========================
-After installing FDiamondEngine, I recommend you
-read the documentation in 'doc'. You can read
-it using 'info doc/fgameengine.info' or simply
-'info fdiamondengine' in your shell console.
-
-About me
-=========================
-My name is Fabio J. Gonzalez, I am the original creator
-of FDiamondEngine. FDiamondEngine is not a "fork" of any
-other software. Your original code was written by 
-Fabio J. Gonzalez <gonzalfj@users.sourceforge.net>.
-
-Facebook profile:
-http://www.facebook.com/profile.php?id=100000897098800
+Running
+=======
+Once the interpreter is installed you can run one
+of the sample programs (see the examples directory)
+Go to the examples directory and run fc2d:
+cd examples
+fc2d hello-word.fc2d
 
   Fabio J. Gonzalez <fabiojosue@gmail.com>
-  FDiamondEngine Maintainer
+  GNU FC2D Maintainer
 
 ---------------------------------------------------------------------------
-This file is part of FDiamondEngine
-Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
+This file is part of GNU FC2D
+Copyright (C) 2012  Free Software Foundation Inc.
 
 This file may be modified and/or distributed without restriction.  This is
-not an invitation to misrepresent the history of FDiamondEngine.
+not an invitation to misrepresent the history of GNU FC2D.
 

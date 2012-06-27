@@ -4,32 +4,14 @@ libdir=@libdir@
 includedir=@includedir@
 datarootdir=@datarootdir@
 
-Name: FDiamondEngine
-Description: Complete engine for 3D games development.
+Name: fC2D
+Description: A two time dimensional programing language.
 Version: @FGE_REAL_VERSION@
 Libs: -L${libdir} -l@PACKAGE_NAME@-@FGE_VERSION@ \
 	@GLIB_LIBS@ \
-	@GTHREAD_LIBS@ \
-	@GL_LIBS@ \
-	@GLU_LIBS@ \
-	@SDL_LIBS@ \
-	@X11_LIBS@ \
-	@LIBAVCODEC_LIBS@ \
-	@LIBAVFORMAT_LIBS@ \
-	@LIBSWSCALE_LIBS@ \
-	@ALSA_LIBS@ \
-	@LIB3DS_LIBS@
+	@GTHREAD_LIBS@
 
 Cflags: -I${includedir}/@PACKAGE_NAME@-@FGE_VERSION@ \
 	@GLIB_CFLAGS@ \
 	@GTHREAD_CFLAGS@ \
-	@GL_CFLAGS@ \
-	@GLU_CFLAGS@ \
-	@SDL_CFLAGS@ \
-	@X11_CFLAGS@ \
-	@LIBAVCODEC_CFLAGS@ \
-	@LIBAVFORMAT_CFLAGS@ \
-	@LIBSWSCALE_CFLAGS@ \
-	@ALSA_CFLAGS@ \
-	@LIB3DS_CFLAGS@ \
 	-masm=intel

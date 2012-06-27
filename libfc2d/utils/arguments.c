@@ -60,6 +60,10 @@ f_arg_process( int argc, char* argv[],
     
     f_data_connect(0, "args_info", info);
     
+    f_arg_add( "version", 'v',
+               "Shows version of this software", FALSE, 
+                FALSE );
+    
     info->full_name = full_name;
     info->copyright = copyright;
     info->description = description;
@@ -114,6 +118,17 @@ f_arg_process( int argc, char* argv[],
         }
             
     }
+    
+    if( f_arg_exists("version") ) {
+        printf("%s\n\n", info->full_name);
+        printf("Copyright (C) %s\n", info->copyright);
+        printf("License GPLv3+: GNU GPL version 3 or later"
+        " <http://gnu.org/licenses/gpl.html>\n"
+        "This is free software: you are free to change and"
+        " redistribute it.\nThere is NO WARRANTY, to the "
+        "extent permitted by law.\n\n");
+        exit(0);
+    }
 }
 
 char* f_option_get( const char* arg ) {
@@ -157,14 +172,17 @@ void f_arg_add( const char* arg, char cut,
 
 gboolean f_arg_exists( const char* arg ) {
     GList* l;
+    fArgument* arg;
     
     l = f_data_get(0, "args");
     
     if( l == NULL )
         return FALSE;
     
-    if( g_list_find_custom(l, arg, 
-        f_arg_process_name_compare) != NULL )
+    arg = g_list_find_custom(l, arg, 
+        f_arg_process_name_compare);
+    
+    if( arg && arg->exists )
         return TRUE;
     
     return FALSE;
