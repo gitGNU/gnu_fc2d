@@ -1,4 +1,0 @@
-DIST_SUBDIRS = \
-	logos
-
-SUBDIRS = $(DIST_SUBDIRS)
