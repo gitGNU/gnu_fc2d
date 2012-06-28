@@ -1,7 +1,23 @@
+lib@PACKAGE_NAME@=$(top_builddir)/lib@PACKAGE_NAME@/lib@PACKAGE_NAME@-@FGE_VERSION@.la
+
+# what flags you want to pass to the C compiler & linker
+
+AM_LDFLAGS= $(GLIB_LIBS) $(GTHREAD_LIBS)
+AM_CFLAGS= $(GLIB_CFLAGS) $(GTHREAD_CFLAGS)
+AM_CXXFLAGS= $(AM_CFLAGS)
+
+bin_PROGRAMS = @PACKAGE_NAME@-@FGE_VERSION@
+
+@PACKAGE_NAME@_@FGE_MAKE_VERSION@_SOURCES = \
+	@PACKAGE_NAME@.c @PACKAGE_NAME@.h
+
+@PACKAGE_NAME@_@FGE_MAKE_VERSION@_LDADD = $(lib@PACKAGE_NAME@)
+@PACKAGE_NAME@_@FGE_MAKE_VERSION@_DEPENDENCIES = $(lib@PACKAGE_NAME@)
+
+INCLUDES = \
+	-I$(top_builddir)/bin/ \
+	-I$(top_builddir)/lib@PACKAGE_NAME@/
+
 bin_SCRIPTS=\
-	fde-config\
-	fde-run
-	
-INCLUDES= \
-	-I$(top_builddir) \
-	-I$(top_builddir)/bin/
+	@PACKAGE_NAME@-config\
+	@PACKAGE_NAME@-run

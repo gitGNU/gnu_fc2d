@@ -6,6 +6,8 @@ noinst_DATA = \
     COPYING \
     INSTALL \
     README \
+    NEWS \
+    THANKS \
     autogen.sh
 
 EXTRA_DIST = \
@@ -36,4 +38,3 @@ DIST_SUBDIRS = \
 	bin
 
 SUBDIRS = $(DIST_SUBDIRS)
-

@@ -1,0 +1,31 @@
+AUTOMAKE_OPTIONS = gnu
+ACLOCAL_AMFLAGS = -I m4
+
+AM_LIBS= $(GLIB_LIBS) $(GTHREAD_LIBS)
+AM_CFLAGS= $(GLIB_CFLAGS) $(GTHREAD_CFLAGS)
+AM_CXXFLAGS= $(AM_CFLAGS)
+
+libhighlevel=$(top_builddir)/libfc2d/high-level/libhigh-level.la
+libutils=$(top_builddir)/libfc2d/utils/libutils.la
+
+lib_LTLIBRARIES = lib@PACKAGE_NAME@-@FGE_VERSION@.la
+
+@PACKAGE_NAME@include_HEADERS = @PACKAGE_NAME@.h auto-config.h config.h
+@PACKAGE_NAME@includedir = $(includedir)/@PACKAGE_NAME@-@FGE_VERSION@/
+
+lib@PACKAGE_NAME@_@FGE_MAKE_VERSION@_la_SOURCES = @PACKAGE_NAME@.c $(@PACKAGE_NAME@include_HEADERS)
+
+lib@PACKAGE_NAME@_@FGE_MAKE_VERSION@_la_LIBADD = \
+	$(libhighlevel) \
+	$(libutils)
+
+DIST_SUBDIRS = \
+	high-level\
+	utils
+
+SUBDIRS = $(DIST_SUBDIRS)
+
+lib@PACKAGE_NAME@_@FGE_MAKE_VERSION@_la_DEPENDENCIES = $(lib@PACKAGE_NAME@_@FGE_MAKE_VERSION@_la_LIBADD)
+
+INCLUDES= \
+	-I$(top_builddir)

@@ -4,8 +4,8 @@ libdir=@libdir@
 includedir=@includedir@
 datarootdir=@datarootdir@
 
-Name: fC2D
-Description: A two time dimensional programing language.
+Name: GNU FC2D
+Description: A two time dimensional programing language
 Version: @FGE_REAL_VERSION@
 Libs: -L${libdir} -l@PACKAGE_NAME@-@FGE_VERSION@ \
 	@GLIB_LIBS@ \

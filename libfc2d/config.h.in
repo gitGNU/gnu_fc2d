@@ -1,6 +1,6 @@
 /*
-FDiamondEngine - Complete engine for 3D games development.
-Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
+GNU FC2D - A two time dimensional programing language.
+Copyright (C) 2012  Free Software Foundation Inc.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,36 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __CONFIG_H__
-#define __CONFIG_H__ 1
+#ifndef __LIBFC2D_CONFIG_H__
+#define __LIBFC2D_CONFIG_H__ 1
 
 #include "auto-config.h"
 
 #define FGE_DATA "@prefix@/share/@PACKAGE_NAME@-@FGE_VERSION@/"
-
-#if HAVE_SDL || HAVE_X11
-#define HAVE_DISPLAY 1
-#else
-#define HAVE_DISPLAY 0
-#endif
-
-#if HAVE_GL && HAVE_GLU
-#define HAVE_3D 1
-#else
-#define HAVE_3D 0
-#endif
-
-#if HAVE_LIBAVCODEC && HAVE_LIBAVFORMAT\
-    && HAVE_LIBSWSCALE
-#define HAVE_VIDEO 1
-#else
-#define HAVE_VIDEO 0
-#endif
-
-#if HAVE_ALSA
-#define HAVE_AUDIO 1
-#else
-#define HAVE_AUDIO 0
-#endif
 
 #endif

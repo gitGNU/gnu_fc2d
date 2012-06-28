@@ -1,6 +1,6 @@
 /*
-FDiamondEngine - Complete engine for 3D games development.
-Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
+GNU FC2D - A two time dimensional programing language.
+Copyright (C) 2012  Free Software Foundation Inc.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -202,8 +202,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 void f_swap( gpointer a, gpointer b, gsize len );
-
-void _f_remove_of( char* c_begin, char* c_end,
-                  char* p_end );
 
 #endif

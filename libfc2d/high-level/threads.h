@@ -1,6 +1,6 @@
 /*
-FDiamondEngine - Complete engine for 3D games development.
-Copyright (C) 2012  Fabio J. Gonzalez <fabiojosue@gmail.com>
+GNU FC2D - A two time dimensional programing language.
+Copyright (C) 2012  Free Software Foundation Inc.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,17 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <utils/event-basis.h>
 #include <utils/data-connect.h>
 
-#ifndef G_THREADS_ENABLED
-#error FDiamondEngine THSYS need glib with thread support to works
-#endif
-
 /*!
  * \file fthreads.h
- * This is the FDiamondEngine threads system.
- * Using this system you can add fthreads 
- * the two lines of fthreads(parallel and series).
+ * This is the GNU FC2D threads system.
+ * Using this system you can add threads.
  * To save programmer effort it is strongly
- * automated. Just create fthreads and call 
+ * automated. Just create threads and call 
  * wait() function!
  */
 
@@ -55,13 +50,6 @@ typedef enum {
 	SERIES,
 	NONE
 } ListType;
-
-typedef enum {
-	REMOVE = TRUE,
-	NOREMOVE = FALSE,
-	REMOVED = -6
-} RemoveState;
-
 
 struct fThread {
 	GThread* thread;
@@ -92,7 +80,6 @@ struct fThread {
 	unsigned int parallel_num;
 	unsigned int series_count;
 	unsigned int parallel_count;
-	RemoveState removeme;
 };
 
 extern GHashTable* thsys_hash;
@@ -170,16 +157,6 @@ extern GHashTable* thsys_hash;
 \
 	g_mutex_lock(thsys_mutex);
 
-
-#define THSYS_UNLOCK \
-	g_mutex_unlock(thsys_mutex);
-	
-#define THSYS_WAIT(cond) \
-	g_cond_wait(cond, thsys_mutex);
-	
-#define THSYS_WAIT2 \
-	g_cond_wait(this->cond, this->mutex_all);
-
 /*! 
  *\brief Actions to be performed ​​when entering thread
  */
@@ -225,23 +202,6 @@ fThread* thsyshash_get();
    \return The fthread. If no exists returns NULL. */
 fThread* thsyshash_try_get();
 
-/*! \brief Remove this thread from hash table
-  * \warning Only use this function if you know
- * what you are doing. Misuse of it can 
- * compromise the internal state of 
- * FDiamondEngine. 
- * \note FDiamondEngine automatically deletes
- * fthreads */
-void thsyshash_delete();
-
-/*! \brief Remove some thread from hash table
-  * \warning Only use this function if you know
- * what you are doing. Misuse of it can 
- * compromise the internal state of 
- * FDiamondEngine. 
- * \note FDiamondEngine automatically deletes
- * fthreads */
-void thsyshash_delete1( GThread* th );
 
 /*! 
  * \brief Simply start the fthreads system
@@ -255,22 +215,6 @@ inline void thsys_init();
  */
 fThread* thsys_add( FCallback function, gpointer data );
 
-/*! \brief Adds a thread to run parallel to this
- * \return The identifier for new fThread 
- */
-fThread* thsys_addp( FCallback function, gpointer data );
-
-/*! \brief Remove a thread from fthreads system
- * \return The identifier for new fThread 
- * \warning Only use this function if you know
- * what you are doing. Misuse of it can 
- * compromise the internal state of 
- * FDiamondEngine. 
- * \note FDiamondEngine automatically deletes
- * fthreads 
- */
-gboolean thsys_remove(fThread* thread);
-
 /*!
  * \brief This function lets other threads work.
  * \param value The number of cycles to wait if
@@ -280,55 +224,9 @@ gboolean thsys_remove(fThread* thread);
 void wait( double value );
 
 /*!
- * \brief This function lets other threads work,
- *        but no stop calling function.
- */
-void waitp();
-
-/*!
- * \brief While this function is running,
- *        nobody connected to it runs.
- */
-void waits( double value );
-
-/*!
- * \brief Wait until all threads are here.
- */
-void synchronize( ListType mode );
-
-/*!
  * \brief Run one step of another threads 
  */
 void thsys_step( ListType mode );
-
-/*!
- *\brief Put a thread into series list 
- \param th The place to insert thread
- \param it The thread to be placed
- */
-fThread* series_insert( fThread* th, fThread* it );
-
-/*!
- *\brief Put a thread into parallel list 
- \param th The place to insert thread
- \param it The thread to be placed
- */
-fThread* parallel_insert( fThread* th, fThread* it );
-
-void series_restore( fThread* th );
-void parallel_restore( fThread* th );
-
-/*! 
- * \brief Synchronizes this thread
- *        in series with each other.
- * \details The synchronism takes
- *          only one cycle. After
- *          the first call to "wait"
- *          will be as before.
- * \param th The thread that will 
- *           run in series with this
- */
-void wait_for( fThread* th );
 
 /*!
  * \brief Lock anything by it's pointer

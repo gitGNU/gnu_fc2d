@@ -9,4 +9,4 @@ datarootdir=@datarootdir@
 export LD_LIBRARY_PATH=${libdir}
 export PKG_CONFIG_PATH=${libdir}/pkgconfig
 
-pkg-config $@ fdiamondengine
+pkg-config $@ @PACKAGE_NAME@
