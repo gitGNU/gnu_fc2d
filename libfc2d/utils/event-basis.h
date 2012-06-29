@@ -14,7 +14,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef __UTILS_EVENT_BASIS_H__
 #define __UTILS_EVENT_BASIS_H__ 1
@@ -26,7 +26,7 @@ extern GHashTable* f_connect_hash;
 
 #define FEVENTFUNCTION(x) \
 	((FEventFunction*)(x))
-	
+
 #define f_signal_connect(name,function) \
     f_signal_connect_full((gpointer)0, name, function, NULL)
 
@@ -37,28 +37,28 @@ extern GHashTable* f_connect_hash;
     f_signal_emit_full((gpointer)0, name, data) 
 
 typedef struct {
-	FCallback2 function;
-	gpointer data;
-	gpointer obj;
+    FCallback2 function;
+    gpointer data;
+    gpointer obj;
 } FEventFunction;
 
-int feventb_searchfunction( 
-	FEventFunction* a,
-	FEventFunction* b );
+int feventb_searchfunction(
+        FEventFunction* a,
+        FEventFunction* b);
 
-GHashTable* f_signal_obj_get( gpointer id );
+GHashTable* f_signal_obj_get(gpointer id);
 
-int f_signal_connect_full( gpointer obj, 
-						   const char* name,
-						   FCallback function,
-						   gpointer data);
+int f_signal_connect_full(gpointer obj,
+        const char* name,
+        FCallback function,
+        gpointer data);
 
-void f_signal_disconnect_full( gpointer obj,
-							   const char* name,
-							   FCallback function );
+void f_signal_disconnect_full(gpointer obj,
+        const char* name,
+        FCallback function);
 
-void f_signal_emit_full( gpointer obj,
-						 const char* name,
-						 gpointer data );
+void f_signal_emit_full(gpointer obj,
+        const char* name,
+        gpointer data);
 
 #endif

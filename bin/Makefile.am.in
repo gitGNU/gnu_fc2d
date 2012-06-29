@@ -15,8 +15,7 @@ bin_PROGRAMS = @PACKAGE_NAME@-@FGE_VERSION@
 @PACKAGE_NAME@_@FGE_MAKE_VERSION@_DEPENDENCIES = $(lib@PACKAGE_NAME@)
 
 INCLUDES = \
-	-I$(top_builddir)/bin/ \
-	-I$(top_builddir)/lib@PACKAGE_NAME@/
+	-I$(top_builddir)
 
 bin_SCRIPTS=\
 	@PACKAGE_NAME@-config\

@@ -23,5 +23,4 @@ libhigh_level_la_LIBADD = \
 libhigh_level_la_DEPENDENCIES = $(libhigh_level_la_LIBADD)
 
 INCLUDES= \
-	-I$(top_builddir)/ \
-	-I$(top_builddir)/libfc2d/high-level/
+	-I$(top_builddir)/

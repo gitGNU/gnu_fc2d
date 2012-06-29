@@ -60,13 +60,12 @@ doc/Makefile
 bin/fc2d-run
 bin/fc2d-config
 data/modules/Makefile
+data/Makefile
 fc2d.pc
 libfc2d/config.h
 libfc2d/high-level/Makefile
 libfc2d/utils/Makefile
-bin/Makefile.am
 bin/Makefile
-libfc2d/Makefile.am
 libfc2d/Makefile
 ])
 

@@ -14,7 +14,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef __UTILS_ARGUMENTS_H__
 #define __UTILS_ARGUMENTS_H__ 1
@@ -25,11 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * \brief Obtain parameters from
  *        command line
  */
-void f_arg_process( int argc, char* argv[],
-                    const char* full_name,
-                    const char* copyright,
-                    const char* description,
-                    const char* syntax );
+void f_arg_process(int argc, char** argv,
+        const char* full_name,
+        const char* copyright,
+        const char* description,
+        const char* syntax);
 
 /*!
  * \brief Return argument value
@@ -39,9 +39,9 @@ void f_arg_process( int argc, char* argv[],
  * 
  * \return Value its argument
  */
-char* f_option_get( const char* arg );
+char* f_option_get(const char* arg);
 
-char* f_arg_get( guint id );
+char* f_arg_get(guint id);
 
 guint f_args_len();
 
@@ -53,9 +53,9 @@ guint f_args_len();
  * \param cut The short form to invoke
  *            this argument
  */
-void f_arg_add( const char* arg, char cut,
-                 const char* d, gboolean required,
-                 gboolean with_value );
+void f_arg_add(const char* arg, char cut,
+        const char* d, gboolean required,
+        gboolean with_value);
 
 /*!
  * \brief Tests if this parameter was placed
@@ -63,7 +63,7 @@ void f_arg_add( const char* arg, char cut,
  * 
  * \param arg Argument name
  */
-gboolean f_arg_exists( const char* arg );
+gboolean f_arg_exists(const char* arg);
 
 /*!
  * \brief Show help

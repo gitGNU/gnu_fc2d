@@ -14,7 +14,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef __UTILS_LOW_LEVEL_H__
 #define __UTILS_LOW_LEVEL_H__ 1
@@ -101,7 +101,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     f_begin_prefix(name) \
     )
 
-    
+
 /*!
  * \brief defines end of a block
  */
@@ -171,7 +171,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define f_goto_end(name) \
     asm("call "f_end_prefix(name) );
-    
+
 #define f_block_register(name) \
     f_data_connect( 0, f_asm_prefix(name),\
                     f_pointer_of(f_begin_prefix(name)) );\
@@ -201,6 +201,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * b[x] = c[x];
  * 
  */
-void f_swap( gpointer a, gpointer b, gsize len );
+void f_swap(gpointer a, gpointer b, gsize len);
 
 #endif

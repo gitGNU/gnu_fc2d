@@ -1,6 +1,9 @@
 This is GNU FC2D, a two temporal dimensional(2D time)
-scripting language( C like ). If you found any BUG,
-report to Actual GNU FC2D Maintainer. 
+scripting language( C like ). This program was made on
+GNU/Linux. A machine with GNU/Linux installed, GNU 
+development tools (gcc, make, etc.) and GLib should
+be sufficient to compile and run it. If you found any
+BUG, report to Actual GNU FC2D Maintainer. 
 
 This project provides: 
     a interpreter and a library, to embed GNU FC2D
@@ -11,6 +14,7 @@ Dependencies
 
 * GLib <http://www.gtk.org/download/>
 * GLib thread <http://www.gtk.org/download/>
+* "AC_HEADER_TIME"
 
 Installation
 ============
@@ -31,6 +35,30 @@ of the sample programs (see the examples directory)
 Go to the examples directory and run fc2d:
 cd examples
 fc2d hello-word.fc2d
+
+Getting help
+============
+For some people this topic can be difficult, so if
+you have any difficulty ask to Fabio J. Gonzalez,
+but, before see software documentation in doc
+directory.
+
+After install you can see the documentation,
+with the command:
+    info fc2d
+    
+but, I suggest you make a PDF(per example) and see
+in some graphical interface( images can help you
+understand better ).
+Exists more option to see images, per example, 
+making a DVI or HTML.
+
+To create a PDF use the command:
+    make pdf
+To create a DVI:
+    make pdf
+To create a HTML:
+    make html
 
   Fabio J. Gonzalez <fabiojosue@gmail.com>
   GNU FC2D Maintainer
