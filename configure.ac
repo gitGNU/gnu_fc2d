@@ -40,8 +40,8 @@ AC_SUBST(FGE_MICRO_VERSION)
 
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
 PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version,
-                   AC_DEFINE(HAVE_THREAD, [1], [Is if have thread support 0 otherwise]), 
-                   AC_DEFINE(HAVE_THREAD, [0], [Is if have thread support 0 otherwise])
+                   AC_DEFINE(HAVE_THREAD, [1], [Is 1 if have thread support 0 otherwise]), 
+                   AC_DEFINE(HAVE_THREAD, [0], [Is 1 if have thread support 0 otherwise])
                  )
 
 AC_HEADER_TIME
@@ -49,10 +49,33 @@ AC_HEADER_TIME
 AC_CONFIG_HEADERS([libfc2d/auto-config.h])
 
 # Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CC_STDC
 AC_PROG_INSTALL
+
+#Code copied from GNU FDISK "configure.ac"
+AC_MSG_CHECKING([how to create links])
+rm -f test00 test01
+touch test00
+ln -s test00 test01 || :
+SYMLINK=""
+SYMLINKFROM="fdisk"
+if test -L test01; then
+    SYMLINK="ln -sf"
+else
+    SYMLINKFROM="${sbindir}/fdisk"
+    rm -f test01
+    ln test00 test01 || :
+    if test -e test01; then
+        SYMLINK="ln"
+    else
+        SYMLINK="cp"
+    fi
+fi
+AC_MSG_RESULT($SYMLINK)
+AC_SUBST(SYMLINK)
+AC_SUBST(SYMLINKFROM)
+rm -f test00 test01
 
 AC_CONFIG_FILES([
 Makefile

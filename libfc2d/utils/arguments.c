@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <libfc2d/utils/arguments.h>
 #include <libfc2d/utils/data-connect.h>
 #include <glib.h>
+#include <glib/gi18n.h>
 #include <stdlib.h>
 
 typedef struct
@@ -46,7 +47,7 @@ typedef struct
 gint
 f_arg_process_name_compare (fArgument* arg, char* name)
 {
-  return g_strcmp0 (arg->name, name);
+    return g_strcmp0 (arg->name, name);
 }
 
 void
@@ -57,7 +58,7 @@ f_arg_process (int argc, char** argv,
                const char* syntax)
 {
   fArgsInfo* info;
-  int i;
+  int i, j;
   GList* l;
   fArgument* arg;
 
@@ -115,32 +116,41 @@ f_arg_process (int argc, char** argv,
                 }
             }
         }
-      else if (strlen (argv[i]) == 2 && argv[i][0] == '-')
+      else if (strlen (argv[i]) >= 2 && argv[i][0] == '-')
         {
-          l = f_data_get (0, "args");
+            l = f_data_get (0, "args");
 
-          for (; l != NULL; l = l->next)
+            for( j = 1; j < strlen(argv[i]) && i < argc; j++ )
             {
-              arg = l->data;
-              if (argv[i][1] == arg->cut)
-                {
-                  arg->exists = TRUE;
-                  if (arg->value_required == TRUE)
+                for (; l != NULL; l = l->next)
                     {
-                      if (i + 1 < argc && argv[i + 1][0] != '-')
+                    arg = l->data;
+                    if (argv[i][j] == arg->cut)
                         {
-                          arg->value = argv[i + 1];
-                          i++;
-                        }
-                      else
-                        {
-                          f_arg_help ();
-                          exit (1);
-                        }
+                        arg->exists = TRUE;
+                        if (arg->value_required == TRUE)
+                            {
+                            if (i + 1 < argc && argv[i + 1][0] != '-')
+                                {
+                                    arg->value = argv[i + 1];
+                                    i++;
+                                }
+                            else
+                                {
+                                    f_arg_help ();
+                                    exit (1);
+                                }
 
+                            }
+                        break;
+                        }
                     }
-                  break;
-                }
+            }
+          
+            if( i >= argc ) 
+            {
+              printf(_("Options that require parameters, appear to be\n"
+                       "being used in ways not yet supported\n"));
             }
         }
 
@@ -262,11 +272,12 @@ f_arg_exists (const char* arg)
 
   if (l == NULL)
     return FALSE;
-
-  argument = g_list_find_custom (l, arg,
-                                 f_arg_process_name_compare);
-
-  if (argument && argument->exists)
+    
+  l = g_list_find_custom ( l, arg,
+                           f_arg_process_name_compare);
+  argument = l->data;
+  
+  if( argument && argument->exists )
     return TRUE;
 
   return FALSE;
@@ -280,6 +291,7 @@ f_arg_help ()
   GList* l;
   char* str[1000];
   int i, j;
+  int line_size=9;
 
   info = f_data_get (0, "args_info");
   l = f_data_get (0, "args");
@@ -302,13 +314,42 @@ f_arg_help ()
       if (args->required)
         {
           if (args->value_required)
-            printf ("-%c <value>", args->cut);
-          else
+          {
+            printf ("-%c <value> ", args->cut);
+            line_size += 11;
+          }
+          else 
+          {
             printf ("-%c ", args->cut);
+            line_size += 3;
+          }
+        } else 
+        {
+            if (args->value_required)
+            {
+                printf ("[-%c <value>] ", args->cut);
+                line_size += 13;
+            }
+            else 
+            {
+                printf ("[-%c] ", args->cut);
+                line_size += 5;
+            }
         }
+        
+        if( line_size > 60 )
+            printf("\n");
     }
 
-  printf ("%s\n%s\n\n", info->syntax, info->description);
+    if( info->syntax != NULL )
+        printf ("%s", info->syntax);
+    
+    printf("\n");
+  
+    if( info->description != NULL )
+        printf("%s", info->description);
+    
+    printf("\n\n");
 
   printf ("Options:\n\n");
 

@@ -20,3 +20,8 @@ INCLUDES = \
 bin_SCRIPTS=\
 	@PACKAGE_NAME@-config\
 	@PACKAGE_NAME@-run
+
+install-exec-local: 
+	@SYMLINK@ $(DESTDIR)/$(bindir)/@PACKAGE_NAME@-@FGE_VERSION@ $(DESTDIR)/$(bindir)/@PACKAGE_NAME@
+
+install-exec-am: install-binPROGRAMS install-exec-local

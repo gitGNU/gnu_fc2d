@@ -20,3 +20,8 @@ INCLUDES = \
 bin_SCRIPTS=\
 	fc2d-config\
 	fc2d-run
+
+install-exec-local: 
+	@SYMLINK@ $(DESTDIR)/$(bindir)/fc2d-0.1 $(DESTDIR)/$(bindir)/fc2d
+
+install-exec-am: install-binPROGRAMS install-exec-local
