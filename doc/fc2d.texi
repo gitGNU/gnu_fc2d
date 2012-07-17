@@ -1,21 +1,20 @@
 \input texinfo   @c -*-texinfo-*-
-@setfilename fdiamondengine.info
-@settitle FDiamondEngine user and developer manual
+@setfilename fc2d.info
+@settitle GNU FC2D user and developer manual
 
-@set UPDATED 02 June 2012
-@set UPDATED-MONTH June 2012
-@set EDITION SVN
-@set VERSION SVN
+@set UPDATED 02 July 2012
+@set UPDATED-MONTH July 2012
+@set EDITION 0.1
+@set VERSION 0.1
 
 @titlepage
-@title FDiamondEngine user and developer manual
-@subtitle A User's Guide for FDiamondEngine
-@subtitle May, 2012
-@author Fabio J. Gonzalez @email{fabiojosue@@gmail.com} 
-@email{gonzalfj@@users.sourceforge.net}
+@title GNU FC2D user and developer manual
+@subtitle A User's Guide for GNU FC2D
+@subtitle July, 2012
+@author Fabio J. Gonzalez @email{gonzalfj@@ymail.com}
 
 Copyright @copyright{} 2012
-Fabio J. Gonzalez
+Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
@@ -30,7 +29,7 @@ Free Documentation License''.
 @c modifications must also be done in the titlepage
 @copying
 Copyright @copyright{} 2012
-Fabio J. Gonzalez
+Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
@@ -50,162 +49,174 @@ Free Documentation License''.
 @node Top, (dir), (dir)
 
 @top General Introduction
-The complete engine for 3D games and more.
-The main focus of FDiamondEngine is GNU/Linux
-but may work on other systems (who knows?).
-This manual will introduce you, FDiamondEngine.
-It will teach you how to create games,
-reading/writing songs and videos, using
-the event system, how to create 
-graphical user interfaces etc.
-The new versions of FDiamondEngine are under terms of
-GNU GPL, instead of GNU LGPL.
-For more details, download FDiamondEngine and 
-see file COPYING. @xref{Getting FDiamondEngine}
+GNU FC2D is a highly versatile programming language, 
+that support two temporal dimensions.
+This programming language focuses on the creation of dynamic programs. In
+this text, I will introduce you to, temporal dimensions
+theory, and how to implement it, in pseudo-code.
+Before you start, you is required to understand
+some basic  concepts. In a zero-dimensional world,
+all geometry, is limited to a single point(can no exist).
+If we duplicate this point and connect it with one point
+outside it's worlds, and adjacent to it,
+we have one-dimensional geometry. @{@cite{[GONZALEZ C G] The point movement generating space}]@}
+When we do the same, in a 2D space, we have three-dimensional
+geometry(@pxref{fig:spatial-dimensions1}).
+The temporal dimensions theory, comes with
+the intuitive visualization of time as
+geometry.
+@float Figure,fig:spatial-dimensions1
+@image{dimensions1,160mm,,,jpg}
+@caption{An example of spatial dimensions.}
+@end float
+It's likely you've seen a segment being
+used to represent time. In a geometric visualization
+of time, each point, represents a condition that is
+true or false, and no more. The program trajectory
+always is a one-dimensional line. When I say this I
+mean the steps of the program when executed
+(@pxref{fig:time-as-geometry1}).
+@float Figure,fig:time-as-geometry1
+@image{time-as-geometry1,,,,jpg}
+@caption{Geometric visualization of time.}
+@end float
+With two temporal dimensions, resume events to points, that is,
+conditions that are true or false, is a impossible
+task. But despite that, given a finite time, we can
+project a 2D time, in a 1D line, and it is a @dfn{two-dimensional program}.
+The result of it's procedure, is a totaly new program, derived from
+knowledge obtained, during execution of all program contents, and
+not a singly step. For each condition the program is cloned in memory,
+and re-executed, but, in next execution, the variable @dfn{level} is equal to
+@dfn{this level}+1. And we test the condition passing it as true. The original
+program is what has @dfn{level} zero. We do the same for sucessive program, but all
+conditions, that we are testing are true in the tests. If we write a file,
+we test whether the level is zero, if the level is greater than zero, write
+in memory instead of the file. Only if the level is zero write to the
+file. The way I use to get this, is by using the conditions:
+@table @dfn
+@item if never in a function
+We setup structure that represents, 
+unknown @command{if}, to true.
+Re-execute the program, testing in each step,
+that change variables values. If the condition
+is true, and we are testing inside, the proposed
+function, we setup the structure
+that represents, unknown @command{if}, to false.
+@item if always in a function
+We setup structure that represents, 
+unknown @command{if}, to true.
+Re-execute the program, testing in each step,
+that change variables values. If the condition
+is false, and we are testing inside, the proposed
+function, we set up the structure
+that represents, unknown @command{if}, to false.
+@item if sometime in a function
+We setup structure that represents, 
+unknown @command{if}, to false.
+Re-execute the program, testing in each step,
+that change variables values. If the condition
+is true, and we are testing inside, the proposed
+function, we set up the structure
+that represents, unknown @command{if}, to true.
+@end table
+This procedure represents only a single step of
+a @dfn{two-dimensional program}. This is a very
+realistic position, because our universe have a single,
+temporal dimension, then we not have a next moment.
+The implementation of a @code{while} loop is trivial.
+At end of @code{while} block, if the @code{while} loop
+condition, not is true, then jump to begin of @code{while}
+loop block.
+We know that the next moment of time, in a two-dimensional time,
+is a not performed reality. This theory,
+perfectly describes our work, because, only way,
+to modify state of a 2D @code{while} loop, is changing,
+the program ( Consider variables as part of the program
+ ), then is highly convenient,
+for automaticaly generated programs.
 
 @menu
-* Preface::
 * Introduction::
+* Solution to temporal paradoxes::
 * Copying this manual::
 @end menu
 
-@node Preface
-@chapter Preface
-
-@menu
-* Official web site::
-* Getting FDiamondEngine::
-@end menu
-
-@node Official web site
-@section Official web site
-I suggest visiting the official website of
-FDiamondEngine, it can contain information
-about the current state of development of
-FDiamondEngine.
-Currently the official website of FDiamondEngine
-is @url{http://fgc.sf.net}.
-
-@node Getting FDiamondEngine
-@section Getting FDiamondEngine
-
-@menu
-* From SVN::
-* Released versions::
-@end menu
-
-@node From SVN
-@subsection From SVN
-SVN stores a historic of all changes.
-Can be reversed to any stage of
-development.
-To begin open a @dfn{command line}(like @command{konsole} in @dfn{KDE}
-or @command{terminal}).
-Create a directory called 
-@file{FDiamondEngine} unsing 
-@code{@command{mkdir} @file{FDiamondEngine}}
-use @code{@command{svn} checkout 
-@url{svn://svn.code.sf.net/p/fgc/code/trunk}}
-to obtain the latest version of FDiamondEngine
-Using SVN you can get the latest changes in
-the project.
-Latest changes can be both bug fixes and
-new features. These two things are separated
-in different directories in SVN
-repository.
-@table @code
-
-@item Directory @file{trunk}
-The latest features added to FDiamondEngine. Downloading it,
-you can get the very latest changes in FDiamondEngine.
-It is very likely that this version is highly unstable.
-As always here is the latest version, the version number
-is always @dfn{SVN}.
-
-@item Directory @file{tags}
-When the work is done or almost done. The work is copied
-to this directory, where, not adds new features, there are
-only bug fixes. At this point, get a version number. 
-After spending some time in this directory, the versions
-are released. There may be bug fixes even after the
-launch. Therefore there should be only two version numbers,
-not three(You should know that the third number is used
-only for correction of BUGS. FDiamondEngine is installed on
-your machine using only the first two numbers).
-
-@item Directory @file{extra}
-This is not released. They are just demos and tests during
-the development of FDiamondEngine and other things.
-
-@item Directory @file{website}
-The development of the official web page of FDiamondEngine.
-
-@end table
-
-@node Released versions
-@subsection Released versions
-You can get all the releases of FDiamondEngine on page 
-@url{http://sourceforge.net/projects/fgc/files/}. 
-To download the latest version, visit 
-@url{http://sourceforge.net/projects/fgc/files/latest/download}
-
 @node Introduction
-@chapter Introduction
+@section Introduction
+Before all, we analyse the @dfn{if sometime in a function} procedure,
+in a single thread application, because it is more easier. 
+The @dfn{if sometime in a function} procedure, more rarely
+left the program in a cycle with duration of infinite time.
 
-@menu
-* What is FDiamondEngine?::  A brief description of FDiamondEngine
-* What do FDiamondEngine?:: A list of main features
-@end menu
+@float Algorithm,alg:if-sometime-procedure
+@enumerate
 
-@node What is FDiamondEngine?
-@section What is FDiamondEngine?
+@item
+Checks shared memory and see if it is a child process.
+If it is true, between each pair of instructions,
+ put code, to run step 4, in the specified 
+@code{function}.
 
-FDiamondEngine is a library to easy creation
-of various types of programs, such as video
-editors, games, etc. FDiamondEngine is an
-abstraction layer for some libraries, too.
+Scans next instruction and try execute it.
+If no have next instruction, then @code{return}
 
-@node What do FDiamondEngine?
-@section What do FDiamondEngine?
+@item
+If it is a @code{if sometime in function} condition.
+Then go to next step, otherwise, go to previous step.
 
-FDiamondEngine is planned to allow you
-simply and quickly to:
-@table @dfn
-@item Media
-Load and write media( eg AVI, MPEG, OGG Vorbis, MP3 ).
-Using FDiamondEngine, you can simply and generically,
-to play various formats of video/audio.
+@item
+Using shared memory(or something similar),
+ notifies child program, to test condition
+in shared memory(you can use a stack for
+ this job).
+Variable @code{level} is in shared memory.
+@code{level = level + 1}.
+Clone this program and execute it as
+ child process(you can use @code{fork()}
+ for this job), and wait it ends.
+@code{level = level - 1} and Go to step 1.
 
-@item Its own graphical interface
-Draw on the screen fields with values animation support 
-(As the Blender(enter the frame typing @kbd{@key{I}}))
-for graphical interaction with the User.
+@item
+Check condition specified in shared memory. If it is true,
+ set shared variable, to
+ true and @code{return}.
+@end enumerate
+@caption{@dfn{if sometime in a function} procedure}
+@end float
+In practice, implement it is more complicated.
+Probably you need a stack and you need in some time, move data
+from stack to local(not shared, it is for this process only)
+ variables. The stack is used to pieces of code, containing
+ conditions to test. Each program execution test a single
+condition, but, it can dispare other execution(as you see
+ in pseudo-code). You can see also, it's recursion.
 
-@item Its own event system
-Make programs that respond to events, add many functions
-to the same event. The abstraction layer FDiamondEngine 
-provides support to various types of events 
-(or fEvents, if you prefer).
+@node Solution to temporal paradoxes
+@chapter Solution to temporal paradoxes
+Think about grandfather temporal paradox,
+ I go back in time and kill my grandfather,
+ before he have some child. Then I never,
+ have existed and I neven kill my grandfather.
 
-@item Its own thread system
-You can make lines of threads in synchronism. You can make
-lines of threads to run simultaneously and one after 
-another, including mixing any lines. A function called outside
-threads(fThreads system) system can enter the system using a
-existent 'fThread' and exit the system quickly.
+Like geometry, we can visualize it easily, subtracting one
+dimension of problem. It is like thinking: if condition is true,
+then the same condition at same moment(of course, no exist time 1D)
+is false.
 
-@item Its own sound system
-FDiamondEngine becomes playing sounds in the @dfn{background},
-using the threads system (or fthreads). Samples are
-automatically placed in play line and played.
-All this is trying to stop you work as little as
-possible.
-You can synthesize instrument sounds using FDiamondEngine.
-As also detect the frequency of sound waves, in other words
-synthesize the sound of an instrument playing the music that
-you sing.
-
-@end table
+ We can see, if the same object as two different states,
+can not be at same time. Then in a 2D-time world, if have two
+ distinct temporal lines, it's not can be exist at same time.
+Then if I modify the time, is contradictory think, that I can
+change my own past, present and future, but, can exist a 
+1D temporal line, that the past, present and future as been
+ changed.
+From deterministic point of view, moments can be deducted, from
+ it's past.
+Then from deterministic point of view in a 2D-time, 
+our past, present, and
+ future, can be deducted from others temporal lines, that is the
+past in 2D-time world.
 
 @node Copying this manual
 @appendix Copying this manual

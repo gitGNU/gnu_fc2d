@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <libfc2d/fc2d.h>
+
+main() 
+{
+    var x;
+    var i;
+
+    if sometime in main( x == 3 )
+    {
+        echo("It reminds me of the grandfather paradox\n");
+        x = 3;
+        
+        if always in main( x <= 3 )
+        {
+            echo("Yes, this message is showed\n");
+        }
+        
+        if always in main( x <= 3 ) 
+        {
+            x = x + 1;
+            echo("Other message to never show\n");
+        }
+        
+        x = 0;
+    }
+
+    /* This 'if' is never executed
+        * because if it is: x+1 ==  2.
+        * If it is TRUE it is FALSE.
+        * then it is FALSE.
+        */
+
+    if never in main( x == 2 )
+    {
+        echo("This program is not a \"hello word\"\n");
+        x = x + 1;
+    }
+
+    if never in main( x == 2 )
+    {
+        echo("Interesting language, no?\n"
+        "Hello world in GNU FC2D!!!\n\n");
+    }
+
+    x = x + 1;
+}

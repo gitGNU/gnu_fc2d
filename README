@@ -1,5 +1,8 @@
+*NOTE: This software is designed for, but, not
+       is a GNU software yet.
+
 This is GNU FC2D, a two temporal dimensional(2D time)
-scripting language( C like ). This program was made on
+programing language( C like ). This program was made on
 GNU/Linux. A machine with GNU/Linux installed, GNU 
 development tools (gcc, make, etc.) and GLib should
 be sufficient to compile and run it. If you found any

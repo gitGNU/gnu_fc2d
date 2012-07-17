@@ -70,4 +70,8 @@ gboolean f_arg_exists(const char* arg);
  */
 void f_arg_help();
 
+void additional_information( gboolean official_gnu, 
+                             gchar* report_bugs,
+                             gchar* pkg_homepage );
+
 #endif

@@ -151,109 +151,109 @@ extern "C" {
 
 #define fps FPS
 
-    /*! 
-     *\brief Actions to be performed ​​when entering thread
-     */
-    void thsys_addcoming(fThread* th,
-            FCallback2 function, gpointer data);
+/*! 
+    *\brief Actions to be performed ​​when entering thread
+    */
+void thsys_addcoming(fThread* th,
+        FCallback2 function, gpointer data);
 
-    /*! 
-     *\brief Actions to be performed ​​when leaving thread
-     */
-    void thsys_addleaving(fThread* th,
-            FCallback2 function, gpointer data);
+/*! 
+    *\brief Actions to be performed ​​when leaving thread
+    */
+void thsys_addleaving(fThread* th,
+        FCallback2 function, gpointer data);
 
-    /*! 
-     *\brief Actions to be performed ​​when entering thread
-     */
-    void thsys_removecoming(fThread* th,
-            FCallback2 function);
+/*! 
+    *\brief Actions to be performed ​​when entering thread
+    */
+void thsys_removecoming(fThread* th,
+        FCallback2 function);
 
-    /*! 
-     *\brief Actions to be performed ​​when leaving thread
-     */
-    void thsys_removeleaving(fThread* th,
-            FCallback2 function);
+/*! 
+    *\brief Actions to be performed ​​when leaving thread
+    */
+void thsys_removeleaving(fThread* th,
+        FCallback2 function);
 
-    /*!
-     * \brief Alloc memory and set default values
-     */
-    void thsys_initvalues(fThread* fth);
+/*!
+    * \brief Alloc memory and set default values
+    */
+void thsys_initvalues(fThread* fth);
 
-    /*!
-     * \brief Free memory and delete it from lists
-     */
-    void thsys_deletevalues(fThread* fth);
+/*!
+    * \brief Free memory and delete it from lists
+    */
+void thsys_deletevalues(fThread* fth);
 
-    /*!\brief Get a unique fThread for some thread */
-    fThread* thsyshash_get1(GThread* th);
+/*!\brief Get a unique fThread for some thread */
+fThread* thsyshash_get1(GThread* th);
 
-    /*!\brief Get a unique fThread for this thread
-       \note Never returns NULL*/
-    fThread* thsyshash_get();
+/*!\brief Get a unique fThread for this thread
+    \note Never returns NULL*/
+fThread* thsyshash_get();
 
-    /*!\brief Try to get a unique fThread for this thread
-       \return The fthread. If no exists returns NULL. */
-    fThread* thsyshash_try_get();
+/*!\brief Try to get a unique fThread for this thread
+    \return The fthread. If no exists returns NULL. */
+fThread* thsyshash_try_get();
 
-    /*! \brief Adds a thread to run series to this
-     * @return The identifier for new fThread 
-     */
-    fThread* thsys_add(FCallback function, gpointer data);
+/*! \brief Adds a thread to run series to this
+    * @return The identifier for new fThread 
+    */
+fThread* thsys_add(FCallback function, gpointer data);
 
-    /*!
-     * \brief This function lets other threads work.
-     * \param value The number of cycles to wait if
-     * positive. The number of second to wait if 
-     * negative. 
-     */
-    void wait(double value);
+/*!
+    * \brief This function lets other threads work.
+    * \param value The number of cycles to wait if
+    * positive. The number of second to wait if 
+    * negative. 
+    */
+void wait(double value);
 
-    /*!
-     * \brief Run one step of another threads 
-     */
-    void thsys_step(ListType mode);
+/*!
+    * \brief Run one step of another threads 
+    */
+void thsys_step(ListType mode);
 
-    /*!
-     * \brief Lock anything by it's pointer
-     */
-    void f_lock(gpointer obj);
+/*!
+    * \brief Lock anything by it's pointer
+    */
+void f_lock(gpointer obj);
 
-    /*!
-     * \brief Unlock anything by it's pointer 
-     */
-    void f_unlock(gpointer obj);
+/*!
+    * \brief Unlock anything by it's pointer 
+    */
+void f_unlock(gpointer obj);
 
-    fThread* parent_for(fThread* th);
+fThread* parent_for(fThread* th);
 
-    /*!
-     * \brief Wait for time requested by FPS_MAX
-     *        and sets TIME_STEP
-     *
-     * \warning Call this function outside the proper
-     *          context can prevent the variables to
-     *          be adjusted correctly
-     * 
-     * \note If well used this function can be used
-     *       to save CPU time.
-     */
-    void thsys_fps();
+/*!
+    * \brief Wait for time requested by FPS_MAX
+    *        and sets TIME_STEP
+    *
+    * \warning Call this function outside the proper
+    *          context can prevent the variables to
+    *          be adjusted correctly
+    * 
+    * \note If well used this function can be used
+    *       to save CPU time.
+    */
+void thsys_fps();
 
-    /*!
-     * \brief Wait for time requested by FPS_MAX
-     * 
-     * \details Similar to thsys_fps, but just wait
-     *          does not change global values. You
-     *          can use this function to wait for
-     *          the appropriate time to maintain a
-     *          specified fps_max. If you used a
-     *          long time between calls to this
-     *          function, it returns without waiting.
-     * 
-     * \note If well used this function can be used
-     *       to save CPU time.
-     */
-    void thsys_fps2();
+/*!
+    * \brief Wait for time requested by FPS_MAX
+    * 
+    * \details Similar to thsys_fps, but just wait
+    *          does not change global values. You
+    *          can use this function to wait for
+    *          the appropriate time to maintain a
+    *          specified fps_max. If you used a
+    *          long time between calls to this
+    *          function, it returns without waiting.
+    * 
+    * \note If well used this function can be used
+    *       to save CPU time.
+    */
+void thsys_fps2();
 
 #ifdef __cplusplus
 }

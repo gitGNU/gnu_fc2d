@@ -21,6 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "auto-config.h"
 
-#define FGE_DATA "@prefix@/share/@PACKAGE_NAME@-@FGE_VERSION@/"
+#define @PACKAGE_NAME@_data "@prefix@/share/@PACKAGE_NAME@-@FGE_VERSION@/"
 
 #endif

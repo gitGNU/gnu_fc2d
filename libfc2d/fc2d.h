@@ -18,8 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*!
  * \file libfc2d/fc2d.h
- * \brief Include for interpreter
- *        of FC2D
+ * 
+ * \brief Library to process
+ *        FC2D code.
  */
 
 #ifndef __LIBFC2D_FC2D_H__
@@ -27,33 +28,76 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <libfc2d/utils/string.h>
 
+#if HAVE_THREAD
+
+#include <libfc2d/high-level/threads.h>
+
+#define LEVEL \
+    (f_data_get_p( current_master, \
+                    "LEVEL", \
+                    guint))
+#else
+extern guint LEVEL;
+#endif /*Multi-thread not is supported*/
+
+#define level LEVEL
+
 struct fScriptCond;
 typedef struct fScriptCond fScriptCond;
 
 struct fScriptBlock;
 typedef struct fScriptBlock fScriptBlock;
 
+typedef var float;
+
+typedef enum
+{
+    COND_NONE=0,
+    COND_TRUE,
+    COND_FALSE
+} fCondTest;
+
 typedef enum 
-    {
-        TYPE_VAR='v',
-        TYPE_DOUBLE='d',
-        TYPE_CHAR='c',
-        TYPE_INT='i',
-        TYPE_FUNCTION='f'
-    } fScriptType;
+{
+    TYPE_VAR='v',
+    TYPE_DOUBLE='d',
+    TYPE_CHAR='c',
+    TYPE_INT='i',
+    TYPE_FUNCTION='f'
+} fScriptType;
+
+typedef enum 
+{
+    IF_SOMETIME,
+    IF_NEVER,
+    IF_ALWAYS
+} f2DCondType;
+
+typedef struct {
+  char* name;
+  gsize begin;
+  gsize end;
+} fFunction;
 
 typedef struct
-    {
-        void* data;
-        char type;
-    } fScriptArg;
+{
+    void* data;
+    char type;
+} fScriptArg;
 
     
 struct fScriptCond
-    {
-        gsize pos;
-        fScriptCond* next;
-    };
+{
+    gsize pos;
+    fCondTest test_result;
+    f2DCondType cond_type;
+    fScriptCond* next;
+};
+
+typedef struct 
+{
+    GHashTable* hash;
+} fInterpreter;
 
 typedef struct 
 {
@@ -62,7 +106,8 @@ typedef struct
     GHashTable* hash;
     gsize main; /*Position of main function*/
     fScriptBlock* block;
-} fInterpreter;
+    GHashTable* functions;
+} fProgram;
     
 struct fScriptBlock 
 {
@@ -70,8 +115,26 @@ struct fScriptBlock
     GHashTable* hash;
 };
 
+typedef struct
+{
+    GTokenType type;
+    GTokenValue value;
+    guint line;
+    guint column;
+    gsize pos;
+} fToken;
+
+typedef struct
+{
+  fScriptType type;
+  union {
+    gpointer pointer;
+    unsigned long long value;
+  };
+} fObj;
+
 /*!
- * \brief Allow call to C function
+ * \brief Allow call to C functions
  *        from script
  * 
  * \param level Position on second 
@@ -101,9 +164,19 @@ fScriptArg* fc2d_interprets( gchar** source_code );
 /*!
  * \brief Execute  block and stop at end
  */
-void fc2d_interprets_block( fInterpreter* interpreter,
-                            gsize pos,
-                            gsize level );
+gboolean fc2d_interprets_block( fInterpreter* interpreter,
+                                gsize pos,
+                                gsize level );
 
+/*!
+ * \brief Process GNU FC2D code and
+ *        generate C code.
+ * 
+ * \param code Pointer to generated
+ *             C source code.
+ */
+gboolean fc2d_process( gchar** code, guint len );
+
+void echo(const char* msg);
 
 #endif /* libfc2d/fc2d.h not included */

@@ -13,7 +13,7 @@ m4_define([fge_version],
 m4_define([fge_make_version], 
           [0_1])
 
-AC_INIT([fc2d], fge_real_version, [https://sourceforge.net/p/fgc/tickets/new/], [fc2d], [http://fgc.sf.net])
+AC_INIT([fc2d], fge_real_version, [bug-fc2d@gnu.org], [fc2d], [http://gnu.org/software/fc2d])
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 no-define])
 

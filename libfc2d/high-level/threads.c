@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if HAVE_THREAD
+
 #include <config.h>
 #include <glib.h>
 #include <high-level/threads.h>
@@ -617,3 +619,5 @@ thsys_fps2 ()
       g_timer_start (master_timer);
     }
 }
+
+#endif /* Have thread support */

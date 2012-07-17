@@ -42,6 +42,10 @@ typedef struct
   char* program_name;
   int argc;
   char** argv;
+  gboolean official_gnu;
+  gchar* report_bugs;
+  gchar* pkg_homepage;
+  gboolean additional_information;
 } fArgsInfo;
 
 gint
@@ -55,19 +59,25 @@ f_arg_process (int argc, char** argv,
                const char* full_name,
                const char* copyright,
                const char* description,
-               const char* syntax)
+               const char* syntax
+              )
 {
   fArgsInfo* info;
   int i, j;
   GList* l;
+  GList* l2 = NULL;
   fArgument* arg;
 
-  info = g_malloc0 (sizeof (fArgsInfo));
-
-  f_data_connect (0, "args_info", info);
-
+  info = f_data_get(0, "args_info");
+  
+  if( info == NULL ) 
+  {
+    info = g_malloc0 (sizeof (fArgsInfo));
+    f_data_connect (0, "args_info", info);
+  }
+  
   f_arg_add ("version", 'v',
-             "Display interpreter version information", FALSE,
+             "Display version information", FALSE,
              FALSE);
 
   f_arg_add ("help", 'h',
@@ -141,6 +151,14 @@ f_arg_process (int argc, char** argv,
                                     exit (1);
                                 }
 
+                            } else
+                            {
+                                if( i + 1 < argc && argv[i + 1][0] != '-')
+                                {
+                                    l2 = f_data_get(0, "user_args");
+                                    l2 = g_list_append( l2, argv[i + 1] );
+                                    f_data_connect( 0, "user_args", l2 );
+                                }
                             }
                         break;
                         }
@@ -152,6 +170,10 @@ f_arg_process (int argc, char** argv,
               printf(_("Options that require parameters, appear to be\n"
                        "being used in ways not yet supported\n"));
             }
+        } else {
+            l2 = f_data_get(0, "user_args");
+            l2 = g_list_append( l2, argv[i] );
+            f_data_connect( 0, "user_args", l2 );
         }
 
     }
@@ -197,48 +219,26 @@ f_option_get (const char* arg)
 char*
 f_arg_get (guint id)
 {
-  fArgsInfo* info;
-  guint i;
-  guint j = 0;
+  GList* user_args;
+  guint i = 0;
 
-  info = f_data_get (0, "args_info");
-
-  for (i = 0; i < id; i++)
-    {
-      /* Get the next argument that is not an
-       * option or the program name */
-      while (j < info->argc)
-        {
-          j++;
-
-          if (info->argv[j][0] != '-')
-            break;
-        }
-
-      if (j == info->argc)
-        return NULL;
-
-    }
-
-  return info->argv[j];
+  user_args = f_data_get (0, "user_args");
+  for ( ; user_args != NULL && i < id; user_args = user_args->next ) i++;
+  
+  return user_args->data;
+  
 }
 
 guint
 f_args_len ()
 {
-  fArgsInfo* info;
-  guint i;
-  guint j = 0;
+  GList* user_args;
+  guint i = 0;
 
-  info = f_data_get (0, "args_info");
+  user_args = f_data_get (0, "user_args");
+  for ( ; user_args != NULL; user_args = user_args->next ) i++;
 
-  for (i = 1; i < info->argc; i++)
-    {
-      if (info->argv[i][0] != '-')
-        j++;
-    }
-
-  return j;
+  return i;
 }
 
 void
@@ -379,5 +379,38 @@ f_arg_help ()
 
       printf ("%s\n", args->description);
     }
+    
+    if( info->additional_information ) 
+    {
+        printf( "\nReport bugs to: %s\n"
+                "pkg home page: <%s>\n", info->report_bugs, info->pkg_homepage );
+        
+        if( info->official_gnu ) 
+        {
+            printf("General help using GNU software:"
+            " <http://www.gnu.org/gethelp/>\n");
+        }
+    }
 
+}
+
+void 
+additional_information( gboolean official_gnu, 
+                        gchar* report_bugs,
+                        gchar* pkg_homepage )
+{
+    fArgsInfo* info;
+
+    info = f_data_get(0, "args_info");
+    
+    if( info == NULL ) 
+    {
+        info = g_malloc0 (sizeof (fArgsInfo));
+        f_data_connect (0, "args_info", info);
+    }
+    
+    info->official_gnu = official_gnu;
+    info->report_bugs = report_bugs;
+    info->pkg_homepage = pkg_homepage;
+    info->additional_information = TRUE;
 }
