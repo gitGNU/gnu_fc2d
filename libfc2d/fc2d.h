@@ -9,7 +9,7 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the1
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
@@ -48,6 +48,9 @@ typedef struct fScriptCond fScriptCond;
 struct fScriptBlock;
 typedef struct fScriptBlock fScriptBlock;
 
+
+typedef struct fSyntaxTree fSyntaxTree;
+
 typedef var float;
 
 typedef enum
@@ -56,15 +59,6 @@ typedef enum
     COND_TRUE,
     COND_FALSE
 } fCondTest;
-
-typedef enum 
-{
-    TYPE_VAR='v',
-    TYPE_DOUBLE='d',
-    TYPE_CHAR='c',
-    TYPE_INT='i',
-    TYPE_FUNCTION='f'
-} fScriptType;
 
 typedef enum 
 {
@@ -79,40 +73,12 @@ typedef struct {
   gsize end;
 } fFunction;
 
-typedef struct
-{
-    void* data;
-    char type;
-} fScriptArg;
-
-    
 struct fScriptCond
 {
     gsize pos;
     fCondTest test_result;
     f2DCondType cond_type;
     fScriptCond* next;
-};
-
-typedef struct 
-{
-    GHashTable* hash;
-} fInterpreter;
-
-typedef struct 
-{
-    GString* str;
-    fScriptCond* cond;
-    GHashTable* hash;
-    gsize main; /*Position of main function*/
-    fScriptBlock* block;
-    GHashTable* functions;
-} fProgram;
-    
-struct fScriptBlock 
-{
-    fScriptBlock* parent;
-    GHashTable* hash;
 };
 
 typedef struct
@@ -126,12 +92,41 @@ typedef struct
 
 typedef struct
 {
-  fScriptType type;
   union {
     gpointer pointer;
     unsigned long long value;
   };
 } fObj;
+
+typedef enum {
+  TYPE_FUNCTION,
+  TYPE_CONDITION,
+  TYPE_NONE
+} fFieldType;
+
+/*
+  A tree that allows an arbitrary
+  number of children.
+   
+  This tree come from syntatic
+  analysis of code.
+ */
+struct fSyntaxTree
+{
+  union {
+    fFuntion function;
+    fCondition condition;
+  };
+
+  fSyntaxTree* parent;
+  fSyntaxTree* child; /* A pointer to one of it's children's */
+  fSyntaxTree* left; /* pointer for other child from the
+			same parent */
+
+  fFieldType type;
+  GList* tokens;
+
+};
 
 /*!
  * \brief Allow call to C functions

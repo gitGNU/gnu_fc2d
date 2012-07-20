@@ -270,7 +270,48 @@ fc2d_interprets_block( fInterpreter* interpreter,
   return TRUE;
 }
 
-gboolean fc2d_process( gchar** code, guint len )
+void 
+f_tokenize(GScanner** scan, GString* str, fToken** tokens,
+	   gsize* token_len  ) 
+{
+  GTokenType* type;
+  
+  *token_len = 0;
+
+  if( scan != NULL )
+    g_scannet_destroy(*scan);
+
+  if( *tokens != NULL )
+    g_free(*tokens);
+
+  g_assert(token_len != NULL);
+
+  *tokens = g_malloc0(sizeof(fToken));
+
+  scan = g_scanner_new( NULL );
+  g_scanner_input_text( scan, *str->str, str->len);
+
+  while(1)
+    {
+      type = g_scanner_get_next_token( scan );
+
+      token[*token_len].type = type;
+      token[*token_len].value = scan->value;
+      token[*token_len].line = scan->line;
+      token[*token_len].column = scan->position;
+      token[*token_len].pos = scan->text - (*str->str);
+
+      *token_len++;
+
+      if( type == G_TOKEN_EOF )
+	break;
+
+      *tokens = g_realloc( *tokens, *token_len * sizeof(fToken) );
+    }
+}
+
+gboolean 
+fc2d_process( gchar** code, guint len )
 {
   GScanner* scan;
   GTokenType type;
@@ -289,150 +330,124 @@ gboolean fc2d_process( gchar** code, guint len )
 
   hash = g_hash_table_new( g_str_hash, g_str_equal );
 
-  token = g_malloc0(sizeof(fToken));
-
-  scan = g_scanner_new( NULL );
-  g_scanner_input_text( scan, *code, len);
+  code_clone = g_string_new_len(code, len);
 
   while(1)
     {
-      type = g_scanner_get_next_token( scan );
+      f_tokenize( &scan, code_clone, &token, &token_len );
 
-      token[token_len].type = type;
-      token[token_len].value = scan->value;
-      token[token_len].line = scan->line;
-      token[token_len].column = scan->position;
-      token[token_len].pos = scan->text - (*code);
-
-      token_len++;
-
-      if( type == G_TOKEN_EOF )
-	break;
-
-      token = g_realloc( token, len * sizeof(fToken) );
-    }
-
-  code_clone = g_string_new("");
-    
-  for( i = 0; i < token_len; i++ )
-    {
-      if( i+1 < token_len &&
-	  token[i].type == G_TOKEN_IDENTIFIER && 
-	  token[i+1].type == '(' )
-        {
-	  for( j = i+1;  j <  token_len && token[j].type != ')'; j++ );
-            
-	  if( j == token_len ) 
-            {
-	      printf("fc2d error: Missing ')'\n"
-		     "\tPremature end of file\n");
-            }
-            
-	  j++;
-	  if( j < token_len &&
-	      token[j].type != '{' )
-	    break;
-	  j++;
-
-	  obj.value = j;
-	  push(stack, obj);
-	  
-	  obj.value = i;
-	  push(stack, i);
-
-	  i = 0;
-
-	  for( ; j < token_len; j++ )
-	    {
-	      if( i == 0 && token[j].type == '}' )
-		{
-		  i = pop(stack).value;
-		  
-		  obj.pointer = g_malloc(sizeof(fFunction));
-		  ((fFunction*)(obj.pointer))->name =
-		    token[i].value.v_identifier;
-		  
-		  ((fFunction*)(obj.pointer))->end = j-1;
-		  j = pop(stack).value;
-		  ((fFunction*)(obj.pointer))->begin = j;
-		  
-		  g_hash_table_insert( hash, token[i].value.v_identifier,
-				       obj.pointer );
-
-		  function_name = token[i].value.v_identifier;
-		  break;
-		}
-		
-	      if( token[j].type == '{' )
-		i++;
-	      else if( token[j].type == '}' )
-		i--;
-	    }
-
-	  f = g_hash_table_lookup(hash, function_name);
-	  for( j = f->begin; j < token_len && j < f->end; )
-	    {
-	      if( token[j].type == G_TOKEN_IDENTIFIER &&
-		  g_strcmp0( token[j].value.v_identifier, "when" ) &&
-		  j+1 < token_len )
-		{
-		  j++;
-		  if( token[j].type == '(' )
-		    {
-		      obj.value = j;
-		      push(stack, obj);
-
-		      /*Anlysing syntax*/
-		      for( j++; j < token_len && 
-			     token[j].type != ')'; j++ );
-
-		      if( token[j-1].type == '(' ||
-			  token[j].type != ')') 
-			{
-			  printf("fc2d: Expected expression between PAREN's\n");
-			  return FALSE;
-			}
-
-		      j++;
-
-		      if( j >= token_len || token[j].type != '{' ) 
-			{
-			  printf("fc2d: Expected '{' after ')'\n");
-			  return FALSE;
-			}
-
-		      while( j < token_len && token[j].type != '}' ) j++;
-
-		      if( token[j].type != '}' )
-			{
-			  printf("Premature end of file\n");
-			  return FALSE;
-			}
-
-		      j = pop(stack).value;
-
-		      /*Now processing*/
-		      
-
-		    }
-		} 
-	      else
-		{
-		  while( j < token_len && token[j] != ')' ) j++;
-		  j++;
-		}
-	    }
-        }
-
-      if( j < token_len ) i = j;
-      else 
+      for( i = 0; i < token_len; i++ )
 	{
-	  printf("Erroneus block\n");
-	  return FALSE;
+	  if( i+1 < token_len &&
+	      token[i].type == G_TOKEN_IDENTIFIER && 
+	      token[i+1].type == '(' )
+	    {
+	      for( j = i+1;  j <  token_len && token[j].type != ')'; j++ );
+            
+	      if( j == token_len ) 
+		{
+		  printf("fc2d error: Missing ')'\n"
+			 "\tPremature end of file\n");
+		}
+            
+	      j++;
+	      if( j < token_len &&
+		  token[j].type != '{' )
+		break;
+	      j++;
+
+	      obj.value = j;
+	      push(stack, obj);
+	  
+	      obj.value = i;
+	      push(stack, i);
+
+	      i = 0;
+
+	      for( ; j < token_len; j++ )
+		{
+		  if( i == 0 && token[j].type == '}' )
+		    {
+		      i = pop(stack).value;
+		  
+		      obj.pointer = g_malloc(sizeof(fFunction));
+		      ((fFunction*)(obj.pointer))->name =
+			token[i].value.v_identifier;
+		  
+		      ((fFunction*)(obj.pointer))->end = j-1;
+		      j = pop(stack).value;
+		      ((fFunction*)(obj.pointer))->begin = j;
+		  
+		      g_hash_table_insert( hash, token[i].value.v_identifier,
+					   obj.pointer );
+
+		      function_name = token[i].value.v_identifier;
+		      break;
+		    }
+		
+		  if( token[j].type == '{' )
+		    i++;
+		  else if( token[j].type == '}' )
+		    i--;
+		}
+
+	      f = g_hash_table_lookup(hash, function_name);
+	      for( j = f->begin; j < token_len && j < f->end; )
+		{
+		  if( token[j].type == G_TOKEN_IDENTIFIER &&
+		      g_strcmp0( token[j].value.v_identifier, "when" ) &&
+		      j+1 < token_len )
+		    {
+		      j++;
+		      if( token[j].type == '(' )
+			{
+			  obj.value = j;
+			  push(stack, obj);
+
+			  for( j++; j < token_len && 
+				 token[j].type != ')'; j++ );
+
+			  if( token[j-1].type == '(' ||
+			      token[j].type != ')') 
+			    {
+			      printf("fc2d: Expected expression between PAREN's\n");
+			      return FALSE;
+			    }
+
+			  j++;
+
+			  if( j >= token_len || token[j].type != '{' ) 
+			    {
+			      printf("fc2d: Expected '{' after ')'\n");
+			      return FALSE;
+			    }
+
+			  while( j < token_len && token[j].type != '}' ) j++;
+
+			  if( token[j].type != '}' )
+			    {
+			      printf("Premature end of file\n");
+			      return FALSE;
+			    }
+
+			  j = pop(stack).value;
+
+			  break;
+			}
+		    } 
+		  else
+		    {
+		      while( j < token_len && token[j] != ')' ) j++;
+		      j++;
+		    }
+		}
+	    }
 	}
+      if( i == token_len )
+	break;
     }
 
-  *code = code_clone;
+  *code = code_clone->str;
     
   return TRUE;
 }
