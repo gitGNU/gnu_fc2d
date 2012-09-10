@@ -8,10 +8,6 @@ development tools (gcc, make, etc.) and GLib should
 be sufficient to compile and run it. If you found any
 BUG, report to Actual GNU FC2D Maintainer. 
 
-This project provides: 
-    a interpreter and a library, to embed GNU FC2D
-    (like)scripting language in your applications
-
 Dependencies
 ============
 
@@ -33,7 +29,7 @@ sh ./configure && make && sudo make install
 
 Running
 =======
-Once the interpreter is installed you can run one
+Once the GNU FC2D is installed you can run one
 of the sample programs (see the examples directory)
 Go to the examples directory and run fc2d:
 cd examples
@@ -63,6 +59,8 @@ To create a DVI:
 To create a HTML:
     make html
 
+In the top build directory
+
   Fabio J. Gonzalez <fabiojosue@gmail.com>
   GNU FC2D Maintainer
 
@@ -72,4 +70,3 @@ Copyright (C) 2012  Free Software Foundation Inc.
 
 This file may be modified and/or distributed without restriction.  This is
 not an invitation to misrepresent the history of GNU FC2D.
-
