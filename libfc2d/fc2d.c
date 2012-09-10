@@ -1,4 +1,4 @@
-/*
+1/*
   GNU FC2D - A two time dimensional programing language.
   Copyright (C) 2012  Free Software Foundation Inc.
 
@@ -20,9 +20,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#if !HAVE_THREAD
 guint LEVEL = 0;
-#endif /*Multi-thread not is supported*/
 
 #define push(stack, elem)			\
   g_memmove( &(stack[stack_len]), &(elem),	\
@@ -32,247 +30,12 @@ guint LEVEL = 0;
 #define pop( stack )				\
   ({						\
     stack_len--;				\
-    stack[stack_len+1];			\
+    stack[stack_len+1];				\
   })
 
-gpointer
-variable_get( fScriptBlock** block, 
-              const char* name ) 
-{
-  fScriptBlock* b;
-  gpointer ret;
-    
-  if( *block == NULL )
-    {
-      *block = g_malloc0( sizeof(fScriptBlock) );
-        
-      (*block)->hash = g_hash_table_new( g_str_hash,
-					 g_str_equal );
-        
-      return NULL;
-    }
-    
-  for( b = *block; b != NULL; b = b->parent ) 
-    {
-      ret = g_hash_table_lookup(b, name);
-      if( ret != NULL )
-	return ret;
-    }
-    
-  return NULL;
-}
-
 void 
-check_len( GString* str, gsize pos ) 
-{
-  if( pos >= str->len ) 
-    {
-      printf( _("error: Premature end of file\n") );
-      exit(1);
-    }
-}
-
-void
-jump_white( GString* str, gsize* pos ) 
-{
-    
-  check_len( str, *pos );
-  
-  while( str->str[*pos] == '\n' ||
-	 str->str[*pos] == ' '  ||
-	 str->str[*pos] == '\t' ) 
-    {
-      *pos++;
-    }
-}
-
-fScriptArg*
-fc2d_interprets( gchar** source_code ) 
-{
-  fInterpreter* interpreter;
-  gsize pos=0, len=0, i;
-  GString* gstr;
-  gchar back;
-  fScriptArg* arg;
-  fProgram* p;
-    
-  interpreter = g_malloc0( sizeof(fInterpreter) );
-    
-  interpreter->hash = g_hash_table_new( g_direct_hash, 
-					g_direct_equal );
-    
-  p = g_hash_table_lookup( interpreter->hash,
-			   0 );
-    
-  if( p == NULL )
-    {
-      p = g_malloc0( sizeof(fProgram) );
-      g_hash_table_insert( interpreter->hash, 
-			   0,
-			   p );
-    }
-    
-  if( p->hash == NULL )
-    {
-      p->hash = g_hash_table_new( g_str_hash,
-				  g_str_equal );
-    }
-    
-  p->str = g_string_new( *source_code );
-    
-  fc2d_interprets_block( interpreter, 
-			 0,
-			 0 );
-    
-  *source_code = g_string_free( p->str, FALSE );
-    
-}
-
-void
-f_subst( GString* gstr, gsize pos, gsize len,
-         gchar* str1, gchar* str2)
-{
-  GString* gstr1 = g_string_new( str1 );
-  GString* gstr2 = g_string_new( str2 );
-  gchar* c;
-  gsize i;
-  gchar back;
-    
-  c = &(gstr->str[pos]);
-    
-  for( i = 0; i < len && pos+i+gstr1->len < gstr->len; i++ )
-    {
-      back = c[i+gstr1->len];
-      c[i+gstr1->len]=0;
-        
-      if( g_strcmp0( &(c[i]), gstr1->str) == 0 )
-        {
-	  c[i+gstr1->len] = back;
-	  g_string_erase( gstr, pos+i, gstr1->len );
-	  g_string_insert( gstr, pos+i, gstr2->str );
-        } else 
-        {
-	  c[i+gstr1->len] = back;
-        }
-    }
-}
-
-
-
-gboolean
-fc2d_interprets_block( fInterpreter* interpreter,
-                       gsize pos,
-                       gsize level ) 
-{
-  fProgram* p;
-  GHashTable* h;
-  gsize len;
-  GString *gstr, *gstr2;
-  gchar* c;
-  gchar back;
-  gsize i, a, b;
-    
-  p = g_hash_table_lookup( interpreter->hash, level );
-    
-  g_assert( p != NULL );
-    
-  while( pos < p->str->len )
-    {
-      for( len = pos; p->str->str[len] >= 'a' &&
-	     p->str->str[len] <= 'z' &&
-	     len+1 < p->str->len; len++ );
-        
-      if( p->str->str[len] == '(' )
-        {
-	  back = p->str->str[len];
-	  p->str->str[len] = 0;
-	  if( g_strcmp0( &(p->str->str[pos]), "subst" ) == 0 )
-            {
-	      p->str->str[len] = back;
-	      c = &(p->str->str[len+1]);
-                
-	      for( i = 0; c[i] != ','; i++ );
-                
-	      back = c[i];
-	      c[i]=0;
-                
-	      gstr = g_string_new(c);
-                
-	      c[i] = back;
-	      c = &(c[i+1]);
-                
-	      for( i = 0; c[i] != ','; i++ );
-                
-	      back = c[i];
-	      c[i] = 0;
-                
-	      gstr2 = g_string_new(c);
-	      c[i] = back;
-                
-	      c = &(c[i+1]);
-                
-	      for( i = 0; c[i] != ','; i++ );
-	      back = c[i];
-	      c[i] = 0;
-                
-	      a = atoi(c);
-                
-	      c[i] = back;
-	      c = &(c[i+1]);
-                
-	      for( i = 0; c[i] != ')'; i++ );
-	      back = c[i];
-	      c[i] = 0;
-                
-	      b = atoi(c);
-                
-	      c[i] = back;
-                
-	      c = &(p->str->str[a]);
-	      len = b - a;
-                
-	      for( i = 0; i < len && a+i+gstr->len <= p->str->len; i++ )
-                {
-                    
-		  back = c[i+gstr->len];
-		  c[i+gstr->len]=0;
-                    
-		  if( g_strcmp0(&(c[i]), gstr->str) == 0 )
-                    {
-		      c[i+gstr->len] = back;
-		      g_string_erase( p->str, a+i, gstr->len );
-		      g_string_insert( p->str, a+i, gstr2->str );
-                    } else 
-                    {
-		      c[i+gstr->len] = back;
-                    }
-                }
-                
-                
-            }
-	  else 
-            {
-	      p->str->str[len] = back;
-	      back = p->str->str[len];
-	      p->str->str[len] = 0;
-	      printf("Undefined reference to %s\n", 
-		     &(p->str->str[pos]) );
-	      p->str->str[len] = back;
-	      exit(1);
-            }
-        }
-        
-      while( pos < p->str->len && p->str->str[pos] != ';' ) pos++;
-      pos++;
-        
-    }
-    
-  return TRUE;
-}
-
-void 
-f_tokenize(GScanner** scan, GString* str, fToken** tokens,
-	   gsize* token_len  ) 
+f_tokenize( GScanner** scan, GString* str,
+	    fToken** tokens, gsize* token_len ) 
 {
   GTokenType* type;
   
@@ -308,6 +71,125 @@ f_tokenize(GScanner** scan, GString* str, fToken** tokens,
 
       *tokens = g_realloc( *tokens, *token_len * sizeof(fToken) );
     }
+}
+
+void f_tree_free(fSyntaxTree* tree)
+{
+  if( tree == NULL )
+    return;
+
+  if( tree->child ) 
+    {
+      if( tree->child->left )
+	f_tree_free( tree->child->left );
+      f_tree_free(tree->child );
+    }
+
+  g_list_free(tree->tokens);
+  g_free(tree);
+}
+
+void 
+f_make_tree_scan( fSyntaxTree** tree, GScanner** scan,
+		  GString* str, fToken** tokens,
+		  gsize* token_len, fTokenInfo* info )
+{
+  guint i;
+  guchar* tmp;
+
+  if( info->moment == NULL )
+    {
+      //Create tree for function's
+      for(; info->begin < info->end; info->begin++)
+	{
+	  if( *tokens[info->begin].type != 
+	      G_TOKEN_IDENTIFIER ) continue;
+
+	  tmp = *tokens[info->begin].v_identifier;
+
+	  info->begin++;
+
+	  if( info->begin >= info->end )
+	    return;
+
+	  if( *token[info->begin].type != '(' )
+	    continue;
+
+	  info->begin++;
+
+	  if( info->begin >= info->end )
+	    return;
+
+	  for( ; info->begin < info->end &&
+		 *tokens[info->begin].type != ')';
+	       info->begin++);
+
+	  if( *tokens[info->begin].type != ')')
+	    continue;
+
+	  info->begin++;
+
+	  if( *token[info->begin].type != '{' )
+	    continue;
+
+	  i = 1;
+	  info->begin++;
+
+	  if( *tree == NULL)
+	    *tree = g_malloc0(sizeof());
+	  info->moment = *tree;
+
+	  *tree->func.begin = info->begin - 1;
+	  *tree->func.name = tmp;
+
+	  for(; info->begin < info->end &&
+		i != 0; info->begin++ )
+	    {
+	      if( *tokens[info->begin].type == '{')
+		i++;
+	      else if( *token[info->begin].type == '}')
+		i--;
+
+	      
+	    }
+
+	  if( i != 0 )
+	    {
+	      g_print("Syntax error: Missing '}' in:\n"
+		      "\t%s\n", *tree->func.name );
+	    }
+
+	  *tree->func.end = info->begin;
+	}
+    }
+}
+
+
+
+void f_make_tree( fSyntaxTree** tree, GScanner** scan,
+		  GString* str, fToken** tokens,
+		  gsize* token_len  )
+{
+  gsize i, j;
+  fToken* token;
+  fSyntaxTree* t;
+  gsize begin, end;
+  fTokenInfo* info = 
+    g_malloc0(sizeof(fTokenInfo));
+
+  f_tokenize( scan, str, tokens, token_len );
+  
+  token = *tokens;
+
+  if( *tree != NULL )
+    f_tree_free(*tree);
+
+  info->begin = 0;
+  info->end = *token_len;
+  info->moment = NULL;
+
+  f_make_tree_scan( tree, scan, str, tokens,
+		    token_len, info );
 }
 
 gboolean 
@@ -448,7 +330,7 @@ fc2d_process( gchar** code, guint len )
     }
 
   *code = code_clone->str;
-    
+
   return TRUE;
 }
 

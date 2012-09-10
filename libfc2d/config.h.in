@@ -1,19 +1,19 @@
 /*
-GNU FC2D - A two time dimensional programing language.
-Copyright (C) 2012  Free Software Foundation Inc.
+  GNU FC2D - A two time dimensional programing language.
+  Copyright (C) 2012  Free Software Foundation Inc.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef __LIBFC2D_CONFIG_H__
@@ -22,5 +22,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "auto-config.h"
 
 #define @PACKAGE_NAME@_data "@prefix@/share/@PACKAGE_NAME@-@FGE_VERSION@/"
+
+#define FC2D_BUGREPORT PACKAGE_BUGREPORT
+#define FC2D_NAME PACKAGE_NAME
+#define FC2D_STRING PACKAGE_STRING
+#define FC2D_TARNAME PACKAGE_TARNAME
+#define FC2D_URL PACKAGE_URL
+#define FC2D_VERSION PACKAGE_VERSION
+
+/*To no conflicts with other packages*/
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_URL
+#undef PACKAGE_VERSION
 
 #endif

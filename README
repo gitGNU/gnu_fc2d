@@ -10,7 +10,7 @@ BUG, report to Actual GNU FC2D Maintainer.
 
 This project provides: 
     a interpreter and a library, to embed GNU FC2D
-    scripting language in your applications
+    (like)scripting language in your applications
 
 Dependencies
 ============

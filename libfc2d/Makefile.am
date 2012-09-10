@@ -1,11 +1,10 @@
 AUTOMAKE_OPTIONS = gnu
 ACLOCAL_AMFLAGS = -I m4
 
-AM_LIBS= $(GLIB_LIBS) $(GTHREAD_LIBS)
-AM_CFLAGS= $(GLIB_CFLAGS) $(GTHREAD_CFLAGS)
+AM_LIBS= $(GLIB_LIBS)
+AM_CFLAGS= $(GLIB_CFLAGS)
 AM_CXXFLAGS= $(AM_CFLAGS)
 
-libhighlevel=$(top_builddir)/libfc2d/high-level/libhigh-level.la
 libutils=$(top_builddir)/libfc2d/utils/libutils.la
 
 lib_LTLIBRARIES = libfc2d-0.1.la
@@ -16,11 +15,9 @@ fc2dincludedir = $(includedir)/fc2d-0.1/
 libfc2d_0_1_la_SOURCES = fc2d.c $(fc2dinclude_HEADERS)
 
 libfc2d_0_1_la_LIBADD = \
-	$(libhighlevel) \
 	$(libutils)
 
 DIST_SUBDIRS = \
-	high-level\
 	utils
 
 SUBDIRS = $(DIST_SUBDIRS)

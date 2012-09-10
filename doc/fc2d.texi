@@ -144,6 +144,7 @@ for automaticaly generated programs.
 
 @node Introduction
 @section Introduction
+
 Before all, we analyse the @dfn{if sometime in a function} procedure,
 in a single thread application, because it is more easier. 
 The @dfn{if sometime in a function} procedure, more rarely
@@ -194,6 +195,7 @@ condition, but, it can dispare other execution(as you see
 
 @node Solution to temporal paradoxes
 @chapter Solution to temporal paradoxes
+
 Think about grandfather temporal paradox,
  I go back in time and kill my grandfather,
  before he have some child. Then I never,

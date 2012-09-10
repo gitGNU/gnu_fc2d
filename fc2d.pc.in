@@ -8,10 +8,8 @@ Name: GNU FC2D
 Description: A two time dimensional programing language
 Version: @FGE_REAL_VERSION@
 Libs: -L${libdir} -l@PACKAGE_NAME@-@FGE_VERSION@ \
-	@GLIB_LIBS@ \
-	@GTHREAD_LIBS@
+	@GLIB_LIBS@
 
 Cflags: -I${includedir}/@PACKAGE_NAME@-@FGE_VERSION@ \
 	@GLIB_CFLAGS@ \
-	@GTHREAD_CFLAGS@ \
 	-masm=intel

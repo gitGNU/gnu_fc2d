@@ -39,10 +39,6 @@ AC_SUBST(FGE_MICRO_VERSION)
 #check for libraries
 
 PKG_CHECK_MODULES( GLIB, glib-2.0 >= glib_required_version )
-PKG_CHECK_MODULES( GTHREAD, gthread-2.0 >= gthread_required_version,
-                   AC_DEFINE(HAVE_THREAD, [1], [Is 1 if have thread support 0 otherwise]), 
-                   AC_DEFINE(HAVE_THREAD, [0], [Is 1 if have thread support 0 otherwise])
-                 )
 
 AC_HEADER_TIME
 
