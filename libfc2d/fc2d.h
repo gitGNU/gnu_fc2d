@@ -1,6 +1,6 @@
 /*
   GNU FC2D - A two time dimensional programing language.
-  Copyright (C) 2012  Free Software Foundation Inc.
+  Copyright (C) 2012  Fabio J. Gonzalez <gonzalfj@ymail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,15 +26,15 @@
 #ifndef __LIBFC2D_FC2D_H__
 #define __LIBFC2D_FC2D_H__ 1
 
-#include <libfc2d/utils/string.h>
+#include <glib.h>
+#include <glib/gi18n.h>
 
 extern guint LEVEL;
-
 #define level LEVEL
 
 typedef struct fSyntaxTree fSyntaxTree;
 
-typedef var float;
+typedef float var;
 
 typedef enum
   {
@@ -47,7 +47,8 @@ typedef enum
   {
     IF_SOMETIME,
     IF_NEVER,
-    IF_ALWAYS
+    IF_ALWAYS,
+    IF_CUSTOM
   } f2DCondType;
 
 typedef struct {
@@ -58,6 +59,12 @@ typedef struct {
 
 typedef struct {
   f2DCondType type;
+
+  /*It is not necessarily function in
+    which "condition" this, plus the
+    function for which the condition
+    was assigned.*/
+  fFunction* func;
 } fCondition;
 
 typedef struct
@@ -84,12 +91,17 @@ typedef enum {
   TYPE_NONE
 } fFieldType;
 
-typedef struct
+struct fTokenInfo;
+typedef struct fTokenInfo fTokenInfo;
+
+struct fTokenInfo
 {
   gsize begin;
   gsize end;
   fSyntaxTree* moment;
-} fTokenInfo;
+  fTokenInfo* parent;
+  fTokenInfo* child;
+};
 
 /*
   A tree that allows an arbitrary
@@ -101,7 +113,7 @@ typedef struct
 struct fSyntaxTree
 {
   union {
-    fFuntion func;
+    fFunction func;
     fCondition cond;
   };
 
@@ -114,6 +126,12 @@ struct fSyntaxTree
   GList* tokens;
 
 };
+
+/* Get a fFunction structure by
+   its name in tree*/
+fFunction*
+f_get_function( fSyntaxTree* tree,
+		const char* name );
 
 /*!
  * \brief Process GNU FC2D code and

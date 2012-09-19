@@ -14,7 +14,7 @@
 @author Fabio J. Gonzalez @email{gonzalfj@@ymail.com}
 
 Copyright @copyright{} 2012
-Free Software Foundation, Inc.
+Fabio J. Gonzalez <@email{gonzalfj@@ymail.com}>
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
@@ -29,7 +29,7 @@ Free Documentation License''.
 @c modifications must also be done in the titlepage
 @copying
 Copyright @copyright{} 2012
-Free Software Foundation, Inc.
+Fabio J. Gonzalez <@email{gonzalfj@@ymail.com}>
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
@@ -44,11 +44,32 @@ Free Documentation License''.
 @end ifplaintext
 @end ifnottex
 
+@ifnottex
+@node Top
+@top GNU FC2D User and developer manual
+@ifhtml
+@insertcopying 
+@end ifhtml
+
+GNU FC2D is a programming language that
+simulates two temporal dimensions. Great
+for creating dynamic programs (the programs
+are changed in memory by themselves). The
+program GNU FC2D generates C source code
+from the source code FC2D.
+@end ifnottex
+
 @contents
+@menu
+* Introduction::
+* Solution to temporal paradoxes::
+* Developing GNU FC2D::
+* Copying this manual::
+@end menu
 
-@node Top, (dir), (dir)
+@node Introduction
+@chapter Introduction
 
-@top General Introduction
 GNU FC2D is a highly versatile programming language, 
 that support two temporal dimensions.
 This programming language focuses on the creation of dynamic programs. In
@@ -61,28 +82,41 @@ If we duplicate this point and connect it with one point
 outside it's worlds, and adjacent to it,
 we have one-dimensional geometry. @{@cite{[GONZALEZ C G] The point movement generating space}]@}
 When we do the same, in a 2D space, we have three-dimensional
-geometry(@pxref{fig:spatial-dimensions1}).
+geometry
+@iftex
+(@pxref{fig:spatial-dimensions1})
+@end iftex
+.
 The temporal dimensions theory, comes with
 the intuitive visualization of time as
 geometry.
+@iftex
 @float Figure,fig:spatial-dimensions1
 @image{dimensions1,160mm,,,jpg}
 @caption{An example of spatial dimensions.}
 @end float
+@end iftex
 It's likely you've seen a segment being
 used to represent time. In a geometric visualization
 of time, each point, represents a condition that is
 true or false, and no more. The program trajectory
 always is a one-dimensional line. When I say this I
 mean the steps of the program when executed
-(@pxref{fig:time-as-geometry1}).
+
+@iftex
+(@pxref{fig:time-as-geometry1})
+@end iftex
+
+@iftex
 @float Figure,fig:time-as-geometry1
 @image{time-as-geometry1,,,,jpg}
 @caption{Geometric visualization of time.}
 @end float
+@end iftex
 With two temporal dimensions, resume events to points, that is,
 conditions that are true or false, is a impossible
-task. But despite that, given a finite time, we can
+task. But despite that, given a finite time(A program terminates
+ execution in finite time), we can
 project a 2D time, in a 1D line, and it is a @dfn{two-dimensional program}.
 The result of it's procedure, is a totaly new program, derived from
 knowledge obtained, during execution of all program contents, and
@@ -92,7 +126,7 @@ and re-executed, but, in next execution, the variable @dfn{level} is equal to
 program is what has @dfn{level} zero. We do the same for sucessive program, but all
 conditions, that we are testing are true in the tests. If we write a file,
 we test whether the level is zero, if the level is greater than zero, write
-in memory instead of the file. Only if the level is zero write to the
+in a memory clone of file. Only if the level is zero write directly to the
 file. The way I use to get this, is by using the conditions:
 @table @dfn
 @item if never in a function
@@ -136,14 +170,8 @@ the program ( Consider variables as part of the program
  ), then is highly convenient,
 for automaticaly generated programs.
 
-@menu
-* Introduction::
-* Solution to temporal paradoxes::
-* Copying this manual::
-@end menu
-
-@node Introduction
-@section Introduction
+@node Developing GNU FC2D
+@chapter Developing GNU FC2D
 
 Before all, we analyse the @dfn{if sometime in a function} procedure,
 in a single thread application, because it is more easier. 

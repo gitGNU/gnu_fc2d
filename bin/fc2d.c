@@ -1,6 +1,6 @@
 /*
 GNU FC2D - A two time dimensional programing language.
-Copyright (C) 2012  Free Software Foundation Inc.
+Copyright (C) 2012  Fabio J. Gonzalez <gonzalfj@ymail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -67,12 +67,12 @@ main( int argc, char** argv )
                "Write resulting source-code to specified file.", FALSE,
                TRUE);
 
-    additional_information( TRUE, 
-                            PACKAGE_BUGREPORT,
-                            PACKAGE_URL );
+    additional_information( TRUE,
+			    FC2D_BUGREPORT,
+                            FC2D_URL );
 
     f_arg_process( argc, argv,
-                   "GNU FC2D "PACKAGE_VERSION,
+                   "GNU FC2D "FC2D_VERSION,
                    "2012  Free Software Foundation Inc.",
                    "An interpreter for GNU FC2D.\nGNU FC2D is a"
                    " programing language that simulates\ntwo temporal"

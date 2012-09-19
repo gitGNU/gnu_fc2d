@@ -1,6 +1,6 @@
-1/*
+/*
   GNU FC2D - A two time dimensional programing language.
-  Copyright (C) 2012  Free Software Foundation Inc.
+  Copyright (C) 2012  Fabio J. Gonzalez <gonzalfj@ymail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,10 +17,9 @@
 */
 
 #include <libfc2d/fc2d.h>
-#include <glib.h>
-#include <glib/gi18n.h>
 
-guint LEVEL = 0;
+
+guint LEVEL;
 
 #define push(stack, elem)			\
   g_memmove( &(stack[stack_len]), &(elem),	\
@@ -33,16 +32,29 @@ guint LEVEL = 0;
     stack[stack_len+1];				\
   })
 
+fFunction*
+f_get_function( fSyntaxTree* tree,
+		const char* name )
+{
+  for(; tree != NULL; tree = tree->left)
+    {
+      if( g_strcmp0( tree->func.name, name)==0 )
+	return &(tree->func);
+    }
+
+  return NULL;
+}
+
 void 
 f_tokenize( GScanner** scan, GString* str,
 	    fToken** tokens, gsize* token_len ) 
 {
-  GTokenType* type;
-  
+  GTokenType type;
+
   *token_len = 0;
 
-  if( scan != NULL )
-    g_scannet_destroy(*scan);
+  if( *scan != NULL )
+    g_scanner_destroy(*scan);
 
   if( *tokens != NULL )
     g_free(*tokens);
@@ -51,25 +63,26 @@ f_tokenize( GScanner** scan, GString* str,
 
   *tokens = g_malloc0(sizeof(fToken));
 
-  scan = g_scanner_new( NULL );
-  g_scanner_input_text( scan, *str->str, str->len);
+  *scan = g_scanner_new( NULL );
+  g_scanner_input_text( *scan, *str->str, str->len);
 
   while(1)
     {
       type = g_scanner_get_next_token( scan );
 
-      token[*token_len].type = type;
-      token[*token_len].value = scan->value;
-      token[*token_len].line = scan->line;
-      token[*token_len].column = scan->position;
-      token[*token_len].pos = scan->text - (*str->str);
+      (*tokens)[*token_len].type = type;
+      (*tokens)[*token_len].value = (*scan)->value;
+      (*tokens)[*token_len].line = (*scan)->line;
+      (*tokens)[*token_len].column = (*scan)->position;
+      (*tokens)[*token_len].pos = (*scan)->text - (*str->str);
 
       *token_len++;
 
       if( type == G_TOKEN_EOF )
 	break;
 
-      *tokens = g_realloc( *tokens, *token_len * sizeof(fToken) );
+      *tokens = g_realloc( *tokens, 
+			   *token_len * sizeof(fToken) );
     }
 }
 
@@ -78,7 +91,7 @@ void f_tree_free(fSyntaxTree* tree)
   if( tree == NULL )
     return;
 
-  if( tree->child ) 
+  if( tree->child )
     {
       if( tree->child->left )
 	f_tree_free( tree->child->left );
@@ -96,23 +109,27 @@ f_make_tree_scan( fSyntaxTree** tree, GScanner** scan,
 {
   guint i;
   guchar* tmp;
+  GList* l;
+  fToken* token;
+  fSyntaxTree* t2;
 
   if( info->moment == NULL )
     {
       //Create tree for function's
+      info->moment = *tree;
       for(; info->begin < info->end; info->begin++)
 	{
-	  if( *tokens[info->begin].type != 
+	  if( (*tokens)[info->begin].type !=
 	      G_TOKEN_IDENTIFIER ) continue;
 
-	  tmp = *tokens[info->begin].v_identifier;
+	  tmp = (*tokens)[info->begin].value.v_identifier;
 
 	  info->begin++;
 
 	  if( info->begin >= info->end )
 	    return;
 
-	  if( *token[info->begin].type != '(' )
+	  if( (*tokens)[info->begin].type != '(' )
 	    continue;
 
 	  info->begin++;
@@ -121,50 +138,128 @@ f_make_tree_scan( fSyntaxTree** tree, GScanner** scan,
 	    return;
 
 	  for( ; info->begin < info->end &&
-		 *tokens[info->begin].type != ')';
+		 ((*tokens)[info->begin]).type != ')';
 	       info->begin++);
 
-	  if( *tokens[info->begin].type != ')')
+	  if( (*tokens)[info->begin].type != ')')
 	    continue;
 
 	  info->begin++;
 
-	  if( *token[info->begin].type != '{' )
+	  if( (*tokens)[info->begin].type != '{' )
 	    continue;
 
 	  i = 1;
 	  info->begin++;
 
-	  if( *tree == NULL)
-	    *tree = g_malloc0(sizeof());
-	  info->moment = *tree;
+	  info->moment->func.begin = info->begin - 1;
+	  info->moment->func.name = tmp;
 
-	  *tree->func.begin = info->begin - 1;
-	  *tree->func.name = tmp;
+	  info->moment->tokens = g_list_append
+	    ( info->moment->tokens, 
+	      &((*tokens)[info->begin-1]));
 
 	  for(; info->begin < info->end &&
 		i != 0; info->begin++ )
 	    {
-	      if( *tokens[info->begin].type == '{')
+	      if( (*tokens)[info->begin].type == '{')
 		i++;
-	      else if( *token[info->begin].type == '}')
+	      else if( (*tokens)[info->begin].type == '}')
 		i--;
 
-	      
+	      info->moment->tokens = 
+		g_list_append
+		( info->moment->tokens, 
+		  &(*tokens)[info->begin] );
 	    }
 
 	  if( i != 0 )
 	    {
 	      g_print("Syntax error: Missing '}' in:\n"
-		      "\t%s\n", *tree->func.name );
+		      "\t%s\n", (*tree)->func.name );
 	    }
 
-	  *tree->func.end = info->begin;
+	  info->moment->func.end = info->begin;
+
+	  info->begin = info->moment->func.begin;
+	  info->end = info->moment->func.end;
+	  info->moment->type = TYPE_FUNCTION;
+
+	  f_make_tree_scan( tree, scan, str, tokens,
+			    token_len, info );
+
+	  /*This "for" will run some more cycle?*/
+	  if( info->begin+1 < info->end )
+	    {
+	      info->moment->left =
+		g_malloc0(sizeof(fSyntaxTree));
+	      info->moment = info->moment->left;
+	    }
 	}
+    } 
+  else if( info->moment->type == TYPE_FUNCTION )
+    {
+      /* Looking for conditions in a function */
+
+      info->child = g_malloc0(sizeof(fTokenInfo));
+
+      for( l=info->moment->tokens; l!=NULL; l=l->next)
+	{
+	  token = l->data;
+
+	  if( token->type != G_TOKEN_IDENTIFIER ||
+	      g_strcmp0(token->value.v_identifier,"if")!=0 )
+	    continue;
+
+	  l = l->next;
+	  if( l == NULL )
+	    break;
+	  token = l->data;
+
+	  if( token->type != G_TOKEN_IDENTIFIER ||
+	      ( g_strcmp0( token->value.v_identifier,
+			   "sometime" ) != 0 &&
+		g_strcmp0( token->value.v_identifier,
+			   "always" ) != 0 &&
+		g_strcmp0( token->value.v_identifier,
+			   "never" ) != 0 ) )
+	    continue;
+
+	  l = l->next;
+	  if( l == NULL)
+	    break;
+	  token = l->data;
+
+	  if( token->type == G_TOKEN_IDENTIFIER && 
+	      g_strcmp0(token->value.v_identifier,
+			"never") == 0 )
+	    {
+	      if( info->moment->child == NULL )
+		{
+		  info->moment->child =
+		    g_malloc0( sizeof(fSyntaxTree) );
+		  info->child->moment =
+		    info->moment->child;
+		}
+	      else
+		{
+		  for( info->child->moment=
+			 info->moment->child;
+		       info->child->moment->left!=NULL; 
+		       info->child->moment=
+			 info->child->moment->left );
+
+		  info->child->moment->left =
+		    g_malloc0( sizeof(fSyntaxTree) );
+		  info->child->moment =
+		    info->child->moment->left;
+		}
+	    }
+	     
+	}
+      g_free( info->child );
     }
 }
-
-
 
 void f_make_tree( fSyntaxTree** tree, GScanner** scan,
 		  GString* str, fToken** tokens,
@@ -187,6 +282,8 @@ void f_make_tree( fSyntaxTree** tree, GScanner** scan,
   info->begin = 0;
   info->end = *token_len;
   info->moment = NULL;
+
+  *tree = g_malloc0(sizeof(fSyntaxTree));
 
   f_make_tree_scan( tree, scan, str, tokens,
 		    token_len, info );
@@ -213,123 +310,6 @@ fc2d_process( gchar** code, guint len )
   hash = g_hash_table_new( g_str_hash, g_str_equal );
 
   code_clone = g_string_new_len(code, len);
-
-  while(1)
-    {
-      f_tokenize( &scan, code_clone, &token, &token_len );
-
-      for( i = 0; i < token_len; i++ )
-	{
-	  if( i+1 < token_len &&
-	      token[i].type == G_TOKEN_IDENTIFIER && 
-	      token[i+1].type == '(' )
-	    {
-	      for( j = i+1;  j <  token_len && token[j].type != ')'; j++ );
-            
-	      if( j == token_len ) 
-		{
-		  printf("fc2d error: Missing ')'\n"
-			 "\tPremature end of file\n");
-		}
-            
-	      j++;
-	      if( j < token_len &&
-		  token[j].type != '{' )
-		break;
-	      j++;
-
-	      obj.value = j;
-	      push(stack, obj);
-	  
-	      obj.value = i;
-	      push(stack, i);
-
-	      i = 0;
-
-	      for( ; j < token_len; j++ )
-		{
-		  if( i == 0 && token[j].type == '}' )
-		    {
-		      i = pop(stack).value;
-		  
-		      obj.pointer = g_malloc(sizeof(fFunction));
-		      ((fFunction*)(obj.pointer))->name =
-			token[i].value.v_identifier;
-		  
-		      ((fFunction*)(obj.pointer))->end = j-1;
-		      j = pop(stack).value;
-		      ((fFunction*)(obj.pointer))->begin = j;
-		  
-		      g_hash_table_insert( hash, token[i].value.v_identifier,
-					   obj.pointer );
-
-		      function_name = token[i].value.v_identifier;
-		      break;
-		    }
-		
-		  if( token[j].type == '{' )
-		    i++;
-		  else if( token[j].type == '}' )
-		    i--;
-		}
-
-	      f = g_hash_table_lookup(hash, function_name);
-	      for( j = f->begin; j < token_len && j < f->end; )
-		{
-		  if( token[j].type == G_TOKEN_IDENTIFIER &&
-		      g_strcmp0( token[j].value.v_identifier, "when" ) &&
-		      j+1 < token_len )
-		    {
-		      j++;
-		      if( token[j].type == '(' )
-			{
-			  obj.value = j;
-			  push(stack, obj);
-
-			  for( j++; j < token_len && 
-				 token[j].type != ')'; j++ );
-
-			  if( token[j-1].type == '(' ||
-			      token[j].type != ')') 
-			    {
-			      printf("fc2d: Expected expression between PAREN's\n");
-			      return FALSE;
-			    }
-
-			  j++;
-
-			  if( j >= token_len || token[j].type != '{' ) 
-			    {
-			      printf("fc2d: Expected '{' after ')'\n");
-			      return FALSE;
-			    }
-
-			  while( j < token_len && token[j].type != '}' ) j++;
-
-			  if( token[j].type != '}' )
-			    {
-			      printf("Premature end of file\n");
-			      return FALSE;
-			    }
-
-			  j = pop(stack).value;
-
-			  break;
-			}
-		    } 
-		  else
-		    {
-		      while( j < token_len && token[j] != ')' ) j++;
-		      j++;
-		    }
-		}
-	    }
-	}
-      if( i == token_len )
-	break;
-    }
-
-  *code = code_clone->str;
 
   return TRUE;
 }

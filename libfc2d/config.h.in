@@ -1,6 +1,6 @@
 /*
   GNU FC2D - A two time dimensional programing language.
-  Copyright (C) 2012  Free Software Foundation Inc.
+  Copyright (C) 2012  Fabio J. Gonzalez <gonzalfj@ymail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,13 +29,5 @@
 #define FC2D_TARNAME PACKAGE_TARNAME
 #define FC2D_URL PACKAGE_URL
 #define FC2D_VERSION PACKAGE_VERSION
-
-/*To no conflicts with other packages*/
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_URL
-#undef PACKAGE_VERSION
 
 #endif
