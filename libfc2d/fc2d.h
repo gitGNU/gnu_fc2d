@@ -60,11 +60,20 @@ typedef struct {
 typedef struct {
   f2DCondType type;
 
-  /*It is not necessarily function in
-    which "condition" this, plus the
-    function for which the condition
-    was assigned.*/
+  /* It is not necessarily function in
+     which "condition" this, plus the
+     function for which the condition
+     was assigned. */
   fFunction* func;
+
+  fFunction* custom;
+
+  gsize begin;
+  gsize end;
+
+  gsize exp_begin;
+  gsize exp_end;
+
 } fCondition;
 
 typedef struct
@@ -74,6 +83,9 @@ typedef struct
   guint line;
   guint column;
   gsize pos;
+  /* The memory location used
+     to access this "Token" */
+  gsize index;
 } fToken;
 
 typedef struct
@@ -88,7 +100,7 @@ typedef enum {
   TYPE_FUNCTION,
   TYPE_CONDITION,
   TYPE_BLOCK,
-  TYPE_NONE
+  TYPE_NONE=0
 } fFieldType;
 
 struct fTokenInfo;

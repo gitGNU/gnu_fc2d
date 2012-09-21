@@ -169,7 +169,6 @@ to modify state of a 2D @code{while} loop, is changing,
 the program ( Consider variables as part of the program
  ), then is highly convenient,
 for automaticaly generated programs.
-
 @node Developing GNU FC2D
 @chapter Developing GNU FC2D
 
@@ -246,7 +245,7 @@ From deterministic point of view, moments can be deducted, from
 Then from deterministic point of view in a 2D-time, 
 our past, present, and
  future, can be deducted from others temporal lines, that is the
-past in 2D-time world.
+past in 2D-time world. 
 
 @node Copying this manual
 @appendix Copying this manual

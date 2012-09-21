@@ -74,7 +74,9 @@ f_tokenize( GScanner** scan, GString* str,
       (*tokens)[*token_len].value = (*scan)->value;
       (*tokens)[*token_len].line = (*scan)->line;
       (*tokens)[*token_len].column = (*scan)->position;
-      (*tokens)[*token_len].pos = (*scan)->text - (*str->str);
+      (*tokens)[*token_len].pos = 
+	(*scan)->text - (*str->str);
+      (*tokens)[*token_len].index = *token_len;
 
       *token_len++;
 
@@ -107,10 +109,9 @@ f_make_tree_scan( fSyntaxTree** tree, GScanner** scan,
 		  GString* str, fToken** tokens,
 		  gsize* token_len, fTokenInfo* info )
 {
-  guint i;
+  guint i, j;
   guchar* tmp;
   GList* l;
-  fToken* token;
   fSyntaxTree* t2;
 
   if( info->moment == NULL )
@@ -166,11 +167,6 @@ f_make_tree_scan( fSyntaxTree** tree, GScanner** scan,
 		i++;
 	      else if( (*tokens)[info->begin].type == '}')
 		i--;
-
-	      info->moment->tokens = 
-		g_list_append
-		( info->moment->tokens, 
-		  &(*tokens)[info->begin] );
 	    }
 
 	  if( i != 0 )
@@ -203,60 +199,271 @@ f_make_tree_scan( fSyntaxTree** tree, GScanner** scan,
 
       info->child = g_malloc0(sizeof(fTokenInfo));
 
-      for( l=info->moment->tokens; l!=NULL; l=l->next)
+      info->moment->child =
+	g_malloc0( sizeof(fSyntaxTree));
+
+      info->child->moment = info->moment->child;
+
+      for( i = info->begin; i < info->end; i++ )
 	{
-	  token = l->data;
-
-	  if( token->type != G_TOKEN_IDENTIFIER ||
-	      g_strcmp0(token->value.v_identifier,"if")!=0 )
+	  if( (*tokens)[i].type != G_TOKEN_IDENTIFIER ||
+	      g_strcmp0
+	      ( (*tokens)[i].value.v_string,"if")!=0 )
 	    continue;
 
-	  l = l->next;
-	  if( l == NULL )
-	    break;
-	  token = l->data;
+	  if( i+1 < info->end )
+	    i++;
+	  else break;
 
-	  if( token->type != G_TOKEN_IDENTIFIER ||
-	      ( g_strcmp0( token->value.v_identifier,
-			   "sometime" ) != 0 &&
-		g_strcmp0( token->value.v_identifier,
-			   "always" ) != 0 &&
-		g_strcmp0( token->value.v_identifier,
-			   "never" ) != 0 ) )
+	  if( (*tokens)[i].type != G_TOKEN_IDENTIFIER )
 	    continue;
 
-	  l = l->next;
-	  if( l == NULL)
-	    break;
-	  token = l->data;
-
-	  if( token->type == G_TOKEN_IDENTIFIER && 
-	      g_strcmp0(token->value.v_identifier,
-			"never") == 0 )
+	  if( g_strcmp0( (*tokens)[i].value.v_string,
+			 "sometime" ) == 0 )
 	    {
-	      if( info->moment->child == NULL )
+	      info->child->moment->cond.type =
+		IF_SOMETIME;
+	    }
+	  else if( g_strcmp0( (*tokens)[i].value.v_string,
+			      "always" ) == 0 )
+	    {
+	      info->child->moment->cond.type =
+		IF_ALWAYS;
+	    }
+	  else if( g_strcmp0( (*tokens)[i].value.v_string,
+			      "never" ) == 0 )
+	    {
+	      info->child->moment->cond.type =
+		IF_NEVER;
+	    }
+	  else if( g_strcmp0( (*tokens)[i].value.v_string,
+			      "custom" ) == 0 )
+	    {
+	      info->child->moment->cond.type =
+		IF_CUSTOM;
+
+	      if( i+1 < info->end )
+		i++;
+
+	      if( (*tokens)[i].type != '=' )
 		{
-		  info->moment->child =
-		    g_malloc0( sizeof(fSyntaxTree) );
-		  info->child->moment =
-		    info->moment->child;
+		  g_print( _("fc2d error:%d:%d: Expected '='"
+			     " sign after word custom."
+			     "\tUse: custom=<function>\n"),
+			   (*tokens)[i].line,
+			   (*tokens)[i].column);
+		  continue;
+		}
+
+	      if( i+1 < info->end )
+		i++;
+	      else break;
+
+	      if( (*tokens)[i].type != G_TOKEN_IDENTIFIER )
+		{
+		  g_print( _("fc2d error:%d:%d:"
+			     " Expected <function>"
+			     " name(or this_function)"
+			     "after '=' sign."
+			     "\tUse: custom=<function>\n"),
+			   (*tokens)[i].line,
+			   (*tokens)[i].column);
+		  continue;
+		}
+
+	      if( g_strcmp0( (*tokens)[i].value.v_string,
+			     "this_function") == 0 )
+		{
+		  info->child->moment->cond.custom =
+		    &(info->moment->func);
 		}
 	      else
 		{
-		  for( info->child->moment=
-			 info->moment->child;
-		       info->child->moment->left!=NULL; 
-		       info->child->moment=
-			 info->child->moment->left );
+		  info->child->moment->cond.custom =
+		    f_get_function( *tree,
+				    (*tokens)[i].value.v_string );
 
-		  info->child->moment->left =
-		    g_malloc0( sizeof(fSyntaxTree) );
-		  info->child->moment =
-		    info->child->moment->left;
+		  if( info->child->moment->cond.custom 
+		      == NULL )
+		    {
+		      g_print( _("fc2d error:%d:%d:"
+				 "Function %s not found"
+				 "Only be found this "
+				 "function or functions"
+				 " declared before this."
+				 " You can not get"
+				 " around this error "
+				 "yet.\n"),
+			       (*tokens)[i].line,
+			       (*tokens)[i].column,
+			       (*tokens)[i].value.v_string );
+		      continue;
+		    }
 		}
 	    }
-	     
+	  else
+	    continue;
+
+	  if( i+1 < info->end )
+	    i++;
+	  else break;
+
+	  if( (*tokens)[i].type != G_TOKEN_IDENTIFIER )
+	    continue;
+
+	  if(g_strcmp0( (*tokens)[i].value.v_string, "in")
+	     != 0)
+	    continue;
+
+	  if( i+1 < info->end )
+	    i++;
+	  else break;
+
+	  if( (*tokens)[i].type != G_TOKEN_IDENTIFIER )
+	    continue;
+
+	  if( g_strcmp0( (*tokens)[i].value.v_string,
+			 "this_function") == 0 )
+	    {
+	      info->child->moment->cond.func =
+		&(info->moment->func);
+	    }
+	  else
+	    {
+	      info->child->moment->cond.func =
+		f_get_function(*tree,
+			       (*tokens)[i].value.v_string);
+
+	      if( info->child->moment->cond.func 
+		  == NULL )
+		{
+		  g_print( _("fc2d error:%d:%d:"
+			     "Function %s not found"
+			     "Only be found this "
+			     "function or functions"
+			     " declared before this."
+			     " You can not get"
+			     " around this error "
+			     "yet.\n"),
+			   (*tokens)[i].line,
+			   (*tokens)[i].column,
+			   (*tokens)[i].value.v_string );
+		  continue;
+		}
+	    }
+
+	  if( i+1 < info->end )
+	    i++;
+	  else break;
+
+	  if( (*tokens)[i].type != '(' )
+	    {
+	      g_print( _("fc2d error:%d:%d: missing "
+			 "( after \"if\"\n"),
+		       (*tokens)[i].line,
+		       (*tokens)[i].column );
+	      continue;
+	    }
+
+	  info->child->moment->cond.exp_begin = i;
+	  if( i+1 < info->end )
+	    i++;
+	  else break;
+	  j = 1;
+ 
+	  for( ; i < info->end && j != 0; i++ )
+	    {
+	      if( (*tokens)[i].type == '(' )
+		j++;
+	      else if( (*tokens)[i].type == ')' )
+		j--;
+
+	      if( j == 0 )
+		break;
+	    }
+
+	  if( j > 0 )
+	    {
+	      g_print("fc2d error in %s:"
+		      "Missing %d ')'\n", 
+		      info->moment->func.name, j);
+	      break;
+	    }
+	  else if( j < 0 )
+	    {
+	      g_print("fc2d error in %s:"
+		      "Missing %d '('\n", 
+		      info->moment->func.name, j);
+	      break;
+	    }
+
+	  info->child->moment->cond.exp_end = i;
+
+	  if( i+1 < info->end )
+	    i++;
+	  else break;
+
+	  if( (*tokens)[i].type != '{' )
+	    {
+	      g_print("error fc2d:%d:%d: Missing '{'\n",
+		      (*tokens)[i].line,
+		      (*tokens)[i].column );
+	      continue;
+	    }
+	  
+	  info->child->moment->cond.begin = i;
+
+	  if( i+1 < info->end )
+	    i++;
+	  else break;
+
+	  j = 1;
+
+	  for(; i < info->end && j != 0; i++)
+	    {
+	      if( (*tokens)[i].type == '{' )
+		j++;
+	      else if( (*tokens)[i].type == '}' )
+		j--;
+
+	      if( j == 0 )
+		break;
+	    }
+
+	  if( j > 0 )
+	    {
+	      g_print("fc2d error in %s:"
+		      "Missing %d '}'\n", 
+		      info->moment->func.name, j);
+	      break;
+	    }
+	  else if( j < 0 )
+	    {
+	      g_print("fc2d error in %s:"
+		      "Missing %d '{'\n", 
+		      info->moment->func.name, j);
+	      break;
+	    }
+
+	  info->child->moment->cond.end = i;
+
+	  info->child->moment->type = TYPE_CONDITION;
+
+	  if( i < info->end )
+	    {
+	      info->child->moment->left = 
+		g_malloc0( sizeof(fSyntaxTree) );
+	      info->child->moment =
+		info->child->moment->left;
+	    }
 	}
+
+      if( info->moment->child->type == TYPE_NONE )
+	{
+	  g_free( info->moment->child );
+	  info->moment->child = NULL;
+	}
+
       g_free( info->child );
     }
 }
