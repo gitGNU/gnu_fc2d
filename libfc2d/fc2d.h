@@ -53,12 +53,20 @@ typedef enum
 
 typedef struct {
   char* name;
+
+  /*The first and last token*/
   gsize begin;
   gsize end;
+
+  /* Pointers to begin and
+     end of that functions */
+  gpointer p_begin;
+  gpointer p_end;
 } fFunction;
 
 typedef struct {
   f2DCondType type;
+  fCondTest result;
 
   /* It is not necessarily function in
      which "condition" this, plus the
