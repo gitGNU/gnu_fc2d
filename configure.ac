@@ -82,7 +82,6 @@ data/modules/Makefile
 data/Makefile
 fc2d.pc
 libfc2d/config.h
-libfc2d/high-level/Makefile
 libfc2d/utils/Makefile
 bin/Makefile
 libfc2d/Makefile

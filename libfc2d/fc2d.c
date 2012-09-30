@@ -497,7 +497,8 @@ void f_make_tree( fSyntaxTree** tree, GScanner** scan,
 }
 
 gboolean 
-fc2d_process( gchar** code, guint len )
+fc2d_process( gchar** code, guint len,
+	      gboolean shared)
 {
   GScanner* scan;
   GTokenType type;
@@ -517,6 +518,61 @@ fc2d_process( gchar** code, guint len )
   hash = g_hash_table_new( g_str_hash, g_str_equal );
 
   code_clone = g_string_new_len(code, len);
+
+  return TRUE;
+}
+
+gboolean
+fc2d_run( gchar** code, guint len )
+{
+  GString *tmp, *tmp2;
+  GRand* rand;
+  int exit;
+  char* flags;
+  
+  rand = g_rand_new();
+
+  tmp = g_string_new("");
+  tmp2 = g_string_new("");
+
+  g_string_printf( tmp, "fc2d-generated-%d.c",
+		   g_rand_int_range(0, 10000000) );
+
+  g_file_set_contents
+    ( tmp,
+      *code,
+      len,
+      NULL );
+
+  g_free( *code );
+
+  g_spawn_command_line_sync
+    ( "fc2d-config --libs --cflags",
+      &flags,
+      NULL,
+      &exit,
+      NULL );
+
+  g_printf( tmp2, "gcc -E %s %s",
+	    tmp->str, flags );
+
+  g_spawn_command_line_sync
+    ( tmp2->str,
+      code,
+      NULL,
+      &exit,
+      NULL );
+
+  if( exit != 0 )
+    {
+      g_print("Aborting by error.\n");
+      return FALSE;
+    }
+
+  fc2d_process( code, len, TRUE );
+
+  g_string_free( tmp, TRUE );
+  g_string_free( tmp2, TRUE );
 
   return TRUE;
 }

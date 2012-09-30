@@ -73,7 +73,7 @@ main( int argc, char** argv )
 
     f_arg_process( argc, argv,
                    "GNU FC2D "FC2D_VERSION,
-                   "2012  Free Software Foundation Inc.",
+                   "2012  Fabio J. Gonzalez <gonzalfj@ymail.com>",
                    "An interpreter for GNU FC2D.\nGNU FC2D is a"
                    " programing language that simulates\ntwo temporal"
                    " dimensions.\n\nThis program is part of the GNU project"

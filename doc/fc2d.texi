@@ -169,8 +169,27 @@ to modify state of a 2D @code{while} loop, is changing,
 the program ( Consider variables as part of the program
  ), then is highly convenient,
 for automaticaly generated programs.
+
+
 @node Developing GNU FC2D
 @chapter Developing GNU FC2D
+
+@menu
+* Technical view::
+* Understanding the source code of FC2D::
+@end menu
+
+@node Technical view
+@section Technical view
+
+@menu
+* Implementing if sometime in single thread application::
+@end menu
+
+
+
+@node Implementing if sometime in single thread application
+@subsection Implementing if sometime in single thread application
 
 Before all, we analyse the @dfn{if sometime in a function} procedure,
 in a single thread application, because it is more easier. 
@@ -215,10 +234,14 @@ Check condition specified in shared memory. If it is true,
 In practice, implement it is more complicated.
 Probably you need a stack and you need in some time, move data
 from stack to local(not shared, it is for this process only)
- variables. The stack is used to pieces of code, containing
- conditions to test. Each program execution test a single
+variables. The stack is used to pieces of code, containing
+conditions to test. Each program execution test a single
 condition, but, it can dispare other execution(as you see
- in pseudo-code). You can see also, it's recursion.
+in pseudo-code). You can see also, it's recursion.
+
+@node Understanding the source code of FC2D
+@section Understanding the source code of FC2D
+The function @code{}
 
 @node Solution to temporal paradoxes
 @chapter Solution to temporal paradoxes

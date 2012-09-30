@@ -152,7 +152,12 @@ f_get_function( fSyntaxTree* tree,
  * \param code Pointer to generated
  *             C source code.
  */
-gboolean fc2d_process( gchar** code, guint len );
+gboolean
+fc2d_process( gchar** code, guint len,
+	      gboolean shared );
+
+gboolean
+fc2d_run( gchar** code, guint len );
 
 void echo(const char* msg);
 
