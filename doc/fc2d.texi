@@ -45,7 +45,7 @@ Free Documentation License''.
 @end ifnottex
 
 @ifnottex
-@node Top
+@node Top, Introduction, (dir), (dir)
 @top GNU FC2D User and developer manual
 @ifhtml
 @insertcopying 
@@ -64,10 +64,29 @@ from the source code FC2D.
 * Introduction::                
 * Developing GNU FC2D::         
 * Solution to temporal paradoxes::  
-* Copying this manual::         
+* Copying this manual::
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Developing GNU FC2D
+
+* Technical view::              
+* Understanding the source code of FC2D::  
+
+Technical view
+
+* Implementing if sometime in single thread application::  
+* Implementing 2D ifs::         
+
+Copying this manual
+
+* GNU Free Documentation License::  License for copying this manual
+
+@end detailmenu
 @end menu
 
-@node Introduction
+@node Introduction, Developing GNU FC2D, Top, Top
 @chapter Introduction
 
 GNU FC2D is a highly versatile programming language, 
@@ -171,7 +190,7 @@ the program ( Consider variables as part of the program
 for automaticaly generated programs.
 
 
-@node Developing GNU FC2D
+@node Developing GNU FC2D, Solution to temporal paradoxes, Introduction, Top
 @chapter Developing GNU FC2D
 
 @menu
@@ -179,7 +198,7 @@ for automaticaly generated programs.
 * Understanding the source code of FC2D::  
 @end menu
 
-@node Technical view
+@node Technical view, Understanding the source code of FC2D, Developing GNU FC2D, Developing GNU FC2D
 @section Technical view
 
 @menu
@@ -218,7 +237,7 @@ Then the function @code{fc2d_run}, call @code{gcc} to
 make a executable and execute it. The function
 @code{fc2d_run} wait's program ends.
 
-@node Implementing if sometime in single thread application
+@node Implementing if sometime in single thread application, Implementing 2D ifs, Technical view, Technical view
 @subsection Implementing if sometime in single thread application
 If you want to work in FC2D perhaps most interest you, the
 next section.
@@ -271,7 +290,7 @@ conditions to test. Each program execution test a single
 condition, but, it can dispare other execution(as you see
 in pseudo-code). You can see also, it's recursion.
 
-@node Implementing 2D ifs
+@node Implementing 2D ifs,  , Implementing if sometime in single thread application, Technical view
 @subsection Implementing 2D ifs
 
 Most conditions are written that way in the source
@@ -346,12 +365,24 @@ The end of the @dfn{CONDITION}. The position of @key{)}
 in token array
 
 @end table
+This same structure is used to adjust the result of ifs.
+When the program is rerun to test them. This implies that
+the tree needs to be shared, so it can be accessed
+throughout the program and all executions (forks) of
+the same. This will be a great advantage for the
+programmer, because if he wants to modify the program
+at runtime (programs that modify themselves), not only
+will have access to the source code, but all the
+details of the tree well structured and all preprocessed
+tokens . Remember that the structure we are seeing this
+in the tree, the tokens are also in the tree. I suggest
+looking at the source code now(@file{fc2d/fc2d.h}).
 
-@node Understanding the source code of FC2D
+@node Understanding the source code of FC2D,  , Technical view, Developing GNU FC2D
 @section Understanding the source code of FC2D
 The function @code{}
 
-@node Solution to temporal paradoxes
+@node Solution to temporal paradoxes, Copying this manual, Developing GNU FC2D, Top
 @chapter Solution to temporal paradoxes
 
 Think about grandfather temporal paradox,
@@ -378,7 +409,7 @@ our past, present, and
  future, can be deducted from others temporal lines, that is the
 past in 2D-time world. 
 
-@node Copying this manual
+@node Copying this manual,  , Solution to temporal paradoxes, Top
 @appendix Copying this manual
 
 @menu
